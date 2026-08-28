@@ -72,6 +72,11 @@ def stamp_file(root, ns, key):
     return os.path.join(workspace(root), "var", "stamps", ns, key + ".json")
 
 
+def lock_file(root=None):
+    """Resolved-closure snapshot at the repo root (tracked in git)."""
+    return os.path.join(root or repo_root(), "lock.json")
+
+
 def ffmpeg_src_dir(root=None):
     """Default in-workspace FFmpeg source tree (auto-cloned if absent)."""
     return os.path.join(src(root), "ffmpeg")

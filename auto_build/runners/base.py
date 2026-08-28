@@ -106,6 +106,14 @@ class Runner(object):
             f.write("\n")
 
     # --- fetching ---------------------------------------------------------
+    @staticmethod
+    def _sha256(path):
+        h = hashlib.sha256()
+        with open(path, "rb") as f:
+            for chunk in iter(lambda: f.read(1 << 20), b""):
+                h.update(chunk)
+        return h.hexdigest()
+
     def _run_net(self, cmd, cwd, log_path):
         try:
             self.run(cmd, cwd, log_path, env=self.env(strict=False))
@@ -142,6 +150,20 @@ class Runner(object):
                               self.ctx["root"],
                               os.path.join(self.ctx["logs"],
                                            key + "_download.log"))
+            # verify on every use (cache corruption detection), vcpkg-style
+            pinned = source.get("sha256")
+            digest = self._sha256(dist)
+            if pinned:
+                if digest != pinned:
+                    raise BuildError(
+                        "{}: distfile sha256 mismatch\n"
+                        "  expected: {}\n  actual:   {}\n"
+                        "  delete the cached file and retry; if the "
+                        "upstream re-uploaded, re-pin the hash".format(
+                            key, pinned, digest))
+            else:
+                print("WARNING: {} has no sha256 pin "
+                      "(actual: {})".format(key, digest))
             if not tarfile.is_tarfile(dist):
                 raise BuildError("unsupported archive: " + dist)
             tmp = dst + ".extract"

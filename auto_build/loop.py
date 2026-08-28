@@ -17,6 +17,7 @@ import sys
 
 from . import env as env_mod
 from . import fixups
+from . import lock
 from . import paths
 from . import validate
 from .runners import get_runner
@@ -150,6 +151,11 @@ def configure_loop(ctx):
         print("configure: attempt {} ...".format(attempt))
         rc = _run_logged(base + flags, out, env, log)
         if rc == 0:
+            ctx["flags"] = flags
+            try:
+                lock.write_lock(ctx, data, deps, built)
+            except OSError as e:
+                print("lock: write failed ({})".format(e))
             print("configure: OK (closure built this run: {})".format(
                 ", ".join(built) if built else "nothing was missing"))
             return built

@@ -1,0 +1,168 @@
+{
+  "schema": 1,
+  "tools": {
+    "libtool": {
+      "recipe": {
+        "configure_args": [],
+        "source": {
+          "sha256": "04e96c2404ea70c590c546eba4202a4e12722c640016c12b9b2f1ce3d481e9a8",
+          "type": "tar",
+          "url": "https://mirrors.tuna.tsinghua.edu.cn/gnu/libtool/libtool-2.4.7.tar.gz"
+        },
+        "system": "makefile",
+        "tool": true
+      },
+      "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+    },
+    "meson": {
+      "recipe": {
+        "pip": {
+          "require": [
+            "meson==1.4.2"
+          ],
+          "wrappers": {
+            "meson": "mesonbuild.mesonmain:main"
+          }
+        },
+        "system": "pip",
+        "tool": true
+      },
+      "stamp_hash": "e7f241b4ec0baf1cffe22676e43178f37d4584748bcfa9c96d6cf854bb22f652"
+    },
+    "nasm": {
+      "recipe": {
+        "configure_args": [],
+        "source": {
+          "sha256": "1412a1c760bbd05db026b6c0d1657affd6631cd0a63cddb6f73cc6d4aa616148",
+          "type": "tar",
+          "url": "https://www.nasm.us/pub/nasm/releasebuilds/2.16.03/nasm-2.16.03.tar.xz"
+        },
+        "system": "makefile",
+        "tool": true
+      },
+      "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+    },
+    "ninja": {
+      "recipe": {
+        "source": {
+          "rev": "v1.12.1",
+          "type": "git",
+          "url": "https://github.com/ninja-build/ninja.git"
+        },
+        "steps": [
+          "python3 {src}/configure.py --bootstrap",
+          "cp -f {bdir}/ninja {tools}/bin/ninja"
+        ],
+        "system": "custom",
+        "tool": true
+      },
+      "resolved_commit": "2daa09ba270b0a43e1929d29b073348aa985dfaa",
+      "stamp_hash": "f0263d4dcc3c640a988c83eedfe628ec634513ea582b181a44900cc0ef865780"
+    }
+  },
+  "triplets": {
+    "linux-x86_64": {
+      "ffmpeg": {
+        "flags": [
+          "--enable-gpl",
+          "--enable-libx264",
+          "--enable-libx265",
+          "--enable-libdav1d",
+          "--enable-libzimg"
+        ],
+        "resolved_rev": null,
+        "url": "https://git.ffmpeg.org/ffmpeg.git"
+      },
+      "last_built": [],
+      "ports": {
+        "dav1d": {
+          "recipe": {
+            "match_names": [
+              "dav1d"
+            ],
+            "meson_args": [
+              "-Denable_tests=false",
+              "-Denable_tools=false"
+            ],
+            "pc": "dav1d",
+            "source": {
+              "rev": "1.5.4",
+              "type": "git",
+              "url": "https://github.com/videolan/dav1d.git"
+            },
+            "system": "meson"
+          },
+          "resolved_commit": "54706fc6bc0cdecab7e9593974a4039cc038fca7",
+          "stamp_hash": "60a1be05cf2c997403edbce56617f2274917956ec6118047c418287383b77943"
+        },
+        "x264": {
+          "recipe": {
+            "configure_args": [
+              "--enable-shared",
+              "--disable-cli"
+            ],
+            "match_names": [
+              "libx264",
+              "x264"
+            ],
+            "pc": "x264",
+            "source": {
+              "rev": "stable",
+              "type": "git",
+              "url": "https://github.com/mirror/x264.git"
+            },
+            "system": "makefile"
+          },
+          "resolved_commit": "31e19f92f00c7003fa115047ce50978bc98c3a0d",
+          "stamp_hash": "2202dc8b7c9a32a29009e4eb9d2b24d69c64265f65736b5790257949dcd7e372"
+        },
+        "x265": {
+          "recipe": {
+            "cmake_args": [
+              "-DENABLE_SHARED=ON",
+              "-DENABLE_CLI=OFF",
+              "-DENABLE_PIC=ON",
+              "-DENABLE_LIBNUMA=OFF"
+            ],
+            "fixups": [
+              "x265"
+            ],
+            "hook": {
+              "pc_version": "3.6"
+            },
+            "match_names": [
+              "x265"
+            ],
+            "pc": "x265",
+            "source": {
+              "rev": "3.6",
+              "type": "git",
+              "url": "https://github.com/Multicorewareinc/x265.git"
+            },
+            "source_dir": "source",
+            "system": "cmake"
+          },
+          "resolved_commit": "aa7f602f7592eddb9d87749be7466da005b556ee",
+          "stamp_hash": "f2ac48200c3b67b4e7086779c9051976dbeadecdba22b272996c8034bfeaf6f9"
+        },
+        "zimg": {
+          "recipe": {
+            "autogen": "sh {src}/autogen.sh",
+            "configure_args": [],
+            "match_names": [
+              "zimg"
+            ],
+            "pc": "zimg",
+            "source": {
+              "sha256": "a9a0226bf85e0d83c41a8ebe4e3e690e1348682f6a2a7838f1b8cbff1b799bcf",
+              "type": "tar",
+              "url": "https://github.com/sekrit-twc/zimg/archive/refs/tags/release-3.0.5.tar.gz"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+        }
+      }
+    }
+  }
+}

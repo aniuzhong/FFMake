@@ -12,7 +12,8 @@
       "system": "makefile",
       "source": {
         "type": "tar",
-        "url": "https://www.nasm.us/pub/nasm/releasebuilds/2.16.03/nasm-2.16.03.tar.xz"
+        "url": "https://www.nasm.us/pub/nasm/releasebuilds/2.16.03/nasm-2.16.03.tar.xz",
+        "sha256": "1412a1c760bbd05db026b6c0d1657affd6631cd0a63cddb6f73cc6d4aa616148"
       },
       "configure_args": []
     },
@@ -21,7 +22,8 @@
       "system": "makefile",
       "source": {
         "type": "tar",
-        "url": "https://mirrors.tuna.tsinghua.edu.cn/gnu/libtool/libtool-2.4.7.tar.gz"
+        "url": "https://mirrors.tuna.tsinghua.edu.cn/gnu/libtool/libtool-2.4.7.tar.gz",
+        "sha256": "04e96c2404ea70c590c546eba4202a4e12722c640016c12b9b2f1ce3d481e9a8"
       },
       "configure_args": []
     },
@@ -74,7 +76,8 @@
       "system": "makefile",
       "source": {
         "type": "tar",
-        "url": "https://github.com/sekrit-twc/zimg/archive/refs/tags/release-3.0.5.tar.gz"
+        "url": "https://github.com/sekrit-twc/zimg/archive/refs/tags/release-3.0.5.tar.gz",
+        "sha256": "a9a0226bf85e0d83c41a8ebe4e3e690e1348682f6a2a7838f1b8cbff1b799bcf"
       },
       "autogen": "sh {src}/autogen.sh",
       "configure_args": []
