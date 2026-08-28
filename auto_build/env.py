@@ -43,13 +43,15 @@ _SCRUB = (
 _SYSTEM_PATH = "/usr/bin:/bin"
 
 
-def build_child_env(prefix, strict_pkgconfig=False, pythonpath=None, extra=None):
+def build_child_env(prefix, strict_pkgconfig=False, pythonpath=None,
+                    tools_bin=None, extra=None):
     """Build the child-process environment.
 
-    prefix            unified per-arch prefix (workspace/out/x86_64)
+    prefix            per-triplet sysroot (workspace/out/<triplet>)
     strict_pkgconfig  True -> PKG_CONFIG_LIBDIR hides system .pc files
     pythonpath        controlled injection point for toolchains like meson
                       (None = not set)
+    tools_bin         host tools bin dir (nasm etc.), prepended to PATH
     extra             runner-level extras (applied last, may override above)
     """
     child = {k: os.environ[k] for k in _INHERIT if k in os.environ}
@@ -58,7 +60,11 @@ def build_child_env(prefix, strict_pkgconfig=False, pythonpath=None, extra=None)
         # this guards against future whitelist growth re-introducing them.
         child.pop(k, None)
 
-    child["PATH"] = os.path.join(prefix, "bin") + ":" + _SYSTEM_PATH
+    path_parts = []
+    if tools_bin:
+        path_parts.append(tools_bin)
+    path_parts.append(os.path.join(prefix, "bin"))
+    child["PATH"] = ":".join(path_parts) + ":" + _SYSTEM_PATH
     pcdir = os.path.join(prefix, "lib", "pkgconfig")
     child["PKG_CONFIG_PATH"] = pcdir
     if strict_pkgconfig:

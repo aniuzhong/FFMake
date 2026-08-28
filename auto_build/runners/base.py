@@ -1,13 +1,15 @@
 """L1 runner base: fetching, stamps, logging, child env.
 
 vcpkg-inspired layout mapping:
-  downloads/   <-> workspace/distfiles/     (tarball + tool bootstrap cache)
-  buildtrees/  <-> workspace/build/<port>/  (per-port out-of-tree build + logs)
-  installed/<triplet> <-> workspace/out/<arch>/ (unified per-arch sysroot)
+  downloads/   <-> workspace/distfiles/       (tarball + tool bootstrap cache)
+  buildtrees/  <-> workspace/build/<ns>/<key>/ (per-port out-of-tree build + logs)
+  installed/<triplet> <-> workspace/out/<triplet>/ (per-triplet sysroot)
+  host tools   <-> workspace/tools/           (shared by all triplets)
   ports/<port>/{vcpkg.json,portfile} <-> deps.json entry + runner class
-  packages/<port>_<triplet>/ staging <-> validate.py gate (fixups land here in phase 2)
+  packages/<port>_<triplet>/ staging <-> validate.py gate (fixups land in phase 2)
 
-Stamp semantics: JSON with {hash, rev, url, args}.
+Stamp semantics: JSON {hash, rev, url, args}, namespaced per triplet (or
+"tools" for host tools).
   - hash (recipe_version + rev + args) matches -> skip entirely
   - rev/url unchanged, args changed -> keep pristine src/, wipe build dir
   - rev/url changed -> wipe src/ and build dir, re-fetch
@@ -22,6 +24,7 @@ import tarfile
 
 from .. import env as env_mod
 from .. import paths
+from .. import triplets as triplets_mod
 
 # Bump to invalidate all stamps after recipe changes.
 RECIPE_VERSION = 2
@@ -40,10 +43,23 @@ class Runner(object):
     def __init__(self, ctx):
         self.ctx = ctx
 
+    # --- namespace routing -------------------------------------------------
+    def ns(self, dep):
+        """Stamps/build trees are namespaced: host tools vs per-triplet."""
+        return paths.TOOLS_NS if dep.get("tool") else self.ctx["triplet"]
+
+    def install_prefix(self, dep):
+        """Host tools install to the shared tools sysroot; everything
+        else installs into the per-triplet sysroot."""
+        return self.ctx["tools_prefix"] if dep.get("tool") \
+            else self.ctx["prefix"]
+
     # --- plumbing ---------------------------------------------------------
     def env(self, strict=True, extra=None):
         return env_mod.build_child_env(
-            self.ctx["prefix"], strict_pkgconfig=strict, extra=extra)
+            self.ctx["prefix"], strict_pkgconfig=strict,
+            tools_bin=os.path.join(self.ctx["tools_prefix"], "bin"),
+            extra=extra)
 
     def run(self, cmd, cwd, log_path, env=None):
         with open(log_path, "w") as f:
@@ -54,8 +70,8 @@ class Runner(object):
                 cmd[0], cwd, log_path))
 
     # --- stamps (JSON: hash + rev/url + args) ------------------------------
-    def _stamp_path(self, key):
-        return os.path.join(paths.stamps(self.ctx["root"]), key + ".json")
+    def _stamp_path(self, key, dep):
+        return paths.stamp_file(self.ctx["root"], self.ns(dep), key)
 
     def _stamp_data(self, key, dep):
         source = dep.get("source") or {}
@@ -72,20 +88,20 @@ class Runner(object):
             "args": dep.get("configure_args", []),
         }
 
-    def read_stamp(self, key):
+    def read_stamp(self, key, dep):
         try:
-            with open(self._stamp_path(key)) as f:
+            with open(self._stamp_path(key, dep)) as f:
                 return json.load(f)
         except (OSError, ValueError):
             return None
 
     def up_to_date(self, key, dep):
-        old = self.read_stamp(key)
+        old = self.read_stamp(key, dep)
         return bool(old) and old.get("hash") == self._stamp_data(key,
                                                                  dep)["hash"]
 
     def write_stamp(self, key, dep):
-        with open(self._stamp_path(key), "w") as f:
+        with open(self._stamp_path(key, dep), "w") as f:
             json.dump(self._stamp_data(key, dep), f, indent=2, sort_keys=True)
             f.write("\n")
 
@@ -149,10 +165,11 @@ class Runner(object):
         as the stamp dictates. src/ stays pristine across recipe changes.
         Returns (src, bdir, logs_dir) ready for an out-of-tree build."""
         root = self.ctx["root"]
+        ns = self.ns(dep)
         src = os.path.join(paths.src(root), key)
-        bdir = paths.port_build_dir(root, key)
-        logs = paths.port_logs_dir(root, key)
-        old = self.read_stamp(key)
+        bdir = paths.port_build_dir(root, ns, key)
+        logs = paths.port_logs_dir(root, ns, key)
+        old = self.read_stamp(key, dep)
         new = self._stamp_data(key, dep)
         source = dep.get("source") or {}
         if old and old.get("hash") == new["hash"] and \
@@ -175,3 +192,11 @@ class Runner(object):
                 self.fetch_to(src, source, key)
         os.makedirs(logs, exist_ok=True)
         return src, bdir, logs
+
+    # --- cross-compilation helpers ----------------------------------------
+    def cross_args(self):
+        """Autotools cross args for the current triplet (empty for native)."""
+        cp = self.ctx["triplet_cfg"]["cross_prefix"]
+        if not cp:
+            return []
+        return ["--host=" + cp.rstrip("-"), "--cross-prefix=" + cp]

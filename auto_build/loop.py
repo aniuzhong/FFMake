@@ -92,7 +92,7 @@ def _ensure_dep(ctx, deps, key):
     dep = deps[key]
     runner = get_runner(dep.get("system", "makefile"), ctx)
     runner.build(key, dep)
-    validate.validate_dep(ctx["prefix"], key, dep)
+    validate.validate_dep(ctx, key, dep)
 
 
 def load_deps(root):
@@ -116,11 +116,11 @@ def build_dep(ctx, key):
 def configure_loop(ctx):
     data, deps, index = _load_deps(ctx["root"])
     src = ctx.get("ffmpeg_src") or ensure_ffmpeg_src(ctx, data.get("ffmpeg"))
-    out = paths.ffmpeg_out(ctx["root"])
+    out = paths.ffmpeg_out(ctx["root"], ctx["triplet"])
     os.makedirs(out, exist_ok=True)
     log = os.path.join(ctx["logs"], "ffmpeg_configure.log")
 
-    # Bootstrap tools (nasm, ...) before anything needs them.
+    # Bootstrap host tools (nasm, ...) before anything needs them.
     for key, dep in sorted(deps.items()):
         if dep.get("tool"):
             _ensure_dep(ctx, deps, key)
@@ -131,11 +131,17 @@ def configure_loop(ctx):
         # FFmpeg's configure only accepts --opt=value joined form
         "--prefix=" + ctx["prefix"],
         "--disable-doc",
+        # cross triplets prefix pkg-config with the cross prefix
+        # (x86_64-w64-mingw32-pkg-config does not exist) -> use the host one;
+        # our .pc files carry absolute sysroot paths, so this is safe
+        "--pkg-config=pkg-config",
         "--extra-cflags=-I" + os.path.join(ctx["prefix"], "include"),
         "--extra-ldflags=-L{lib} -Wl,-rpath,{lib}".format(
             lib=os.path.join(ctx["prefix"], "lib")),
-    ]
-    env = env_mod.build_child_env(ctx["prefix"])  # prefix-first: system .pc ok
+    ] + ctx["triplet_cfg"]["ffmpeg_flags"]
+    env = env_mod.build_child_env(
+        ctx["prefix"],  # prefix-first: system .pc ok
+        tools_bin=os.path.join(ctx["tools_prefix"], "bin"))
 
     built = []
     for attempt in range(1, _MAX_ATTEMPTS + 1):

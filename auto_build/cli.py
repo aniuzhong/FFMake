@@ -2,22 +2,26 @@
 
   configure  Pass through FFmpeg configure flags; build missing deps via
              the error-driven loop until configure succeeds.
-  build      Compile FFmpeg in the out-of-tree build dir.
-  install    Install FFmpeg into the unified prefix.
-  test       Smoke-test the installed binaries.
+  build      Compile FFmpeg in the per-triplet out-of-tree build dir.
+  install    Install FFmpeg into the per-triplet sysroot.
+  test       Smoke-test the installed binaries (wine for cross triplets).
   all        Chain configure -> build -> install -> test.
+  port       vcpkg-style dependency management: install <key>..., list.
 
 Non-lifecycle: probe (L0 diagnostics), init (optional workspace bootstrap).
+Triplets: linux-x86_64 (native), mingw-x86_64 (cross, wine-tested).
 """
 
 import argparse
 import os
+import shutil
 import subprocess
 import sys
 
 from . import env as env_mod
 from . import loop
 from . import paths
+from . import triplets as triplets_mod
 from . import validate
 
 
@@ -27,7 +31,7 @@ def _die(msg):
 
 def _ctx(args):
     root = paths.repo_root()
-    paths.ensure_workspace(root)  # lazy creation; `init` is not required
+    paths.ensure_workspace(root, args.triplet)
     src = args.ffmpeg_src or os.environ.get("FFMAKE_FFMPEG_SRC")
     if src:
         # explicit source must exist; otherwise loop resolves lazily:
@@ -39,7 +43,10 @@ def _ctx(args):
                  "or leave unset to use workspace/src/ffmpeg".format(src))
     return {
         "root": root,
-        "prefix": paths.prefix(root),
+        "triplet": args.triplet,
+        "triplet_cfg": triplets_mod.get(args.triplet),
+        "prefix": paths.prefix(root, args.triplet),
+        "tools_prefix": paths.tools_prefix(root),
         "logs": paths.logs(root),
         "jobs": args.jobs or os.cpu_count() or 4,
         "ffmpeg_src": src,
@@ -52,13 +59,14 @@ def cmd_configure(args):
 
 def cmd_build(args):
     ctx = _ctx(args)
-    out = paths.ffmpeg_out(ctx["root"])
+    out = paths.ffmpeg_out(ctx["root"], ctx["triplet"])
     if not os.path.exists(os.path.join(out, "ffbuild", "config.mak")):
         _die("no configuration in {} -- run 'configure' first".format(out))
     log = os.path.join(ctx["logs"], "ffmpeg_make.log")
     # L0 env is mandatory for every subprocess: PATH must prefer the
-    # prefix toolchain (nasm 2.16) over the system one (2.14).
-    env = env_mod.build_child_env(ctx["prefix"])
+    # host tools (nasm) over any system toolchain.
+    env = env_mod.build_child_env(
+        ctx["prefix"], tools_bin=os.path.join(ctx["tools_prefix"], "bin"))
     with open(log, "w") as f:
         rc = subprocess.run(["make", "-j", str(ctx["jobs"])], cwd=out,
                             env=env, stdout=f, stderr=subprocess.STDOUT
@@ -70,9 +78,10 @@ def cmd_build(args):
 
 def cmd_install(args):
     ctx = _ctx(args)
-    out = paths.ffmpeg_out(ctx["root"])
+    out = paths.ffmpeg_out(ctx["root"], ctx["triplet"])
     log = os.path.join(ctx["logs"], "ffmpeg_install.log")
-    env = env_mod.build_child_env(ctx["prefix"])
+    env = env_mod.build_child_env(
+        ctx["prefix"], tools_bin=os.path.join(ctx["tools_prefix"], "bin"))
     with open(log, "w") as f:
         rc = subprocess.run(["make", "install"], cwd=out, env=env,
                             stdout=f, stderr=subprocess.STDOUT).returncode
@@ -83,17 +92,29 @@ def cmd_install(args):
 
 def cmd_test(args):
     ctx = _ctx(args)
-    ffmpeg = os.path.join(ctx["prefix"], "bin", "ffmpeg")
+    triplet_cfg = ctx["triplet_cfg"]
+    ffmpeg = os.path.join(ctx["prefix"], "bin", triplet_cfg["exe"])
     if not os.path.isfile(ffmpeg):
         _die("installed ffmpeg not found at {} -- run 'install' first"
              .format(ffmpeg))
-    # rpath (baked via extra-ldflags) makes this run without LD_LIBRARY_PATH
-    env = env_mod.build_child_env(ctx["prefix"])
+    # rpath (baked via extra-ldflags) makes native runs standalone; PE
+    # binaries run under wine, which finds DLLs next to the executable.
+    env = env_mod.build_child_env(
+        ctx["prefix"], tools_bin=os.path.join(ctx["tools_prefix"], "bin"))
+    cmd = [ffmpeg]
+    if triplet_cfg["target_os"] == "mingw32":
+        wine = shutil.which("wine64") or shutil.which("wine")
+        if not wine:
+            print("test: SKIP ({} built, but wine not found to run it)"
+                  .format(triplet_cfg["exe"]))
+            return 0
+        cmd = [wine, ffmpeg]
     out_mp4 = os.path.join(ctx["logs"], "smoke_x264.mp4")
     rc = subprocess.run(
-        [ffmpeg, "-hide_banner", "-loglevel", "error",
-         "-f", "lavfi", "-i", "testsrc2=duration=0.5:size=640x360:rate=30",
-         "-c:v", "libx264", "-y", out_mp4],
+        cmd + ["-hide_banner", "-loglevel", "error",
+               "-f", "lavfi", "-i",
+               "testsrc2=duration=0.5:size=640x360:rate=30",
+               "-c:v", "libx264", "-y", out_mp4],
         env=env).returncode
     if rc != 0 or not os.path.exists(out_mp4) or os.path.getsize(out_mp4) == 0:
         _die("smoke encode failed")
@@ -118,12 +139,13 @@ def cmd_port_list(_args):
     root = paths.repo_root()
     paths.ensure_workspace(root)
     data, deps, index = loop.load_deps(root)
-    prefix = paths.prefix(root)
+    prefix = paths.prefix(root, triplets_mod.DEFAULT)
+    tools_prefix = paths.tools_prefix(root)
     print("{:<12} {:<10} {:<10} {}".format(
         "PORT", "SYSTEM", "STATUS", "SOURCE"))
     for key, dep in sorted(deps.items()):
-        status = "installed" if validate.is_installed(prefix, key, dep) \
-            else "missing"
+        status = "installed" if validate.is_installed(
+            prefix, tools_prefix, key, dep) else "missing"
         source = dep.get("source") or {}
         where = source.get("rev") or source.get("url") or ""
         print("{:<12} {:<10} {:<10} {}".format(
@@ -131,7 +153,7 @@ def cmd_port_list(_args):
 
 
 def cmd_probe(_args):
-    prefix = paths.prefix()
+    prefix = paths.prefix(paths.repo_root(), triplets_mod.DEFAULT)
 
     # 1) Simulate a polluted parent environment to prove whitelist scrubbing.
     pollution = {
@@ -182,16 +204,20 @@ def cmd_init(_args):
 def _add_common(p):
     p.add_argument("--ffmpeg-src", default=None,
                    help="FFmpeg source tree (default: $FFMAKE_FFMPEG_SRC "
-                        "or ../ffmpeg)")
+                        "or workspace/src/ffmpeg, auto-cloned)")
     p.add_argument("-j", "--jobs", type=int, default=0,
                    help="parallel jobs (default: cpu count)")
+    p.add_argument("--triplet", default=triplets_mod.DEFAULT,
+                   choices=sorted(triplets_mod.TRIPLETS),
+                   help="target triplet (default: {})".format(
+                       triplets_mod.DEFAULT))
 
 
 def _make_parser():
     parser = argparse.ArgumentParser(
         prog=os.path.basename(sys.argv[0]) or "ffmake.py",
         description="Full-source FFmpeg build system "
-                    "(CMake-aligned lifecycle verbs)")
+                    "(CMake-aligned lifecycle verbs, vcpkg-style triplets)")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     for name, help_, fn in (
@@ -199,7 +225,8 @@ def _make_parser():
          "build missing deps (error-driven loop) and make FFmpeg's "
          "configure pass", cmd_configure),
         ("build", "compile FFmpeg out-of-tree", cmd_build),
-        ("install", "install FFmpeg into the unified prefix", cmd_install),
+        ("install", "install FFmpeg into the per-triplet sysroot",
+         cmd_install),
         ("test", "smoke-test the installed binaries", cmd_test),
         ("all", "configure -> build -> install -> test", cmd_all),
     ):
@@ -219,8 +246,9 @@ def _make_parser():
     pi.add_argument("keys", nargs="+", metavar="PORT")
     _add_common(pi)
     pi.set_defaults(fn=cmd_port_install)
-    port_sub.add_parser("list", help="list known ports and status"
-                        ).set_defaults(fn=cmd_port_list)
+    pl = port_sub.add_parser("list", help="list known ports and status")
+    _add_common(pl)
+    pl.set_defaults(fn=cmd_port_list)
     return parser
 
 
