@@ -7,14 +7,15 @@ OUT_ARCH = "x86_64"
 # Relative dirs created by ensure_workspace() inside the workspace.
 # lib/pkgconfig is pre-created so the PKG_CONFIG_LIBDIR target exists from
 # the start; var/stamps holds content-hash stamps; build/ffmpeg-out is the
-# out-of-tree FFmpeg build dir.
+# out-of-tree FFmpeg build dir. The per-arch prefix doubles as sysroot:
+# third-party deps and FFmpeg itself all install into out/<arch>/.
 _DIRS = (
     "distfiles",
     "src",
     "build/ffmpeg-out",
-    "out/{}/3rd/lib/pkgconfig".format(OUT_ARCH),
-    "out/{}/3rd/include".format(OUT_ARCH),
-    "out/{}/3rd/bin".format(OUT_ARCH),
+    "out/{}/lib/pkgconfig".format(OUT_ARCH),
+    "out/{}/include".format(OUT_ARCH),
+    "out/{}/bin".format(OUT_ARCH),
     "logs",
     "var/stamps",
 )
@@ -29,8 +30,9 @@ def workspace(root=None):
 
 
 def prefix(root=None):
-    """Unified prefix: install target of all third-party libs and FFmpeg."""
-    return os.path.join(workspace(root), "out", OUT_ARCH, "3rd")
+    """Unified per-arch prefix (sysroot): install target of all third-party
+    libs and FFmpeg itself. Flat under out/<arch>/ -- no extra nesting."""
+    return os.path.join(workspace(root), "out", OUT_ARCH)
 
 
 def src(root=None):

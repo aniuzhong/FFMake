@@ -46,7 +46,7 @@ _SYSTEM_PATH = "/usr/bin:/bin"
 def build_child_env(prefix, strict_pkgconfig=False, pythonpath=None, extra=None):
     """Build the child-process environment.
 
-    prefix            unified prefix (workspace/out/x86_64/3rd)
+    prefix            unified per-arch prefix (workspace/out/x86_64)
     strict_pkgconfig  True -> PKG_CONFIG_LIBDIR hides system .pc files
     pythonpath        controlled injection point for toolchains like meson
                       (None = not set)
