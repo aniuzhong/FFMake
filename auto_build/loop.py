@@ -16,6 +16,7 @@ import subprocess
 import sys
 
 from . import env as env_mod
+from . import fixups
 from . import paths
 from . import validate
 from .runners import get_runner
@@ -92,6 +93,7 @@ def _ensure_dep(ctx, deps, key):
     dep = deps[key]
     runner = get_runner(dep.get("system", "makefile"), ctx)
     runner.build(key, dep)
+    fixups.apply(ctx, key, dep)
     validate.validate_dep(ctx, key, dep)
 
 

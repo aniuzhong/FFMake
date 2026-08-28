@@ -16,6 +16,36 @@
       },
       "configure_args": []
     },
+    "libtool": {
+      "tool": true,
+      "system": "makefile",
+      "source": {
+        "type": "tar",
+        "url": "https://mirrors.tuna.tsinghua.edu.cn/gnu/libtool/libtool-2.4.7.tar.gz"
+      },
+      "configure_args": []
+    },
+    "ninja": {
+      "tool": true,
+      "system": "custom",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/ninja-build/ninja.git",
+        "rev": "v1.12.1"
+      },
+      "steps": [
+        "python3 {src}/configure.py --bootstrap",
+        "cp -f {bdir}/ninja {tools}/bin/ninja"
+      ]
+    },
+    "meson": {
+      "tool": true,
+      "system": "pip",
+      "pip": {
+        "require": ["meson==1.4.2"],
+        "wrappers": {"meson": "mesonbuild.mesonmain:main"}
+      }
+    },
     "x264": {
       "match_names": ["libx264", "x264"],
       "pc": "x264",
@@ -26,6 +56,47 @@
         "rev": "stable"
       },
       "configure_args": ["--enable-shared", "--disable-cli"]
+    },
+    "dav1d": {
+      "match_names": ["dav1d"],
+      "pc": "dav1d",
+      "system": "meson",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/videolan/dav1d.git",
+        "rev": "1.5.4"
+      },
+      "meson_args": ["-Denable_tests=false", "-Denable_tools=false"]
+    },
+    "zimg": {
+      "match_names": ["zimg"],
+      "pc": "zimg",
+      "system": "makefile",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/sekrit-twc/zimg/archive/refs/tags/release-3.0.5.tar.gz"
+      },
+      "autogen": "sh {src}/autogen.sh",
+      "configure_args": []
+    },
+    "x265": {
+      "match_names": ["x265"],
+      "pc": "x265",
+      "system": "cmake",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/Multicorewareinc/x265.git",
+        "rev": "3.6"
+      },
+      "source_dir": "source",
+      "cmake_args": [
+        "-DENABLE_SHARED=ON",
+        "-DENABLE_CLI=OFF",
+        "-DENABLE_PIC=ON",
+        "-DENABLE_LIBNUMA=OFF"
+      ],
+      "fixups": ["x265"],
+      "hook": {"pc_version": "3.6"}
     }
   }
 }
