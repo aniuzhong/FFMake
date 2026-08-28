@@ -82,6 +82,21 @@
       "autogen": "sh {src}/autogen.sh",
       "configure_args": []
     },
+    "sdl2": {
+      "match_names": ["sdl2"],
+      "pc": "sdl2",
+      "system": "cmake",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/libsdl-org/SDL.git",
+        "rev": "release-2.30.9"
+      },
+      "cmake_args": [
+        "-DSDL_SHARED=ON",
+        "-DSDL_STATIC=OFF",
+        "-DSDL_TEST_LIBRARY=OFF"
+      ]
+    },
     "x265": {
       "match_names": ["x265"],
       "pc": "x265",

@@ -95,6 +95,27 @@
           "resolved_commit": "54706fc6bc0cdecab7e9593974a4039cc038fca7",
           "stamp_hash": "60a1be05cf2c997403edbce56617f2274917956ec6118047c418287383b77943"
         },
+        "sdl2": {
+          "recipe": {
+            "cmake_args": [
+              "-DSDL_SHARED=ON",
+              "-DSDL_STATIC=OFF",
+              "-DSDL_TEST_LIBRARY=OFF"
+            ],
+            "match_names": [
+              "sdl2"
+            ],
+            "pc": "sdl2",
+            "source": {
+              "rev": "release-2.30.9",
+              "type": "git",
+              "url": "https://github.com/libsdl-org/SDL.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "c98c4fbff6d8f3016a3ce6685bf8f43433c3efcc",
+          "stamp_hash": "c13dd7cd8f421be8cb2e2fde797f99318817f4ce98128b9f205612bf893fafa1"
+        },
         "x264": {
           "recipe": {
             "configure_args": [

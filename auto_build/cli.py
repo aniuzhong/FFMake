@@ -21,6 +21,7 @@ import sys
 from . import env as env_mod
 from . import loop
 from . import paths
+from . import smoke
 from . import triplets as triplets_mod
 from . import validate
 
@@ -90,36 +91,99 @@ def cmd_install(args):
     print("install: OK -> {}".format(ctx["prefix"]))
 
 
-def cmd_test(args):
-    ctx = _ctx(args)
-    triplet_cfg = ctx["triplet_cfg"]
-    ffmpeg = os.path.join(ctx["prefix"], "bin", triplet_cfg["exe"])
+def _ffmpeg_cmd(ctx):
+    """Base command for running the installed ffmpeg (wine for PE triplets)."""
+    ffmpeg = os.path.join(ctx["prefix"], "bin", ctx["triplet_cfg"]["exe"])
     if not os.path.isfile(ffmpeg):
         _die("installed ffmpeg not found at {} -- run 'install' first"
              .format(ffmpeg))
-    # rpath (baked via extra-ldflags) makes native runs standalone; PE
-    # binaries run under wine, which finds DLLs next to the executable.
-    env = env_mod.build_child_env(
-        ctx["prefix"], tools_bin=os.path.join(ctx["tools_prefix"], "bin"))
     cmd = [ffmpeg]
-    if triplet_cfg["target_os"] == "mingw32":
+    if ctx["triplet_cfg"]["target_os"] == "mingw32":
         wine = shutil.which("wine64") or shutil.which("wine")
         if not wine:
-            print("test: SKIP ({} built, but wine not found to run it)"
-                  .format(triplet_cfg["exe"]))
-            return 0
+            return None
         cmd = [wine, ffmpeg]
-    out_mp4 = os.path.join(ctx["logs"], "smoke_x264.mp4")
-    rc = subprocess.run(
-        cmd + ["-hide_banner", "-loglevel", "error",
-               "-f", "lavfi", "-i",
-               "testsrc2=duration=0.5:size=640x360:rate=30",
-               "-c:v", "libx264", "-y", out_mp4],
-        env=env).returncode
-    if rc != 0 or not os.path.exists(out_mp4) or os.path.getsize(out_mp4) == 0:
-        _die("smoke encode failed")
-    print("test: OK -> {} ({} bytes)".format(out_mp4,
-                                             os.path.getsize(out_mp4)))
+    return cmd
+
+
+def _enabled_flags(env_cmd):
+    r = subprocess.run(env_cmd + ["-hide_banner", "-version"],
+                       stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                       text=True)
+    first = r.stdout.splitlines()[0] if r.stdout else ""
+    for line in r.stdout.splitlines():
+        if line.startswith("configuration:"):
+            return set(line.split()), first
+    return set(), first
+
+
+def cmd_test(args):
+    ctx = _ctx(args)
+    env = env_mod.build_child_env(
+        ctx["prefix"], tools_bin=os.path.join(ctx["tools_prefix"], "bin"))
+    base = _ffmpeg_cmd(ctx)
+    if base is None:
+        print("test: SKIP ({} built, but wine not found to run it)"
+              .format(ctx["triplet_cfg"]["exe"]))
+        return 0
+
+    enabled, version_line = _enabled_flags(base)
+    print("test matrix ({}): {}".format(ctx["triplet"], version_line))
+
+    outdir = os.path.join(ctx["logs"], "smoke")
+    os.makedirs(outdir, exist_ok=True)
+    failed = []
+    ran = 0
+    for case in smoke.CASES:
+        name = case["name"]
+        if case["flag"] not in enabled:
+            print("  {:<18} SKIP   ({} not enabled)".format(name,
+                                                            case["flag"]))
+            continue
+        out = os.path.join(outdir, name + "." + case.get("ext", "log"))
+        if case["kind"] == "encode":
+            cmd = base + ["-hide_banner", "-loglevel", "error",
+                          "-f", "lavfi", "-i", case["input"],
+                          "-c:v", case["encoder"], "-y", out]
+        elif case["kind"] == "filter":
+            cmd = base + ["-hide_banner", "-loglevel", "error",
+                          "-f", "lavfi", "-i", case["input"],
+                          "-vf", case["filter"], "-frames:v", "1", "-y", out]
+        elif case["kind"] == "capability":
+            cmd = base + ["-hide_banner", "-" + case["list"]]
+        else:
+            _die("unknown smoke kind: " + case["kind"])
+        r = subprocess.run(cmd, env=env, stdout=subprocess.PIPE,
+                           stderr=subprocess.STDOUT, text=True)
+        ok = r.returncode == 0
+        detail = ""
+        if case["kind"] == "capability":
+            ok = ok and case["needle"] in r.stdout
+            detail = "listed in -{}".format(case["list"])
+        elif ok:
+            detail = "{} bytes".format(os.path.getsize(out))
+        if ok:
+            ran += 1
+            print("  {:<18} PASS   {}".format(name, detail))
+        else:
+            failed.append(name)
+            print("  {:<18} FAIL   {}" .format(name, r.stdout.strip()[:160]))
+
+    # binary inventory
+    for exe in ("ffmpeg", "ffprobe", "ffplay"):
+        p = os.path.join(ctx["prefix"], "bin",
+                         exe + ctx["triplet_cfg"]["exe"].replace("ffmpeg", ""))
+        present = "PASS" if os.path.isfile(p) else "FAIL"
+        if present == "FAIL":
+            failed.append(exe)
+        print("  {:<18} {}   {}".format("bin/" + exe, present,
+                                        "" if present == "PASS" else p))
+
+    print("summary: {} passed, {} failed, {} cases total".format(
+        ran, len(failed), len(smoke.CASES)))
+    if failed:
+        _die("smoke matrix failed: {}".format(", ".join(failed)))
+    return 0
 
 
 def cmd_all(args):
