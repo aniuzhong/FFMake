@@ -1,6 +1,5 @@
 # Flags passed through to the FFmpeg configure script (read by
-# `build` from phase 1 on).
-# One flag per line or space-separated; lines starting with '#' are comments.
-# Example:
-# --enable-gpl
-# --enable-libx264
+# `configure`/`all`). One flag per line or space-separated;
+# lines starting with '#' are comments.
+--enable-gpl
+--enable-libx264

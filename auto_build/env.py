@@ -21,10 +21,13 @@ and RPATH discipline.
 
 import os
 
-# User-level variables whitelisted for inheritance by child processes
+# User-level variables whitelisted for inheritance by child processes.
+# Proxy vars are included: git clone / curl fetches legitimately need them.
 _INHERIT = (
     "HOME", "USER", "LOGNAME", "SHELL", "TERM",
     "LANG", "LC_ALL", "LC_CTYPE", "TZ", "TMPDIR",
+    "http_proxy", "https_proxy", "no_proxy", "all_proxy",
+    "HTTP_PROXY", "HTTPS_PROXY", "NO_PROXY", "ALL_PROXY",
 )
 
 # Build-sensitive variables: scrubbed even if present in the parent env

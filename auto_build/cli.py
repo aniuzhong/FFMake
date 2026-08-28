@@ -1,71 +1,108 @@
-"""Command-line entry of ffmpeg-auto-build.
+"""Command-line entry of ffmake (CMake-aligned lifecycle verbs).
 
-Subcommands:
-  init    Create the workspace layout and scaffolds.
-  probe   L0 self-check: verify isolation of the child-process environment.
-  build   [phase 1] pass through ffmpeg flags -> error-driven closed loop
-          that builds missing dependencies -> compile FFmpeg.
-  lock    [phase 3] persist the resolved dependency closure to lock.json
-          (plus distfiles checksum verification).
-  verify  [phase 4] run the smoke-test matrix for enabled features.
+  configure  Pass through FFmpeg configure flags; build missing deps via
+             the error-driven loop until configure succeeds.
+  build      Compile FFmpeg in the out-of-tree build dir.
+  install    Install FFmpeg into the unified prefix.
+  test       Smoke-test the installed binaries.
+  all        Chain configure -> build -> install -> test.
+
+Non-lifecycle: probe (L0 diagnostics), init (optional workspace bootstrap).
 """
 
 import argparse
-import json
 import os
 import subprocess
 import sys
 
 from . import env as env_mod
+from . import loop
 from . import paths
 
-_GITIGNORE = "workspace/\n__pycache__/\n*.pyc\n"
 
-_DEPS_JSON = {"schema": 1, "deps": {}}
-
-_FLAGS_SCAFFOLD = (
-    "# Flags passed through to the FFmpeg configure script (read by\n"
-    "# `build` from phase 1 on).\n"
-    "# One flag per line or space-separated; lines starting with '#' are\n"
-    "# comments.\n"
-    "# Example:\n"
-    "# --enable-gpl\n"
-    "# --enable-libx264\n"
-)
+def _die(msg):
+    sys.exit("ffmake: " + str(msg))
 
 
-def _write_if_absent(path, content):
-    if os.path.exists(path):
-        return False
-    with open(path, "w") as f:
-        f.write(content)
-    return True
-
-
-def cmd_init(_args):
+def _ctx(args):
     root = paths.repo_root()
-    ws = paths.ensure_workspace(root)
-    print("workspace: {}".format(ws))
-    for name, content in (
-        (".gitignore", _GITIGNORE),
-        ("deps.json", json.dumps(_DEPS_JSON, indent=2) + "\n"),
-        ("ffmpeg_flags.txt", _FLAGS_SCAFFOLD),
-    ):
-        if _write_if_absent(os.path.join(root, name), content):
-            print("scaffold: {} (created)".format(name))
-    print("init done")
+    paths.ensure_workspace(root)  # lazy creation; `init` is not required
+    src = args.ffmpeg_src or os.environ.get("FFMAKE_FFMPEG_SRC")
+    if not src:
+        src = os.path.join(os.path.dirname(root), "ffmpeg")
+    src = os.path.abspath(src)
+    if not os.path.isfile(os.path.join(src, "configure")):
+        _die("FFmpeg source not found at {}\n"
+             "hint: pass --ffmpeg-src or set FFMAKE_FFMPEG_SRC".format(src))
+    return {
+        "root": root,
+        "prefix": paths.prefix(root),
+        "logs": paths.logs(root),
+        "jobs": args.jobs or os.cpu_count() or 4,
+        "ffmpeg_src": src,
+    }
 
 
-def cmd_build(_args):
-    sys.exit("build: implemented in phase 1 (error-driven loop + makefile runner)")
+def cmd_configure(args):
+    loop.configure_loop(_ctx(args))
 
 
-def cmd_lock(_args):
-    sys.exit("lock: implemented in phase 3 (resolve -> lock.json + distfiles check)")
+def cmd_build(args):
+    ctx = _ctx(args)
+    out = paths.ffmpeg_out(ctx["root"])
+    if not os.path.exists(os.path.join(out, "ffbuild", "config.mak")):
+        _die("no configuration in {} -- run 'configure' first".format(out))
+    log = os.path.join(ctx["logs"], "ffmpeg_make.log")
+    # L0 env is mandatory for every subprocess: PATH must prefer the
+    # prefix toolchain (nasm 2.16) over the system one (2.14).
+    env = env_mod.build_child_env(ctx["prefix"])
+    with open(log, "w") as f:
+        rc = subprocess.run(["make", "-j", str(ctx["jobs"])], cwd=out,
+                            env=env, stdout=f, stderr=subprocess.STDOUT
+                            ).returncode
+    if rc != 0:
+        _die("build failed (see {})".format(log))
+    print("build: OK")
 
 
-def cmd_verify(_args):
-    sys.exit("verify: implemented in phase 4 (smoke matrix per enabled feature)")
+def cmd_install(args):
+    ctx = _ctx(args)
+    out = paths.ffmpeg_out(ctx["root"])
+    log = os.path.join(ctx["logs"], "ffmpeg_install.log")
+    env = env_mod.build_child_env(ctx["prefix"])
+    with open(log, "w") as f:
+        rc = subprocess.run(["make", "install"], cwd=out, env=env,
+                            stdout=f, stderr=subprocess.STDOUT).returncode
+    if rc != 0:
+        _die("install failed (see {})".format(log))
+    print("install: OK -> {}".format(ctx["prefix"]))
+
+
+def cmd_test(args):
+    ctx = _ctx(args)
+    ffmpeg = os.path.join(ctx["prefix"], "bin", "ffmpeg")
+    if not os.path.isfile(ffmpeg):
+        _die("installed ffmpeg not found at {} -- run 'install' first"
+             .format(ffmpeg))
+    # rpath (baked via extra-ldflags) makes this run without LD_LIBRARY_PATH
+    env = env_mod.build_child_env(ctx["prefix"])
+    out_mp4 = os.path.join(ctx["logs"], "smoke_x264.mp4")
+    rc = subprocess.run(
+        [ffmpeg, "-hide_banner", "-loglevel", "error",
+         "-f", "lavfi", "-i", "testsrc2=duration=0.5:size=640x360:rate=30",
+         "-c:v", "libx264", "-y", out_mp4],
+        env=env).returncode
+    if rc != 0 or not os.path.exists(out_mp4) or os.path.getsize(out_mp4) == 0:
+        _die("smoke encode failed")
+    print("test: OK -> {} ({} bytes)".format(out_mp4,
+                                             os.path.getsize(out_mp4)))
+
+
+def cmd_all(args):
+    cmd_configure(args)
+    cmd_build(args)
+    cmd_install(args)
+    cmd_test(args)
 
 
 def cmd_probe(_args):
@@ -111,24 +148,44 @@ def cmd_probe(_args):
         e.get("PKG_CONFIG_LIBDIR", "(unset)")))
 
 
+def cmd_init(_args):
+    root = paths.repo_root()
+    ws = paths.ensure_workspace(root)
+    print("workspace: {}".format(ws))
+
+
+def _add_common(p):
+    p.add_argument("--ffmpeg-src", default=None,
+                   help="FFmpeg source tree (default: $FFMAKE_FFMPEG_SRC "
+                        "or ../ffmpeg)")
+    p.add_argument("-j", "--jobs", type=int, default=0,
+                   help="parallel jobs (default: cpu count)")
+
+
 def _make_parser():
-    # Prog name follows the actual entry file (e.g. build.py), not a
-    # hardcoded package name.
     parser = argparse.ArgumentParser(
-        prog=os.path.basename(sys.argv[0]) or "build.py",
-        description="Full-source FFmpeg build system")
+        prog=os.path.basename(sys.argv[0]) or "ffmake.py",
+        description="Full-source FFmpeg build system "
+                    "(CMake-aligned lifecycle verbs)")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
-    sub.add_parser("init", help="create the workspace layout and scaffolds"
-                   ).set_defaults(fn=cmd_init)
+    for name, help_, fn in (
+        ("configure",
+         "build missing deps (error-driven loop) and make FFmpeg's "
+         "configure pass", cmd_configure),
+        ("build", "compile FFmpeg out-of-tree", cmd_build),
+        ("install", "install FFmpeg into the unified prefix", cmd_install),
+        ("test", "smoke-test the installed binaries", cmd_test),
+        ("all", "configure -> build -> install -> test", cmd_all),
+    ):
+        sp = sub.add_parser(name, help=help_)
+        _add_common(sp)
+        sp.set_defaults(fn=fn)
+
     sub.add_parser("probe", help="L0 environment-isolation self-check"
                    ).set_defaults(fn=cmd_probe)
-    sub.add_parser("build", help="[phase 1] closed-loop build of deps + FFmpeg"
-                   ).set_defaults(fn=cmd_build)
-    sub.add_parser("lock", help="[phase 3] persist the dependency closure"
-                   ).set_defaults(fn=cmd_lock)
-    sub.add_parser("verify", help="[phase 4] smoke-test matrix"
-                   ).set_defaults(fn=cmd_verify)
+    sub.add_parser("init", help="[optional] create the workspace layout now"
+                   ).set_defaults(fn=cmd_init)
     return parser
 
 

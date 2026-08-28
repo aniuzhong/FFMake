@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Sole entry: python3 build.py <init|probe|build|lock|verify>"""
+"""Sole entry: python3 ffmake.py <configure|build|install|test|all|probe|init>"""
 
 import sys
 
 if sys.version_info[0] < 3:
     sys.stderr.write(
         "error: python3 is required, but got python %d.%d\n"
-        "tip: run `python3 build.py ...` (this box maps /usr/bin/python "
+        "tip: run `python3 ffmake.py ...` (this box maps /usr/bin/python "
         "to python2)\n" % (sys.version_info[0], sys.version_info[1]))
     sys.exit(1)
 

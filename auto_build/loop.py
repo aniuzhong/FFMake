@@ -1,0 +1,129 @@
+"""L4 driver: FFmpeg configure error-driven closed loop.
+
+Loop: run FFmpeg's ./configure with the user's pass-through flags; when it
+fails with "ERROR: <name> not found using pkg-config", look the name up in
+deps.json, build that dep (runner), validate the install, and retry. Tool
+deps ("tool": true) are bootstrapped before the first attempt so nasm etc.
+are in PATH from the start. Unknown deps abort with an actionable message:
+knowledge grows by adding entries, not by hiding failures.
+"""
+
+import json
+import os
+import re
+import shlex
+import subprocess
+import sys
+
+from . import env as env_mod
+from . import paths
+from . import validate
+from .runners import get_runner
+from .runners.base import BuildError
+
+_ERROR_NOT_FOUND = re.compile(r"ERROR:\s+(\S+)\s+not found using pkg-config")
+_MAX_ATTEMPTS = 20
+
+
+def _die(msg):
+    sys.exit("ffmake: " + str(msg))
+
+
+def _tail(path, n=30):
+    try:
+        with open(path, "r", errors="ignore") as f:
+            lines = f.readlines()
+        return "".join(lines[-n:])
+    except OSError:
+        return "(log missing: {})".format(path)
+
+
+def _load_deps(root):
+    path = os.path.join(root, "deps.json")
+    with open(path) as f:
+        data = json.load(f)
+    deps = data.get("deps", {})
+    index = {}
+    for key, dep in deps.items():
+        for name in dep.get("match_names", [key]):
+            index[name] = key
+    return deps, index
+
+
+def _read_flags(path):
+    flags = []
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            flags.extend(shlex.split(line))
+    return flags
+
+
+def _run_logged(cmd, cwd, env, log_path):
+    with open(log_path, "w") as f:
+        return subprocess.run(cmd, cwd=cwd, env=env, stdout=f,
+                              stderr=subprocess.STDOUT).returncode
+
+
+def _ensure_dep(ctx, deps, key):
+    dep = deps[key]
+    runner = get_runner(dep.get("system", "makefile"), ctx)
+    runner.build(key, dep)
+    validate.validate_dep(ctx["prefix"], key, dep)
+
+
+def configure_loop(ctx):
+    deps, index = _load_deps(ctx["root"])
+    src = ctx["ffmpeg_src"]
+    out = paths.ffmpeg_out(ctx["root"])
+    os.makedirs(out, exist_ok=True)
+    log = os.path.join(ctx["logs"], "ffmpeg_configure.log")
+
+    # Bootstrap tools (nasm, ...) before anything needs them.
+    for key, dep in sorted(deps.items()):
+        if dep.get("tool"):
+            _ensure_dep(ctx, deps, key)
+
+    flags = _read_flags(os.path.join(ctx["root"], "ffmpeg_flags.txt"))
+    base = [
+        os.path.join(src, "configure"),
+        # FFmpeg's configure only accepts --opt=value joined form
+        "--prefix=" + ctx["prefix"],
+        "--disable-doc",
+        "--extra-cflags=-I" + os.path.join(ctx["prefix"], "include"),
+        "--extra-ldflags=-L{lib} -Wl,-rpath,{lib}".format(
+            lib=os.path.join(ctx["prefix"], "lib")),
+    ]
+    env = env_mod.build_child_env(ctx["prefix"])  # prefix-first: system .pc ok
+
+    built = []
+    for attempt in range(1, _MAX_ATTEMPTS + 1):
+        print("configure: attempt {} ...".format(attempt))
+        rc = _run_logged(base + flags, out, env, log)
+        if rc == 0:
+            print("configure: OK (closure built this run: {})".format(
+                ", ".join(built) if built else "nothing was missing"))
+            return built
+        with open(log, "r", errors="ignore") as f:
+            text = f.read()
+        missing = _ERROR_NOT_FOUND.findall(text)
+        if not missing:
+            _die("configure failed with unknown error; log tail:\n" +
+                 _tail(log))
+        for name in missing:
+            key = index.get(name)
+            if not key:
+                _die("dependency '{}' is not in deps.json; "
+                     "add a knowledge entry for it".format(name))
+            if key not in built:
+                print("configure: missing '{}' -> building dep '{}'".format(
+                    name, key))
+                try:
+                    _ensure_dep(ctx, deps, key)
+                except BuildError as e:
+                    _die(e)
+                built.append(key)
+    _die("configure did not converge within {} attempts".format(
+        _MAX_ATTEMPTS))
