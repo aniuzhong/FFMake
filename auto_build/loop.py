@@ -95,6 +95,24 @@ def _ensure_dep(ctx, deps, key):
     validate.validate_dep(ctx["prefix"], key, dep)
 
 
+def load_deps(root):
+    """Public accessor: (full data, deps dict, ffmpeg-error-name index)."""
+    data, deps, index = _load_deps(root)
+    return data, deps, index
+
+
+def build_dep(ctx, key):
+    """Build + validate a single named port (used by `port install`)."""
+    data, deps, index = _load_deps(ctx["root"])
+    if key not in deps:
+        _die("unknown port '{}' (known: {})".format(
+            key, ", ".join(sorted(deps))))
+    try:
+        _ensure_dep(ctx, deps, key)
+    except BuildError as e:
+        _die(e)
+
+
 def configure_loop(ctx):
     data, deps, index = _load_deps(ctx["root"])
     src = ctx.get("ffmpeg_src") or ensure_ffmpeg_src(ctx, data.get("ffmpeg"))

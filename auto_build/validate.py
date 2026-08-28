@@ -13,6 +13,16 @@ from . import env as env_mod
 from .runners.base import BuildError
 
 
+def is_installed(prefix, key, dep):
+    """Cheap inventory check used by `port list` (no validation)."""
+    if dep.get("tool"):
+        return os.path.isfile(os.path.join(prefix, "bin",
+                                           dep.get("tool_bin", key)))
+    pc = dep.get("pc", key)
+    return os.path.isfile(os.path.join(prefix, "lib", "pkgconfig",
+                                       pc + ".pc"))
+
+
 def validate_dep(prefix, key, dep):
     if dep.get("tool"):
         tool_bin = dep.get("tool_bin", key)

@@ -18,6 +18,7 @@ import sys
 from . import env as env_mod
 from . import loop
 from . import paths
+from . import validate
 
 
 def _die(msg):
@@ -107,6 +108,28 @@ def cmd_all(args):
     cmd_test(args)
 
 
+def cmd_port_install(args):
+    ctx = _ctx(args)
+    for key in args.keys:
+        loop.build_dep(ctx, key)
+
+
+def cmd_port_list(_args):
+    root = paths.repo_root()
+    paths.ensure_workspace(root)
+    data, deps, index = loop.load_deps(root)
+    prefix = paths.prefix(root)
+    print("{:<12} {:<10} {:<10} {}".format(
+        "PORT", "SYSTEM", "STATUS", "SOURCE"))
+    for key, dep in sorted(deps.items()):
+        status = "installed" if validate.is_installed(prefix, key, dep) \
+            else "missing"
+        source = dep.get("source") or {}
+        where = source.get("rev") or source.get("url") or ""
+        print("{:<12} {:<10} {:<10} {}".format(
+            key, dep.get("system", "-"), status, where))
+
+
 def cmd_probe(_args):
     prefix = paths.prefix()
 
@@ -188,6 +211,16 @@ def _make_parser():
                    ).set_defaults(fn=cmd_probe)
     sub.add_parser("init", help="[optional] create the workspace layout now"
                    ).set_defaults(fn=cmd_init)
+
+    # vcpkg-style dependency (port) management
+    port = sub.add_parser("port", help="dependency (port) management")
+    port_sub = port.add_subparsers(dest="port_cmd", required=True)
+    pi = port_sub.add_parser("install", help="build & install named ports")
+    pi.add_argument("keys", nargs="+", metavar="PORT")
+    _add_common(pi)
+    pi.set_defaults(fn=cmd_port_install)
+    port_sub.add_parser("list", help="list known ports and status"
+                        ).set_defaults(fn=cmd_port_list)
     return parser
 
 

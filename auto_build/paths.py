@@ -56,9 +56,24 @@ def stamps(root=None):
     return os.path.join(workspace(root), "var", "stamps")
 
 
+def build(root=None):
+    return os.path.join(workspace(root), "build")
+
+
 def ffmpeg_out(root=None):
     """Out-of-tree FFmpeg build dir (keeps the upstream tree pristine)."""
     return os.path.join(workspace(root), "build", "ffmpeg-out")
+
+
+def port_build_dir(root, key):
+    """Per-port out-of-tree build dir (vcpkg's buildtrees/<port> analog).
+    Keeps vendor src/ pristine; wiped on recipe change, never pollutes src."""
+    return os.path.join(build(root), key)
+
+
+def port_logs_dir(root, key):
+    """Per-port build logs, colocated with the build tree."""
+    return os.path.join(port_build_dir(root, key), "logs")
 
 
 def ensure_workspace(root=None):
