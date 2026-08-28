@@ -77,25 +77,20 @@ class Runner(object):
             print("network step failed; retrying via proxy {}".format(proxy))
             self.run(cmd, cwd, log_name, env=env)
 
-    def fetch(self, key, dep):
-        """Return the source dir, fetching if needed.
-
-        Stamp mismatch -> wipe the source tree and re-fetch (cheap, keeps
-        vendor trees clean instead of accumulating build residue).
-        """
-        src = os.path.join(paths.src(self.ctx["root"]), key)
-        source = dep.get("source") or {}
-        if self.up_to_date(key, dep) and os.path.isdir(src):
-            return src
-        if os.path.isdir(src):
-            shutil.rmtree(src)
+    def fetch_to(self, dst, source, key):
+        """Clone/download `source` into dst. No stamp logic here; callers
+        that need stamps wrap this via fetch(). dst must not exist."""
         stype = source.get("type")
         if stype == "git":
-            cmd = ["git", "clone", source["url"], src]
-            if source.get("rev"):
-                cmd = ["git", "clone", "-b", source["rev"],
-                       source["url"], src]
-            self._run_net(cmd, self.ctx["root"], key + "_clone.log")
+            self._run_net(["git", "clone", source["url"], dst],
+                          self.ctx["root"], key + "_clone.log")
+            rev = source.get("rev")
+            if rev:
+                # plain clone + checkout: works for branches, tags and
+                # pinned commit hashes alike
+                self.run(["git", "-C", dst, "checkout", "-q", rev],
+                         self.ctx["root"], key + "_checkout.log",
+                         env=self.env(strict=False))
         elif stype == "tar":
             url = source["url"]
             dist = os.path.join(paths.distfiles(self.ctx["root"]),
@@ -106,7 +101,7 @@ class Runner(object):
                               self.ctx["root"], key + "_download.log")
             if not tarfile.is_tarfile(dist):
                 raise BuildError("unsupported archive: " + dist)
-            tmp = src + ".extract"
+            tmp = dst + ".extract"
             if os.path.isdir(tmp):
                 shutil.rmtree(tmp)
             os.makedirs(tmp)
@@ -117,8 +112,21 @@ class Runner(object):
             if len(entries) != 1:
                 raise BuildError("tarball {}: expected one top-level dir, "
                                  "got {}".format(dist, entries))
-            os.rename(os.path.join(tmp, entries[0]), src)
+            os.rename(os.path.join(tmp, entries[0]), dst)
             os.rmdir(tmp)
         else:
             raise BuildError("unknown source type: {}".format(stype))
+
+    def fetch(self, key, dep):
+        """Return the source dir, fetching if needed.
+
+        Stamp mismatch -> wipe the source tree and re-fetch (cheap, keeps
+        vendor trees clean instead of accumulating build residue).
+        """
+        src = os.path.join(paths.src(self.ctx["root"]), key)
+        if self.up_to_date(key, dep) and os.path.isdir(src):
+            return src
+        if os.path.isdir(src):
+            shutil.rmtree(src)
+        self.fetch_to(src, dep.get("source") or {}, key)
         return src

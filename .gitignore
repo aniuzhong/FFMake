@@ -1,4 +1,14 @@
 __pycache__/
 *.pyc
 
-workspace/
+# workspace: fully ignored except one root placeholder, so the directory
+# itself is versioned while ALL contents stay disposable. git never
+# descends into workspace -> vendored trees' own .gitignore files and
+# nested .git repos cannot leak into our status. Structure is recreated
+# by ensure_workspace(); truth lives in deps.json / ffmpeg_flags.txt.
+workspace/**
+!workspace/.gitkeep
+
+# experience docs (Chinese) - untracked for now
+doc/
+.vscode/

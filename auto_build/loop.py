@@ -47,7 +47,28 @@ def _load_deps(root):
     for key, dep in deps.items():
         for name in dep.get("match_names", [key]):
             index[name] = key
-    return deps, index
+    return data, deps, index
+
+
+def ensure_ffmpeg_src(ctx, ffmpeg_cfg):
+    """Resolve the FFmpeg source tree, cloning the pinned rev if absent.
+
+    Order (handled by cli._ctx): explicit --ffmpeg-src / env beats the
+    workspace copy. Here we guarantee workspace/src/ffmpeg exists.
+    """
+    dst = paths.ffmpeg_src_dir(ctx["root"])
+    if os.path.isfile(os.path.join(dst, "configure")):
+        return dst
+    source = (ffmpeg_cfg or {}).get("source")
+    if not source:
+        _die("FFmpeg source not found at {} and no 'ffmpeg' entry in "
+             "deps.json to fetch it".format(dst))
+    print("ffmpeg: fetching pinned source into {}".format(dst))
+    try:
+        get_runner("makefile", ctx).fetch_to(dst, source, "ffmpeg")
+    except BuildError as e:
+        _die(e)
+    return dst
 
 
 def _read_flags(path):
@@ -75,8 +96,8 @@ def _ensure_dep(ctx, deps, key):
 
 
 def configure_loop(ctx):
-    deps, index = _load_deps(ctx["root"])
-    src = ctx["ffmpeg_src"]
+    data, deps, index = _load_deps(ctx["root"])
+    src = ctx.get("ffmpeg_src") or ensure_ffmpeg_src(ctx, data.get("ffmpeg"))
     out = paths.ffmpeg_out(ctx["root"])
     os.makedirs(out, exist_ok=True)
     log = os.path.join(ctx["logs"], "ffmpeg_configure.log")

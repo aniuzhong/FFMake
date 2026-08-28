@@ -37,6 +37,11 @@ def src(root=None):
     return os.path.join(workspace(root), "src")
 
 
+def ffmpeg_src_dir(root=None):
+    """Default in-workspace FFmpeg source tree (auto-cloned if absent)."""
+    return os.path.join(src(root), "ffmpeg")
+
+
 def distfiles(root=None):
     return os.path.join(workspace(root), "distfiles")
 

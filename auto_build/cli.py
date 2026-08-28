@@ -28,12 +28,14 @@ def _ctx(args):
     root = paths.repo_root()
     paths.ensure_workspace(root)  # lazy creation; `init` is not required
     src = args.ffmpeg_src or os.environ.get("FFMAKE_FFMPEG_SRC")
-    if not src:
-        src = os.path.join(os.path.dirname(root), "ffmpeg")
-    src = os.path.abspath(src)
-    if not os.path.isfile(os.path.join(src, "configure")):
-        _die("FFmpeg source not found at {}\n"
-             "hint: pass --ffmpeg-src or set FFMAKE_FFMPEG_SRC".format(src))
+    if src:
+        # explicit source must exist; otherwise loop resolves lazily:
+        # workspace/src/ffmpeg, auto-cloning the pinned rev if absent
+        src = os.path.abspath(src)
+        if not os.path.isfile(os.path.join(src, "configure")):
+            _die("FFmpeg source not found at {}\n"
+                 "hint: pass --ffmpeg-src or set FFMAKE_FFMPEG_SRC, "
+                 "or leave unset to use workspace/src/ffmpeg".format(src))
     return {
         "root": root,
         "prefix": paths.prefix(root),

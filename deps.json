@@ -1,5 +1,11 @@
 {
   "schema": 1,
+  "ffmpeg": {
+    "source": {
+      "type": "git",
+      "url": "https://git.ffmpeg.org/ffmpeg.git"
+    }
+  },
   "deps": {
     "nasm": {
       "tool": true,
