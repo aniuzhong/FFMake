@@ -21,6 +21,13 @@ class MakefileRunner(Runner):
             return
         prefix = self.install_prefix(dep)
         src, bdir, logs = self.prepare(key, dep)
+        if dep.get("prefixup"):
+            # pre-build source repair (e.g. strip unbuildable tool programs
+            # from Makefile.in before configure consumes it)
+            self.run(["bash", "-c", self._subst(dep["prefixup"], src, bdir,
+                                                prefix)],
+                     src, os.path.join(logs, "prefixup.log"),
+                     env=self.env(strict=False))
         if dep.get("autogen"):
             # git trees ship configure.ac only; generate configure in src/.
             # aclocal must also see the tools sysroot's m4 macros (libtool
@@ -32,14 +39,22 @@ class MakefileRunner(Runner):
                       self._subst(dep["autogen"], src, bdir, prefix)],
                      src, os.path.join(logs, "autogen.log"),
                      env=self.env(extra=extra))
-        # joined --prefix=... form: required by FFmpeg, safest everywhere
-        args = [os.path.join(os.path.abspath(src), "configure"),
+        # joined --prefix=... form: required by FFmpeg, safest everywhere;
+        # configure_name covers OpenSSL-style "Configure" spellings.
+        # strict_pkgconfig:false opts a port into system .pc visibility
+        # (e.g. libxcb needs system xau/xdmcp dev files).
+        strict = bool(dep.get("strict_pkgconfig", True))
+        configure = dep.get("configure_name", "configure")
+        args = [os.path.join(os.path.abspath(src), configure),
                 "--prefix=" + prefix] + \
                list(dep.get("configure_args", [])) + self.cross_args()
-        self.run(args, bdir, os.path.join(logs, "configure.log"))
+        self.run(args, bdir, os.path.join(logs, "configure.log"),
+                 env=self.env(strict=strict))
         self.run(["make", "-j", str(self.ctx["jobs"])], bdir,
-                 os.path.join(logs, "make.log"))
-        self.run(["make", "install"], bdir, os.path.join(logs, "install.log"))
+                 os.path.join(logs, "make.log"), env=self.env(strict=strict))
+        self.run(["make", dep.get("install_target", "install")], bdir,
+                 os.path.join(logs, "install.log"),
+                 env=self.env(strict=strict))
         self.write_stamp(key, dep)
         print("dep {}: built & installed -> {}".format(key, prefix))
 

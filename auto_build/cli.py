@@ -33,6 +33,8 @@ def _die(msg):
 def _ctx(args):
     root = paths.repo_root()
     paths.ensure_workspace(root, args.triplet)
+    # ASCII alias symlinks + pkg-config wrapper (non-ASCII repo path guard)
+    paths.ensure_ascii_alias(root, args.triplet)
     src = args.ffmpeg_src or os.environ.get("FFMAKE_FFMPEG_SRC")
     if src:
         # explicit source must exist; otherwise loop resolves lazily:
@@ -48,6 +50,7 @@ def _ctx(args):
         "triplet_cfg": triplets_mod.get(args.triplet),
         "prefix": paths.prefix(root, args.triplet),
         "tools_prefix": paths.tools_prefix(root),
+        "pcdir": paths.sysroot_alias(root, args.triplet) + "/lib/pkgconfig",
         "logs": paths.logs(root),
         "jobs": args.jobs or os.cpu_count() or 4,
         "ffmpeg_src": src,
@@ -65,9 +68,11 @@ def cmd_build(args):
         _die("no configuration in {} -- run 'configure' first".format(out))
     log = os.path.join(ctx["logs"], "ffmpeg_make.log")
     # L0 env is mandatory for every subprocess: PATH must prefer the
-    # host tools (nasm) over any system toolchain.
+    # host tools (nasm) over any system toolchain. cuda_bin keeps nvcc
+    # reachable for --enable-cuda-nvcc PTX builds.
     env = env_mod.build_child_env(
-        ctx["prefix"], tools_bin=os.path.join(ctx["tools_prefix"], "bin"))
+        ctx["prefix"], tools_bin=os.path.join(ctx["tools_prefix"], "bin"),
+        prepend_path=loop.cuda_bin(loop.read_flags(ctx["root"])))
     with open(log, "w") as f:
         rc = subprocess.run(["make", "-j", str(ctx["jobs"])], cwd=out,
                             env=env, stdout=f, stderr=subprocess.STDOUT
@@ -141,14 +146,27 @@ def cmd_test(args):
                                                             case["flag"]))
             continue
         out = os.path.join(outdir, name + "." + case.get("ext", "log"))
+        stream = case.get("stream", "v")
         if case["kind"] == "encode":
             cmd = base + ["-hide_banner", "-loglevel", "error",
                           "-f", "lavfi", "-i", case["input"],
-                          "-c:v", case["encoder"], "-y", out]
+                          "-c:" + stream, case["encoder"], "-y", out]
         elif case["kind"] == "filter":
             cmd = base + ["-hide_banner", "-loglevel", "error",
                           "-f", "lavfi", "-i", case["input"],
                           "-vf", case["filter"], "-frames:v", "1", "-y", out]
+        elif case["kind"] == "decode":
+            # input produced by an earlier case in the matrix; the
+            # decoder is an INPUT option (forced before demuxing)
+            src = os.path.join(outdir, case["input_file"])
+            if not os.path.isfile(src):
+                print("  {:<18} SKIP   (input {} missing)".format(name,
+                                                                  case[
+                                                                      "input_file"]))
+                continue
+            cmd = base + ["-hide_banner", "-loglevel", "error",
+                          "-c:v", case["decoder"], "-i", src,
+                          "-f", "null", "-"]
         elif case["kind"] == "capability":
             cmd = base + ["-hide_banner", "-" + case["list"]]
         else:
@@ -160,7 +178,9 @@ def cmd_test(args):
         if case["kind"] == "capability":
             ok = ok and case["needle"] in r.stdout
             detail = "listed in -{}".format(case["list"])
-        elif ok:
+        elif ok and case["kind"] == "decode":
+            detail = "stream decoded to null"
+        elif ok and os.path.isfile(out):
             detail = "{} bytes".format(os.path.getsize(out))
         if ok:
             ran += 1
@@ -202,6 +222,7 @@ def cmd_port_install(args):
 def cmd_port_list(_args):
     root = paths.repo_root()
     paths.ensure_workspace(root)
+    paths.ensure_ascii_alias(root, triplets_mod.DEFAULT)
     data, deps, index = loop.load_deps(root)
     prefix = paths.prefix(root, triplets_mod.DEFAULT)
     tools_prefix = paths.tools_prefix(root)

@@ -23,8 +23,18 @@ from . import validate
 from .runners import get_runner
 from .runners.base import BuildError
 
-_ERROR_NOT_FOUND = re.compile(r"ERROR:\s+(\S+)\s+not found using pkg-config")
-_MAX_ATTEMPTS = 20
+# ffmpeg embeds version constraints in the message ("aom >= 2.0.0 not
+# found ...") and pkg_config errors carry " using pkg-config" while
+# check_lib/require errors do not -> capture the spec, first token = name
+_ERROR_NOT_FOUND = re.compile(
+    r"ERROR:\s+(.+?)\s+not found(?: using pkg-config)?")
+# feature probes report unsatisfied deps as
+# "X requested, but not all dependencies are satisfied: a, b"
+_DEPS_UNSAT = re.compile(
+    r"not all dependencies are satisfied: (.+)")
+# one attempt discovers ONE missing port (ffmpeg configure fails fast on
+# the first unsatisfied require) -> must exceed the closure size
+_MAX_ATTEMPTS = 80
 
 
 def _die(msg):
@@ -90,8 +100,15 @@ def _run_logged(cmd, cwd, env, log_path):
                               stderr=subprocess.STDOUT).returncode
 
 
-def _ensure_dep(ctx, deps, key):
+def _ensure_dep(ctx, deps, key, _stack=()):
+    """Build + validate a port, recursively building its "needs" first
+    (deps-of-deps, e.g. dvdnav needs dvdread). Stamps make recursion cheap.
+    """
+    if key in _stack:
+        _die("dependency cycle: {}".format(" -> ".join(_stack + (key,))))
     dep = deps[key]
+    for need in dep.get("needs", []):
+        _ensure_dep(ctx, deps, need, _stack + (key,))
     runner = get_runner(dep.get("system", "makefile"), ctx)
     runner.build(key, dep)
     fixups.apply(ctx, key, dep)
@@ -116,6 +133,19 @@ def build_dep(ctx, key):
         _die(e)
 
 
+def cuda_bin(flags):
+    """nvcc bin dir when --enable-cuda-nvcc is requested (CUDA 12.8 layout)."""
+    if "--enable-cuda-nvcc" in flags:
+        return os.path.join(
+            os.environ.get("CUDA_HOME", "/usr/local/cuda"), "bin")
+    return None
+
+
+def read_flags(root):
+    """Public accessor: parsed ffmpeg_flags.txt as an argv list."""
+    return _read_flags(os.path.join(root, "ffmpeg_flags.txt"))
+
+
 def configure_loop(ctx):
     data, deps, index = _load_deps(ctx["root"])
     src = ctx.get("ffmpeg_src") or ensure_ffmpeg_src(ctx, data.get("ffmpeg"))
@@ -128,7 +158,7 @@ def configure_loop(ctx):
         if dep.get("tool"):
             _ensure_dep(ctx, deps, key)
 
-    flags = _read_flags(os.path.join(ctx["root"], "ffmpeg_flags.txt"))
+    flags = read_flags(ctx["root"])
     base = [
         os.path.join(src, "configure"),
         # FFmpeg's configure only accepts --opt=value joined form
@@ -139,12 +169,17 @@ def configure_loop(ctx):
         # our .pc files carry absolute sysroot paths, so this is safe
         "--pkg-config=pkg-config",
         "--extra-cflags=-I" + os.path.join(ctx["prefix"], "include"),
-        "--extra-ldflags=-L{lib} -Wl,-rpath,{lib}".format(
+        # --disable-new-dtags keeps DT_RPATH (not RUNPATH): transitive
+        # deps like libjxl_cms.so resolve from the sysroot RPATH
+        "--extra-ldflags=-L{lib} -Wl,-rpath,{lib} -Wl,--disable-new-dtags".format(
             lib=os.path.join(ctx["prefix"], "lib")),
     ] + ctx["triplet_cfg"]["ffmpeg_flags"]
     env = env_mod.build_child_env(
         ctx["prefix"],  # prefix-first: system .pc ok
-        tools_bin=os.path.join(ctx["tools_prefix"], "bin"))
+        tools_bin=os.path.join(ctx["tools_prefix"], "bin"),
+        # --enable-cuda-nvcc builds PTX via nvcc; it is not in the
+        # narrowed system PATH, so prepend the CUDA toolkit bin dir
+        prepend_path=cuda_bin(flags))
 
     built = []
     for attempt in range(1, _MAX_ATTEMPTS + 1):
@@ -161,7 +196,13 @@ def configure_loop(ctx):
             return built
         with open(log, "r", errors="ignore") as f:
             text = f.read()
-        missing = _ERROR_NOT_FOUND.findall(text)
+        missing = [spec.split()[0]
+                   for spec in _ERROR_NOT_FOUND.findall(text)]
+        for spec in _DEPS_UNSAT.findall(text):
+            for name in spec.split(","):
+                name = name.strip()
+                if name:
+                    missing.append(name)
         if not missing:
             _die("configure failed with unknown error; log tail:\n" +
                  _tail(log))

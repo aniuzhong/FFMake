@@ -6,6 +6,7 @@ from .custom import CustomRunner
 from .makefile import MakefileRunner
 from .meson import MesonRunner
 from .pip import PipRunner
+from .system_pc import SystemPcRunner
 
 _RUNNERS = {
     "makefile": MakefileRunner,
@@ -13,6 +14,7 @@ _RUNNERS = {
     "meson": MesonRunner,
     "pip": PipRunner,
     "custom": CustomRunner,
+    "system-pc": SystemPcRunner,
 }
 
 

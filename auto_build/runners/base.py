@@ -56,10 +56,12 @@ class Runner(object):
 
     # --- plumbing ---------------------------------------------------------
     def env(self, strict=True, extra=None):
+        # PKG_CONFIG traffic goes through the ASCII alias pcdir so that
+        # meson/cmake consumers never see non-ASCII sysroot paths
         return env_mod.build_child_env(
             self.ctx["prefix"], strict_pkgconfig=strict,
             tools_bin=os.path.join(self.ctx["tools_prefix"], "bin"),
-            extra=extra)
+            pcdir=self.ctx.get("pcdir"), extra=extra)
 
     def run(self, cmd, cwd, log_path, env=None):
         with open(log_path, "w") as f:
@@ -139,6 +141,14 @@ class Runner(object):
                 self.run(["git", "-C", dst, "checkout", "-q", rev],
                          self.ctx["root"],
                          os.path.join(self.ctx["logs"], key + "_checkout.log"),
+                         env=self.env(strict=False))
+            if source.get("submodules"):
+                # e.g. libjxl third_party; shallow to keep it fast
+                self.run(["git", "-C", dst, "submodule", "update",
+                          "--init", "--depth", "1", "--recursive"],
+                         self.ctx["root"],
+                         os.path.join(self.ctx["logs"],
+                                      key + "_submodules.log"),
                          env=self.env(strict=False))
         elif stype == "tar":
             url = source["url"]

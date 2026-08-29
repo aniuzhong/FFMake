@@ -31,6 +31,11 @@ class CustomRunner(Runner):
             "prefix": prefix,
             "jobs": str(self.ctx["jobs"]),
         }
+        if dep.get("prefixup"):
+            # pre-build source repair, same semantics as the makefile runner
+            self.run(["bash", "-c", dep["prefixup"].format(**subst)], src,
+                     os.path.join(logs, "prefixup.log"),
+                     env=self.env(strict=False))
         for i, step in enumerate(dep.get("steps", []), start=1):
             self.run(["bash", "-c", step.format(**subst)], bdir,
                      "{}/step{:02d}.log".format(logs, i))

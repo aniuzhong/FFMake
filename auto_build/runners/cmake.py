@@ -19,16 +19,39 @@ class CmakeRunner(Runner):
             return
         prefix = self.install_prefix(dep)
         src, bdir, logs = self.prepare(key, dep)
+        if dep.get("prefixup"):
+            # pre-build source repair, same semantics as other runners
+            subst = {
+                "src": os.path.abspath(src),
+                "bdir": os.path.abspath(bdir),
+                "tools": self.ctx["tools_prefix"],
+                "prefix": prefix,
+                "jobs": str(self.ctx["jobs"]),
+            }
+            self.run(["bash", "-c", dep["prefixup"].format(**subst)],
+                     src, os.path.join(logs, "prefixup.log"),
+                     env=self.env(strict=False))
+        # strict_pkgconfig:false opts a port into system .pc visibility
+        # (e.g. vulkan-loader needs system x11/xcb dev files)
+        strict = bool(dep.get("strict_pkgconfig", True))
+        env = self.env(strict=strict)
+        subst = {
+            "src": os.path.abspath(src),
+            "bdir": os.path.abspath(bdir),
+            "tools": self.ctx["tools_prefix"],
+            "prefix": prefix,
+            "jobs": str(self.ctx["jobs"]),
+        }
         srcdir = os.path.abspath(os.path.join(
             src, dep.get("source_dir", "")))
         args = ["cmake", "-S", srcdir, "-B", bdir,
                 "-DCMAKE_INSTALL_PREFIX=" + prefix,
                 "-DCMAKE_BUILD_TYPE=Release"] + \
-               list(dep.get("cmake_args", []))
-        self.run(args, bdir, os.path.join(logs, "configure.log"))
+               [a.format(**subst) for a in dep.get("cmake_args", [])]
+        self.run(args, bdir, os.path.join(logs, "configure.log"), env=env)
         self.run(["cmake", "--build", bdir, "-j", str(self.ctx["jobs"])],
-                 bdir, os.path.join(logs, "build.log"))
+                 bdir, os.path.join(logs, "build.log"), env=env)
         self.run(["cmake", "--install", bdir], bdir,
-                 os.path.join(logs, "install.log"))
+                 os.path.join(logs, "install.log"), env=env)
         self.write_stamp(key, dep)
         print("dep {}: built & installed -> {}".format(key, prefix))

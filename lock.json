@@ -1,6 +1,39 @@
 {
   "schema": 1,
   "tools": {
+    "autoconf": {
+      "recipe": {
+        "configure_args": [
+          "--without-lispdir"
+        ],
+        "pc": "",
+        "source": {
+          "type": "tar",
+          "url": "https://mirrors.tuna.tsinghua.edu.cn/gnu/autoconf/autoconf-2.71.tar.gz"
+        },
+        "system": "makefile",
+        "tool": true
+      },
+      "stamp_hash": "28aae825d46ce61a32e9b16d5bbc5abef174c26e6e0259f208698910ed05f57a"
+    },
+    "automake": {
+      "recipe": {
+        "configure_args": [
+          "--docdir=/tmp/x"
+        ],
+        "needs": [
+          "autoconf"
+        ],
+        "pc": "",
+        "source": {
+          "type": "tar",
+          "url": "https://mirrors.tuna.tsinghua.edu.cn/gnu/automake/automake-1.16.5.tar.gz"
+        },
+        "system": "makefile",
+        "tool": true
+      },
+      "stamp_hash": "95037b24d3e9474b82ec17dff56b86b07c6822f9ebf920fe5262008a40099ddc"
+    },
     "libtool": {
       "recipe": {
         "configure_args": [],
@@ -65,20 +98,82 @@
       "ffmpeg": {
         "flags": [
           "--enable-gpl",
+          "--enable-version3",
+          "--enable-nonfree",
           "--enable-libx264",
           "--enable-libx265",
           "--enable-libdav1d",
-          "--enable-libzimg"
+          "--enable-libzimg",
+          "--enable-libvpx",
+          "--enable-libmp3lame",
+          "--enable-libopus",
+          "--enable-libvorbis",
+          "--enable-libspeex",
+          "--enable-libtheora",
+          "--enable-libxvid",
+          "--enable-libfreetype",
+          "--enable-libharfbuzz",
+          "--enable-libfribidi",
+          "--enable-libass",
+          "--enable-libsoxr",
+          "--enable-libaom",
+          "--enable-libkvazaar",
+          "--enable-libopenjpeg",
+          "--enable-libtwolame",
+          "--enable-libshine",
+          "--enable-libvvenc",
+          "--enable-libsvtav1",
+          "--enable-libdvdnav",
+          "--enable-libdvdread",
+          "--enable-libwebp",
+          "--enable-libssh",
+          "--enable-libsrt",
+          "--enable-openssl",
+          "--enable-libgsm",
+          "--enable-libopencore-amrnb",
+          "--enable-libopencore-amrwb",
+          "--enable-libvo-amrwbenc",
+          "--enable-libmodplug",
+          "--enable-libopenh264",
+          "--enable-libsnappy",
+          "--enable-libmysofa",
+          "--enable-libvidstab",
+          "--enable-libquirc",
+          "--enable-libqrencode",
+          "--enable-libzvbi",
+          "--enable-libaribb24",
+          "--enable-libcaca",
+          "--enable-libxavs2",
+          "--enable-libdavs2",
+          "--enable-libxml2",
+          "--enable-libvmaf",
+          "--enable-libbs2b",
+          "--enable-libcodec2",
+          "--enable-libuavs3d",
+          "--enable-libjxl",
+          "--enable-ffnvcodec",
+          "--enable-cuda-nvcc",
+          "--enable-cuvid",
+          "--enable-nvenc",
+          "--enable-nvdec",
+          "--enable-vdpau",
+          "--enable-vulkan",
+          "--enable-libxcb",
+          "--enable-libxcb-shm",
+          "--enable-libxcb-xfixes",
+          "--enable-libxcb-shape",
+          "--enable-sdl2"
         ],
         "resolved_rev": null,
-        "url": "https://git.ffmpeg.org/ffmpeg.git"
+        "url": null
       },
       "last_built": [],
       "ports": {
         "dav1d": {
           "recipe": {
             "match_names": [
-              "dav1d"
+              "dav1d",
+              "libdav1d"
             ],
             "meson_args": [
               "-Denable_tests=false",
@@ -95,6 +190,1079 @@
           "resolved_commit": "54706fc6bc0cdecab7e9593974a4039cc038fca7",
           "stamp_hash": "60a1be05cf2c997403edbce56617f2274917956ec6118047c418287383b77943"
         },
+        "ffnvcodec": {
+          "recipe": {
+            "match_names": [
+              "ffnvcodec"
+            ],
+            "pc": "ffnvcodec",
+            "source": {
+              "rev": "n12.2.72.0",
+              "type": "git",
+              "url": "https://github.com/FFmpeg/nv-codec-headers.git"
+            },
+            "steps": [
+              "make -C {src} install PREFIX={prefix}"
+            ],
+            "system": "custom"
+          },
+          "resolved_commit": "c69278340ab1d5559c7d7bf0edf615dc33ddbba7",
+          "stamp_hash": "786d21a657faeb1a714b752cd42fc17169ca60ed42fa06b684b6f3348b3bc206"
+        },
+        "libaom": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_SHARED_LIBS=ON",
+              "-DENABLE_TESTS=OFF",
+              "-DENABLE_DOCS=OFF",
+              "-DENABLE_EXAMPLES=OFF",
+              "-DENABLE_TOOLS=OFF"
+            ],
+            "match_names": [
+              "libaom",
+              "aom"
+            ],
+            "pc": "aom",
+            "source": {
+              "rev": "v3.9.1",
+              "type": "git",
+              "url": "https://aomedia.googlesource.com/aom"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "8ad484f8a18ed1853c094e7d3a4e023b2a92df28",
+          "stamp_hash": "bdf2b0fbaa08b55c49a115bd8644bb6623a6e58e5030e1493693b1327d44aa04"
+        },
+        "libaribb24": {
+          "recipe": {
+            "autogen": "autoreconf -fi",
+            "configure_args": [],
+            "match_names": [
+              "aribb24",
+              "libaribb24"
+            ],
+            "needs": [
+              "libpng"
+            ],
+            "pc": "aribb24",
+            "source": {
+              "rev": "v1.0.3",
+              "type": "git",
+              "url": "https://github.com/nkoriyama/aribb24.git"
+            },
+            "system": "makefile"
+          },
+          "resolved_commit": "bc45f1406899603033218c2cc6d611ddcc5b3720",
+          "stamp_hash": "75ea967b7f04764c00f553a4d2dfd6f9161e4040e229fc695dde935c04149c15"
+        },
+        "libass": {
+          "recipe": {
+            "match_names": [
+              "ass",
+              "libass"
+            ],
+            "meson_args": [
+              "-Dfontconfig=disabled",
+              "-Drequire-system-font-provider=false",
+              "-Dtest=false"
+            ],
+            "needs": [
+              "libfreetype",
+              "libfribidi",
+              "libharfbuzz"
+            ],
+            "pc": "ass",
+            "source": {
+              "rev": "0.17.3",
+              "type": "git",
+              "url": "https://github.com/libass/libass.git"
+            },
+            "system": "meson"
+          },
+          "resolved_commit": "e46aedea0a0d17da4c4ef49d84b94a7994664ab5",
+          "stamp_hash": "cade1f012273801d55088cfaad691aabc65f6dcbe1bb3e502ed75fe06a56c5f9"
+        },
+        "libbs2b": {
+          "recipe": {
+            "configure_args": [],
+            "match_names": [
+              "libbs2b"
+            ],
+            "needs": [
+              "libsndfile"
+            ],
+            "pc": "libbs2b",
+            "prefixup": "sed -i 's/^bin_PROGRAMS =.*/bin_PROGRAMS =/' src/Makefile.in",
+            "source": {
+              "type": "tar",
+              "url": "https://sourceforge.net/projects/bs2b/files/libbs2b/3.1.0/libbs2b-3.1.0.tar.gz"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+        },
+        "libcaca": {
+          "recipe": {
+            "autogen": "autoreconf -fi",
+            "configure_args": [],
+            "match_names": [
+              "caca",
+              "libcaca"
+            ],
+            "pc": "caca",
+            "prefixup": "sed -i 's/^bin_PROGRAMS =.*/bin_PROGRAMS =/' src/Makefile.am && sed -i 's/^noinst_PROGRAMS =.*/noinst_PROGRAMS =/' src/Makefile.am && sed -i 's/^noinst_PROGRAMS =.*/noinst_PROGRAMS =/' examples/Makefile.am",
+            "source": {
+              "rev": "v0.99.beta20",
+              "type": "git",
+              "url": "https://github.com/cacalabs/libcaca.git"
+            },
+            "system": "makefile"
+          },
+          "resolved_commit": "373c88b9890e67bde91e6acb8f1c442e847d1203",
+          "stamp_hash": null
+        },
+        "libcodec2": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_SHARED_LIBS=ON",
+              "-DUNITTEST=OFF"
+            ],
+            "match_names": [
+              "codec2",
+              "libcodec2"
+            ],
+            "pc": "codec2",
+            "source": {
+              "rev": "1.2.0",
+              "type": "git",
+              "url": "https://github.com/drowe67/codec2.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "06d4c11e699b0351765f10398abb4f663a984f36",
+          "stamp_hash": "94eadc3ae1ccac9703f3e6df1c6c7e34dc313fac4f663ff2e753b76a99d5fbef"
+        },
+        "libdavs2": {
+          "recipe": {
+            "match_names": [
+              "davs2",
+              "libdavs2"
+            ],
+            "pc": "davs2",
+            "source": {
+              "rev": "1.7",
+              "type": "git",
+              "url": "https://github.com/pkuvcl/davs2.git"
+            },
+            "steps": [
+              "cd {src}/build/linux && ./configure --prefix={prefix} --extra-cflags=-fPIC --extra-asflags=-DPIC && make -j{jobs} && make install"
+            ],
+            "system": "custom"
+          },
+          "resolved_commit": "b06d7585620f4e90a6d19a2926bb4e59793b8942",
+          "stamp_hash": "a074b491608a4fcf1c6727b3066f8ded2149d4c00d1ca169d0ce59a390ff80df"
+        },
+        "libdvdnav": {
+          "recipe": {
+            "configure_args": [],
+            "match_names": [
+              "dvdnav",
+              "libdvdnav"
+            ],
+            "needs": [
+              "libdvdread"
+            ],
+            "pc": "dvdnav",
+            "source": {
+              "sha256": "c191a7475947d323ff7680cf92c0fb1be8237701885f37656c64d04e98d18d48",
+              "type": "tar",
+              "url": "https://download.videolan.org/pub/videolan/libdvdnav/6.1.1/libdvdnav-6.1.1.tar.bz2"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+        },
+        "libdvdread": {
+          "recipe": {
+            "configure_args": [],
+            "match_names": [
+              "dvdread",
+              "libdvdread"
+            ],
+            "pc": "dvdread",
+            "source": {
+              "sha256": "ce35454997a208cbe50e91232f0e73fb1ac3471965813a13b8730a8f18a15369",
+              "type": "tar",
+              "url": "https://download.videolan.org/pub/videolan/libdvdread/6.1.3/libdvdread-6.1.3.tar.bz2"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+        },
+        "libfreetype": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_SHARED_LIBS=ON",
+              "-DFT_DISABLE_BZIP2=ON"
+            ],
+            "match_names": [
+              "freetype2",
+              "libfreetype"
+            ],
+            "pc": "freetype2",
+            "source": {
+              "rev": "VER-2-13-2",
+              "type": "git",
+              "url": "https://github.com/freetype/freetype.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "920c5502cc3ddda88f6c7d85ee834ac611bb11cc",
+          "stamp_hash": "69df7d67a4cde395fda185af8e8e07b8d4c898f1776f48587a8d180c881bfef6"
+        },
+        "libfribidi": {
+          "recipe": {
+            "match_names": [
+              "fribidi",
+              "libfribidi"
+            ],
+            "meson_args": [
+              "-Dtests=false",
+              "-Ddocs=false"
+            ],
+            "pc": "fribidi",
+            "source": {
+              "rev": "v1.0.16",
+              "type": "git",
+              "url": "https://github.com/fribidi/fribidi.git"
+            },
+            "system": "meson"
+          },
+          "resolved_commit": "68162babff4f39c4e2dc164a5e825af93bda9983",
+          "stamp_hash": "fa79a17c17907edda24c6fc1b85777f61f7281894032a68a7110463cedb86816"
+        },
+        "libgsm": {
+          "recipe": {
+            "match_names": [
+              "libgsm"
+            ],
+            "pc": "gsm",
+            "source": {
+              "sha256": "f0072e91f6bb85a878b2f6dbf4a0b7c850c4deb8049d554c65340b3bf69df0ac",
+              "type": "tar",
+              "url": "https://www.quut.com/gsm/gsm-1.0.22.tar.gz"
+            },
+            "steps": [
+              "make -C {src} -j{jobs}",
+              "make -C {src} install GSM_INSTALL_ROOT={prefix} GSM_INSTALL_INC={prefix}/include GSM_INSTALL_LIB={prefix}/lib",
+              "mkdir -p {prefix}/lib/pkgconfig && printf 'prefix={prefix}\\nlibdir={prefix}/lib\\nincludedir={prefix}/include\\n\\nName: gsm\\nDescription: GSM 06.10 lossy speech compression\\nVersion: 1.0.22\\nLibs: -L{prefix}/lib -lgsm\\nCflags: -I{prefix}/include\\n' > {prefix}/lib/pkgconfig/gsm.pc"
+            ],
+            "system": "custom"
+          },
+          "stamp_hash": "f3efd1e02558499a3ed8ce1511391e76b904e8754ecd06176d96e5da691f0731"
+        },
+        "libharfbuzz": {
+          "recipe": {
+            "match_names": [
+              "harfbuzz",
+              "libharfbuzz"
+            ],
+            "meson_args": [
+              "-Dtests=disabled",
+              "-Ddocs=disabled"
+            ],
+            "pc": "harfbuzz",
+            "source": {
+              "rev": "8.4.0",
+              "type": "git",
+              "url": "https://github.com/harfbuzz/harfbuzz.git"
+            },
+            "system": "meson"
+          },
+          "resolved_commit": "63973005bc07aba599b47fdd4cf788647b601ccd",
+          "stamp_hash": "b82beb3a9727f53f4489a436c0e2ad8652a1daac40c24d287ebebd82aafe5a41"
+        },
+        "libjxl": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_SHARED_LIBS=ON",
+              "-DBUILD_TESTING=OFF",
+              "-DJPEGXL_ENABLE_BENCHMARK=OFF",
+              "-DJPEGXL_ENABLE_EXAMPLES=OFF",
+              "-DJPEGXL_ENABLE_MANPAGES=OFF",
+              "-DJPEGXL_ENABLE_JNI=OFF",
+              "-DJPEGXL_ENABLE_SJPEG=OFF",
+              "-DJPEGXL_ENABLE_OPENEXR=OFF",
+              "-DJPEGXL_ENABLE_SKCMS=ON"
+            ],
+            "match_names": [
+              "libjxl"
+            ],
+            "pc": "libjxl",
+            "source": {
+              "rev": "v0.10.3",
+              "submodules": true,
+              "type": "git",
+              "url": "https://github.com/libjxl/libjxl.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "4a3b22d2600f92d8706fb72d85d52bfee2acbd54",
+          "stamp_hash": "3010bf2d5dc9cb6d67d88397741673192d20ba6d8722edc64cf02338f1d39276"
+        },
+        "libkvazaar": {
+          "recipe": {
+            "autogen": "sh {src}/autogen.sh",
+            "configure_args": [],
+            "match_names": [
+              "kvazaar",
+              "libkvazaar"
+            ],
+            "pc": "kvazaar",
+            "source": {
+              "type": "tar",
+              "url": "https://github.com/ultravideo/kvazaar/archive/refs/tags/v2.3.1.tar.gz"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+        },
+        "libmodplug": {
+          "recipe": {
+            "configure_args": [],
+            "match_names": [
+              "libmodplug"
+            ],
+            "pc": "libmodplug",
+            "source": {
+              "type": "tar",
+              "url": "https://sourceforge.net/projects/modplug-xmms/files/libmodplug/0.8.9.0/libmodplug-0.8.9.0.tar.gz/download"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+        },
+        "libmp3lame": {
+          "recipe": {
+            "configure_args": [
+              "--disable-frontend"
+            ],
+            "match_names": [
+              "libmp3lame",
+              "mp3lame"
+            ],
+            "pc": "mp3lame",
+            "source": {
+              "type": "tar",
+              "url": "https://sourceforge.net/projects/lame/files/lame/3.100/lame-3.100.tar.gz"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "ede2129516ca6845624b88161e117e6fcf7745c8e009e36eca187388d80a1806"
+        },
+        "libmysofa": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_TESTS=OFF",
+              "-DBUILD_SHARED_LIBS=ON"
+            ],
+            "match_names": [
+              "libmysofa",
+              "mysofa"
+            ],
+            "pc": "mysofa",
+            "source": {
+              "rev": "v1.3.2",
+              "type": "git",
+              "url": "https://github.com/hoene/libmysofa.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "33974839677da7044ef5a70be7ad5550735aae6e",
+          "stamp_hash": "ea447e47d47fa1732e4af17829df3f03634f27e7c3a97eb5a15685a2ec269f3e"
+        },
+        "libogg": {
+          "recipe": {
+            "configure_args": [],
+            "match_names": [
+              "libogg",
+              "ogg"
+            ],
+            "pc": "ogg",
+            "source": {
+              "type": "tar",
+              "url": "https://downloads.xiph.org/releases/ogg/libogg-1.3.5.tar.gz"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+        },
+        "libopencore-amr": {
+          "recipe": {
+            "configure_args": [],
+            "match_names": [
+              "libopencore-amr",
+              "libopencore-amrnb",
+              "libopencore-amrwb",
+              "opencore-amrnb",
+              "libopencore_amrnb",
+              "libopencore_amrwb"
+            ],
+            "pc": "opencore-amrnb",
+            "source": {
+              "sha256": "483eb4061088e2b34b358e47540b5d495a96cd468e361050fae615b1809dc4a1",
+              "type": "tar",
+              "url": "http://deb.debian.org/debian/pool/main/o/opencore-amr/opencore-amr_0.1.6.orig.tar.gz"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+        },
+        "libopenh264": {
+          "recipe": {
+            "match_names": [
+              "libopenh264",
+              "openh264"
+            ],
+            "pc": "openh264",
+            "source": {
+              "rev": "v2.4.1",
+              "type": "git",
+              "url": "https://github.com/cisco/openh264.git"
+            },
+            "steps": [
+              "make -C {src} -j{jobs} AR=x86_64-linux-gnu-ar",
+              "make -C {src} PREFIX={prefix} install"
+            ],
+            "system": "custom"
+          },
+          "resolved_commit": "c59550a2147c255cc8e09451f6deb96de2526b6d",
+          "stamp_hash": "ce50140a9e49075d158033219bc7efb5b633aec3aab56ebce0695a2153d09c45"
+        },
+        "libopenjpeg": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_SHARED_LIBS=ON",
+              "-DBUILD_CODEC=OFF"
+            ],
+            "match_names": [
+              "libopenjp2",
+              "libopenjpeg"
+            ],
+            "pc": "libopenjp2",
+            "source": {
+              "rev": "v2.5.2",
+              "type": "git",
+              "url": "https://github.com/uclouvain/openjpeg.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "39e8c50a2f9bdcf36810ee3d41bcbf1cc78968ae",
+          "stamp_hash": "faed06b218abe1be4abc18e23dc73eb07b5c23e83bf1367bcab59a61de7569b8"
+        },
+        "libopus": {
+          "recipe": {
+            "configure_args": [],
+            "match_names": [
+              "libopus",
+              "opus"
+            ],
+            "pc": "opus",
+            "source": {
+              "type": "tar",
+              "url": "https://downloads.xiph.org/releases/opus/opus-1.4.tar.gz"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+        },
+        "libpng": {
+          "recipe": {
+            "cmake_args": [
+              "-DPNG_SHARED=ON",
+              "-DPNG_STATIC=OFF",
+              "-DPNG_TESTS=OFF"
+            ],
+            "needs": [
+              "zlib"
+            ],
+            "pc": "libpng16",
+            "source": {
+              "rev": "v1.6.43",
+              "type": "git",
+              "url": "https://github.com/pnggroup/libpng.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "ed217e3e601d8e462f7fd1e04bed43ac42212429",
+          "stamp_hash": "9086f128cf94fb8ff8a2e60c40a0006b74ab4762c80c1c2bf2ae6567a6438b24"
+        },
+        "libqrencode": {
+          "recipe": {
+            "autogen": "sh {src}/autogen.sh",
+            "configure_args": [],
+            "match_names": [
+              "libqrencode"
+            ],
+            "pc": "libqrencode",
+            "source": {
+              "rev": "v4.1.1",
+              "type": "git",
+              "url": "https://github.com/fukuchi/libqrencode.git"
+            },
+            "system": "makefile"
+          },
+          "resolved_commit": "715e29fd4cd71b6e452ae0f4e36d917b43122ce8",
+          "stamp_hash": "3da8fa675d8b271dc28975f3a3e533f26fac91d20da4b4753010881e9f5b15f0"
+        },
+        "libquirc": {
+          "recipe": {
+            "match_names": [
+              "libquirc",
+              "quirc"
+            ],
+            "pc": "quirc",
+            "prefixup": "sed -i 's/^SDL_CFLAGS := .*/SDL_CFLAGS :=/; s/^OPENCV_CFLAGS := .*/OPENCV_CFLAGS :=/' Makefile",
+            "source": {
+              "rev": "v1.2",
+              "type": "git",
+              "url": "https://github.com/dlbeer/quirc.git"
+            },
+            "steps": [
+              "make -C {src} -j{jobs} libquirc.so",
+              "cp {src}/lib/quirc.h {prefix}/include/",
+              "cp -L {src}/libquirc.so.1.2 {prefix}/lib/libquirc.so.1.2 && ln -sf libquirc.so.1.2 {prefix}/lib/libquirc.so.1 && ln -sf libquirc.so.1 {prefix}/lib/libquirc.so",
+              "mkdir -p {prefix}/lib/pkgconfig && printf 'prefix={prefix}\\nlibdir={prefix}/lib\\nincludedir={prefix}/include\\n\\nName: quirc\\nDescription: QR decoder library\\nVersion: 1.2\\nLibs: -L{prefix}/lib -lquirc\\nCflags: -I{prefix}/include\\n' > {prefix}/lib/pkgconfig/quirc.pc"
+            ],
+            "system": "custom"
+          },
+          "resolved_commit": "542848dd6b9b0eaa9587bbf25b9bc67bd8a71fca",
+          "stamp_hash": "cbe1bf386a302cc164d465acb2e670677b5db0ffb43a3473f2f710a06ba3e0f2"
+        },
+        "libshine": {
+          "recipe": {
+            "autogen": "sh {src}/bootstrap",
+            "configure_args": [],
+            "match_names": [
+              "libshine",
+              "shine"
+            ],
+            "pc": "shine",
+            "prefixup": "sed -i 's/^bin_PROGRAMS.*/bin_PROGRAMS =/' Makefile.am && sed -i 's| -export-symbols libshine.sym| -export-symbols $(top_srcdir)/libshine.sym|' Makefile.am",
+            "source": {
+              "rev": "3.1.1",
+              "type": "git",
+              "url": "https://github.com/toots/shine.git"
+            },
+            "system": "makefile"
+          },
+          "resolved_commit": "97f188efc3dc90315b79a2af1f477c0c18d85e82",
+          "stamp_hash": "4e43d07ab8b9105dd3c8ada12f7af14d2a097948cab9efda6c30eee3c429af3c"
+        },
+        "libsnappy": {
+          "recipe": {
+            "cmake_args": [
+              "-DSNAPPY_BUILD_TESTS=OFF",
+              "-DSNAPPY_BUILD_BENCHMARKS=OFF",
+              "-DBUILD_SHARED_LIBS=ON"
+            ],
+            "match_names": [
+              "libsnappy",
+              "snappy"
+            ],
+            "pc": "snappy",
+            "source": {
+              "rev": "1.2.1",
+              "type": "git",
+              "url": "https://github.com/google/snappy.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "2c94e11145f0b7b184b831577c93e5a41c4c0346",
+          "stamp_hash": "b59e6f19277007615e7c6e58be68e1f06ba3afc1b27b5d848ec65bdd63800709"
+        },
+        "libsndfile": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_SHARED_LIBS=ON",
+              "-DBUILD_PROGRAMS=OFF",
+              "-DBUILD_EXAMPLES=OFF",
+              "-DBUILD_TESTING=OFF"
+            ],
+            "match_names": [
+              "libsndfile",
+              "sndfile"
+            ],
+            "pc": "sndfile",
+            "source": {
+              "rev": "1.2.2",
+              "type": "git",
+              "url": "https://github.com/libsndfile/libsndfile.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "72f6af15e8f85157bd622ed45b979025828b7001",
+          "stamp_hash": "500fb1a54cb83d3905ce1cacd9e43b96d42b1eee39654bd84c523b6ee12d7e34"
+        },
+        "libsoxr": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_TESTS=OFF"
+            ],
+            "match_names": [
+              "libsoxr",
+              "soxr"
+            ],
+            "pc": "soxr",
+            "source": {
+              "rev": "0.1.3",
+              "type": "git",
+              "url": "https://github.com/chirlu/soxr.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "945b592b70470e29f917f4de89b4281fbbd540c0",
+          "stamp_hash": "a686a30bbdf3e7009def976337d762bab48335d7ee8517ac9cce21ce0635063e"
+        },
+        "libspeex": {
+          "recipe": {
+            "configure_args": [],
+            "match_names": [
+              "libspeex",
+              "speex"
+            ],
+            "pc": "speex",
+            "source": {
+              "type": "tar",
+              "url": "https://downloads.xiph.org/releases/speex/speex-1.2.1.tar.gz"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+        },
+        "libsrt": {
+          "recipe": {
+            "cmake_args": [
+              "-DENABLE_APPS=OFF",
+              "-DENABLE_TESTS=OFF"
+            ],
+            "match_names": [
+              "libsrt",
+              "srt"
+            ],
+            "needs": [
+              "openssl"
+            ],
+            "pc": "srt",
+            "source": {
+              "rev": "v1.5.3",
+              "type": "git",
+              "url": "https://github.com/Haivision/srt.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "09f35c0f1743e23f514cb41444504a7faeacf89e",
+          "stamp_hash": "d6db1c047312bebf175507f0c59701a51d9703d76217939f7300e32acbb302e9"
+        },
+        "libssh": {
+          "recipe": {
+            "cmake_args": [
+              "-DWITH_EXAMPLES=OFF",
+              "-DWITH_GCRYPT=OFF"
+            ],
+            "match_names": [
+              "libssh"
+            ],
+            "needs": [
+              "openssl"
+            ],
+            "pc": "libssh",
+            "prefixup": "sed -i 's/if(OPENSSL_VERSION VERSION_LESS \"1.1.0\")/if(FALSE)/' src/CMakeLists.txt",
+            "source": {
+              "rev": "libssh-0.10.6",
+              "type": "git",
+              "url": "https://gitlab.com/libssh/libssh-mirror.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "10e09e273f69e149389b3e0e5d44b8c221c2e7f6",
+          "stamp_hash": "d31b5ef531f3c054dc980f661249913eaac55e2d3f135ad82c2d3f8955aa48a6"
+        },
+        "libsvtav1": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_APPS=OFF",
+              "-DBUILD_TESTING=OFF"
+            ],
+            "match_names": [
+              "SvtAv1Enc",
+              "libsvtav1"
+            ],
+            "pc": "SvtAv1Enc",
+            "source": {
+              "rev": "v2.2.1",
+              "type": "git",
+              "url": "https://gitlab.com/AOMediaCodec/SVT-AV1.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "55a01def732bb9e7016d23cc512384f7a88d6e86",
+          "stamp_hash": "69896b992ba47f9864fd586154c52804207904f6850ac8f4776e92bf8c718fda"
+        },
+        "libtheora": {
+          "recipe": {
+            "configure_args": [
+              "--disable-examples"
+            ],
+            "match_names": [
+              "libtheora",
+              "theora"
+            ],
+            "needs": [
+              "libogg",
+              "libvorbis"
+            ],
+            "pc": "theora",
+            "source": {
+              "type": "tar",
+              "url": "https://downloads.xiph.org/releases/theora/libtheora-1.1.1.tar.gz"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "0088a8a79afb3e00bbe342523207006d0384dd09f63710649816ea76c0024182"
+        },
+        "libtwolame": {
+          "recipe": {
+            "configure_args": [],
+            "match_names": [
+              "libtwolame",
+              "twolame"
+            ],
+            "pc": "twolame",
+            "source": {
+              "type": "tar",
+              "url": "https://github.com/njh/twolame/releases/download/0.4.0/twolame-0.4.0.tar.gz"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+        },
+        "libuavs3d": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_SHARED_LIBS=ON"
+            ],
+            "match_names": [
+              "libuavs3d",
+              "uavs3d"
+            ],
+            "pc": "uavs3d",
+            "source": {
+              "type": "git",
+              "url": "https://github.com/uavs3/uavs3d.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "0e20d2c291853f196c68922a264bcd8471d75b68",
+          "stamp_hash": "203e35e4302e79d482f3cecd8a32fcc9e073887bac6eb25cf8454bcbc121c68c"
+        },
+        "libvdpau": {
+          "recipe": {
+            "match_names": [
+              "libvdpau",
+              "vdpau"
+            ],
+            "meson_args": [],
+            "pc": "vdpau",
+            "source": {
+              "sha256": "66490802f30426d30ff9e8af35263bbbbaa23b52d0a2d797d06959c3d19638fd",
+              "type": "tar",
+              "url": "https://gitlab.freedesktop.org/vdpau/libvdpau/-/archive/1.5/libvdpau-1.5.tar.gz"
+            },
+            "strict_pkgconfig": false,
+            "system": "meson"
+          },
+          "stamp_hash": "fdc434f8098cb893fce53989fce407cfb473417db619429327ac7ecef4f7b778"
+        },
+        "libvidstab": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_SHARED_LIBS=ON"
+            ],
+            "match_names": [
+              "libvidstab",
+              "vidstab"
+            ],
+            "pc": "vidstab",
+            "source": {
+              "rev": "v1.1.1",
+              "type": "git",
+              "url": "https://github.com/georgmartius/vid.stab.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "90c76aca2cb06c3ff6f7476a7cd6851b39436656",
+          "stamp_hash": "aa8c1c1f1ea2c212beafe3452f4f8a4db8ff6cc4b0097c7670b9a30fdf8f9dc4"
+        },
+        "libvmaf": {
+          "recipe": {
+            "match_names": [
+              "libvmaf",
+              "vmaf"
+            ],
+            "meson_args": [
+              "-Denable_tests=false",
+              "-Denable_docs=false"
+            ],
+            "pc": "vmaf",
+            "source": {
+              "rev": "v3.0.0",
+              "type": "git",
+              "url": "https://github.com/Netflix/vmaf.git"
+            },
+            "source_dir": "libvmaf",
+            "system": "meson"
+          },
+          "resolved_commit": "17a67b238ce0539bdeafdc95961abac64fa16ea8",
+          "stamp_hash": "f41a19e1786763c271c1e11e52d6f882cc06dbdb67724c3baa31b4e06f138279"
+        },
+        "libvo-amrwbenc": {
+          "recipe": {
+            "configure_args": [],
+            "match_names": [
+              "libvo-amrwbenc",
+              "vo-amrwbenc",
+              "libvo_amrwbenc"
+            ],
+            "pc": "vo-amrwbenc",
+            "source": {
+              "sha256": "5652b391e0f0e296417b841b02987d3fd33e6c0af342c69542cbb016a71d9d4e",
+              "type": "tar",
+              "url": "http://deb.debian.org/debian/pool/main/v/vo-amrwbenc/vo-amrwbenc_0.1.3.orig.tar.gz"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+        },
+        "libvorbis": {
+          "recipe": {
+            "configure_args": [],
+            "match_names": [
+              "libvorbis",
+              "vorbis"
+            ],
+            "needs": [
+              "libogg"
+            ],
+            "pc": "vorbis",
+            "source": {
+              "type": "tar",
+              "url": "https://downloads.xiph.org/releases/vorbis/libvorbis-1.3.7.tar.gz"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+        },
+        "libvpx": {
+          "recipe": {
+            "configure_args": [
+              "--enable-shared",
+              "--disable-unit-tests",
+              "--disable-docs",
+              "--disable-examples",
+              "--disable-tools"
+            ],
+            "match_names": [
+              "libvpx",
+              "vpx"
+            ],
+            "pc": "vpx",
+            "source": {
+              "rev": "v1.15.0",
+              "type": "git",
+              "url": "https://github.com/webmproject/libvpx.git"
+            },
+            "system": "makefile"
+          },
+          "resolved_commit": "9f9b7e9ba2eb9d01640a9e69a3d655866265cf7f",
+          "stamp_hash": "a5ad2d78592829712845cdf452f2200830db6fd18e4c67a51096c8b9346d5299"
+        },
+        "libvvenc": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_SHARED_LIBS=ON",
+              "-DVVENC_ENABLE_APP=OFF",
+              "-DVVENC_ENABLE_TESTS=OFF"
+            ],
+            "match_names": [
+              "libvvenc"
+            ],
+            "pc": "libvvenc",
+            "source": {
+              "rev": "v1.13.0",
+              "type": "git",
+              "url": "https://github.com/fraunhoferhhi/vvenc.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "0c2c21eba8b336a273e7dc6e5e7fc0a95e8c5fcc",
+          "stamp_hash": "745713230f03121a35c1ae1b5242f933e911f4bbb1f24aefcb7c9d0328c60b61"
+        },
+        "libwebp": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_SHARED_LIBS=ON",
+              "-DWEBP_BUILD_CWEBP=OFF",
+              "-DWEBP_BUILD_DWEBP=OFF",
+              "-DWEBP_BUILD_EXTRAS=OFF",
+              "-DWEBP_BUILD_VWEBP=OFF",
+              "-DWEBP_BUILD_GIF2WEBP=OFF",
+              "-DWEBP_BUILD_IMG2WEBP=OFF"
+            ],
+            "match_names": [
+              "libwebp"
+            ],
+            "pc": "libwebp",
+            "source": {
+              "rev": "v1.4.0",
+              "type": "git",
+              "url": "https://github.com/webmproject/libwebp.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "845d5476a866141ba35ac133f856fa62f0b7445f",
+          "stamp_hash": "ab86c7d7ab3f2f6d01d307026e94d2fd8874932537870d22abddc44e840759f6"
+        },
+        "libxavs2": {
+          "recipe": {
+            "match_names": [
+              "libxavs2",
+              "xavs2"
+            ],
+            "pc": "xavs2",
+            "prefixup": "sed -i 's/CPU amdnop//' source/common/x86/x86inc.asm",
+            "source": {
+              "rev": "eae1e8b9d12468059bdd7dee893508e470fa83d8",
+              "type": "git",
+              "url": "https://github.com/pkuvcl/xavs2.git"
+            },
+            "steps": [
+              "cd {src}/build/linux && AS=/usr/bin/nasm ./configure --prefix={prefix} --extra-cflags=-fPIC --extra-asflags=-DPIC && make -j{jobs} && make install"
+            ],
+            "system": "custom"
+          },
+          "resolved_commit": "eae1e8b9d12468059bdd7dee893508e470fa83d8",
+          "stamp_hash": "7c811fc50f404dbb69b1aa391bed02ef38eb346305ae34daf529843227c8db63"
+        },
+        "libxcb": {
+          "recipe": {
+            "configure_args": [],
+            "match_names": [
+              "libxcb",
+              "xcb",
+              "libxcb_shape",
+              "libxcb_shm",
+              "libxcb_xfixes"
+            ],
+            "needs": [
+              "xcb-proto"
+            ],
+            "pc": "xcb",
+            "source": {
+              "sha256": "599ebf9996710fea71622e6e184f3a8ad5b43d0e5fa8c4e407123c88a59a6d55",
+              "type": "tar",
+              "url": "https://xorg.freedesktop.org/archive/individual/xcb/libxcb-1.17.0.tar.xz"
+            },
+            "strict_pkgconfig": false,
+            "system": "makefile"
+          },
+          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+        },
+        "libxml2": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_SHARED_LIBS=ON",
+              "-DLIBXML2_WITH_PYTHON=OFF",
+              "-DLIBXML2_WITH_ZLIB=OFF",
+              "-DLIBXML2_WITH_LZMA=OFF",
+              "-DLIBXML2_WITH_ICONV=OFF",
+              "-DLIBXML2_WITH_TESTS=OFF",
+              "-DLIBXML2_WITH_PROGRAMS=OFF"
+            ],
+            "match_names": [
+              "libxml-2.0",
+              "libxml2"
+            ],
+            "pc": "libxml-2.0",
+            "source": {
+              "rev": "v2.12.6",
+              "type": "git",
+              "url": "https://github.com/GNOME/libxml2.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": null,
+          "stamp_hash": null
+        },
+        "libxvid": {
+          "recipe": {
+            "match_names": [
+              "libxvid"
+            ],
+            "source": {
+              "type": "tar",
+              "url": "https://downloads.xvid.com/downloads/xvidcore-1.3.7.tar.gz"
+            },
+            "steps": [
+              "cd {src}/build/generic && ./configure --prefix={prefix} && make -j{jobs} && make install"
+            ],
+            "system": "custom"
+          },
+          "stamp_hash": "f3efd1e02558499a3ed8ce1511391e76b904e8754ecd06176d96e5da691f0731"
+        },
+        "libzvbi": {
+          "recipe": {
+            "autogen": "AUTOPOINT=true autoreconf -fi",
+            "configure_args": [
+              "--disable-nls"
+            ],
+            "match_names": [
+              "libzvbi",
+              "zvbi-0.2"
+            ],
+            "pc": "zvbi-0.2",
+            "source": {
+              "sha256": "bca620ab670328ad732d161e4ce8d9d9fc832533cb7440e98c50e112b805ac5e",
+              "type": "tar",
+              "url": "http://deb.debian.org/debian/pool/main/z/zvbi/zvbi_0.2.44.orig.tar.gz"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "5dd3a87434c4b76027d3f9f6300935e88925a65653c75946d048686f08d90d4b"
+        },
+        "openssl": {
+          "recipe": {
+            "configure_args": [
+              "linux-x86_64",
+              "shared",
+              "--libdir=lib"
+            ],
+            "configure_name": "Configure",
+            "install_target": "install_sw",
+            "match_names": [
+              "openssl"
+            ],
+            "pc": "openssl",
+            "source": {
+              "rev": "openssl-3.2.1",
+              "type": "git",
+              "url": "https://github.com/openssl/openssl.git"
+            },
+            "system": "makefile"
+          },
+          "resolved_commit": "a7e992847de83aa36be0c399c89db3fb827b0be2",
+          "stamp_hash": "dabd004d727ebf5ae1dea709ce6f53b833259e4004d961c3a0f350e5054c87ab"
+        },
         "sdl2": {
           "recipe": {
             "cmake_args": [
@@ -103,6 +1271,7 @@
               "-DSDL_TEST_LIBRARY=OFF"
             ],
             "match_names": [
+              "libsdl2",
               "sdl2"
             ],
             "pc": "sdl2",
@@ -115,6 +1284,51 @@
           },
           "resolved_commit": "c98c4fbff6d8f3016a3ce6685bf8f43433c3efcc",
           "stamp_hash": "c13dd7cd8f421be8cb2e2fde797f99318817f4ce98128b9f205612bf893fafa1"
+        },
+        "vulkan-headers": {
+          "recipe": {
+            "cmake_args": [],
+            "fixups": [
+              "share_pc"
+            ],
+            "match_names": [
+              "vulkan-headers"
+            ],
+            "pc": "vulkan",
+            "source": {
+              "sha256": "f38a653bf93cab7a2a229a53d2d53b1cba9a2819e4c0a7de13c54085bde9bcf5",
+              "type": "tar",
+              "url": "https://github.com/KhronosGroup/Vulkan-Headers/archive/refs/tags/v1.3.290.tar.gz"
+            },
+            "system": "cmake"
+          },
+          "stamp_hash": "203e35e4302e79d482f3cecd8a32fcc9e073887bac6eb25cf8454bcbc121c68c"
+        },
+        "vulkan-loader": {
+          "recipe": {
+            "cmake_args": [
+              "-DCMAKE_PREFIX_PATH={prefix}",
+              "-DVULKAN_HEADERS_INSTALL_DIR={prefix}",
+              "-DBUILD_TESTS=OFF",
+              "-DBUILD_LOADER_TOOL=OFF"
+            ],
+            "match_names": [
+              "vulkan",
+              "libvulkan"
+            ],
+            "needs": [
+              "vulkan-headers"
+            ],
+            "pc": "vulkan",
+            "source": {
+              "sha256": "a1f0d80c4ee448d4fa37d1d4a4c4cf1d6d0f5873d3ca6dffe2a9498e6e654142",
+              "type": "tar",
+              "url": "https://github.com/KhronosGroup/Vulkan-Loader/archive/refs/tags/v1.3.290.tar.gz"
+            },
+            "strict_pkgconfig": false,
+            "system": "cmake"
+          },
+          "stamp_hash": null
         },
         "x264": {
           "recipe": {
@@ -152,6 +1366,7 @@
               "pc_version": "3.6"
             },
             "match_names": [
+              "libx265",
               "x265"
             ],
             "pc": "x265",
@@ -166,11 +1381,31 @@
           "resolved_commit": "aa7f602f7592eddb9d87749be7466da005b556ee",
           "stamp_hash": "f2ac48200c3b67b4e7086779c9051976dbeadecdba22b272996c8034bfeaf6f9"
         },
+        "xcb-proto": {
+          "recipe": {
+            "configure_args": [],
+            "fixups": [
+              "share_pc"
+            ],
+            "match_names": [
+              "xcb-proto"
+            ],
+            "pc": "xcb-proto",
+            "source": {
+              "sha256": "2c1bacd2110f4799f74de6ebb714b94cf6f80fb112316b1219480fd22562148c",
+              "type": "tar",
+              "url": "https://xorg.freedesktop.org/archive/individual/proto/xcb-proto-1.17.0.tar.xz"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+        },
         "zimg": {
           "recipe": {
             "autogen": "sh {src}/autogen.sh",
             "configure_args": [],
             "match_names": [
+              "libzimg",
               "zimg"
             ],
             "pc": "zimg",
@@ -182,6 +1417,15 @@
             "system": "makefile"
           },
           "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+        },
+        "zlib": {
+          "recipe": {
+            "pcs": [
+              "zlib"
+            ],
+            "system": "system-pc"
+          },
+          "stamp_hash": "8f4d70986afbf91672ab6500dcd6801a2cf7e4c43f51e465d22a402dfbde74a4"
         }
       }
     }

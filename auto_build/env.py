@@ -44,14 +44,19 @@ _SYSTEM_PATH = "/usr/bin:/bin"
 
 
 def build_child_env(prefix, strict_pkgconfig=False, pythonpath=None,
-                    tools_bin=None, extra=None):
+                    tools_bin=None, prepend_path=None, pcdir=None, extra=None):
     """Build the child-process environment.
 
     prefix            per-triplet sysroot (workspace/out/<triplet>)
     strict_pkgconfig  True -> PKG_CONFIG_LIBDIR hides system .pc files
     pythonpath        controlled injection point for toolchains like meson
                       (None = not set)
-    tools_bin         host tools bin dir (nasm etc.), prepended to PATH
+    tools_bin         host tools bin dir (pkg-config wrapper, nasm), first
+                      in PATH
+    prepend_path      extra bin dirs before tools_bin (e.g. CUDA toolkit)
+    pcdir             PKG_CONFIG_PATH dir; defaults to prefix/lib/pkgconfig
+                      (pass the ASCII alias dir when the sysroot path is
+                      non-ASCII)
     extra             runner-level extras (applied last, may override above)
     """
     child = {k: os.environ[k] for k in _INHERIT if k in os.environ}
@@ -61,11 +66,13 @@ def build_child_env(prefix, strict_pkgconfig=False, pythonpath=None,
         child.pop(k, None)
 
     path_parts = []
+    if prepend_path:
+        path_parts.append(prepend_path)
     if tools_bin:
         path_parts.append(tools_bin)
     path_parts.append(os.path.join(prefix, "bin"))
     child["PATH"] = ":".join(path_parts) + ":" + _SYSTEM_PATH
-    pcdir = os.path.join(prefix, "lib", "pkgconfig")
+    pcdir = pcdir or os.path.join(prefix, "lib", "pkgconfig")
     child["PKG_CONFIG_PATH"] = pcdir
     if strict_pkgconfig:
         # LIBDIR wholesale replaces the default pkg-config search dirs,
