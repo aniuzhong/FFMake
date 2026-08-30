@@ -17,6 +17,7 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 
 from . import env as env_mod
 from . import loop
@@ -237,6 +238,63 @@ def cmd_port_list(_args):
             key, dep.get("system", "-"), status, where))
 
 
+# --- backup / restore: snapshot everything expensive to rebuild ----------
+# Kept: distfiles (offline re-fetch), stamps (ABI-hash validity state),
+# out/ (installed sysroots = the actual build products), lock.json and the
+# two declarative inputs. Skipped: src/, build/, logs/, tools/ (all
+# regenerable; tools rebuild in minutes from warm bootstrap).
+
+def _backup_members(root):
+    members = [
+        os.path.join("workspace", "distfiles"),
+        os.path.join("workspace", "var", "stamps"),
+        os.path.join("workspace", "out"),
+        os.path.join("workspace", ".gitkeep"),
+    ]
+    for f in ("deps.json", "ffmpeg_flags.txt", "lock.json"):
+        if os.path.isfile(os.path.join(root, f)):
+            members.append(f)
+    return [m for m in members if os.path.exists(os.path.join(root, m))]
+
+
+def cmd_backup(args):
+    root = paths.repo_root()
+    paths.ensure_workspace(root)
+    stamp = time.strftime("%Y%m%d-%H%M%S")
+    out = os.path.abspath(args.output.replace("{stamp}", stamp))
+    members = _backup_members(root)
+    tmp = out + ".tmp"
+    cmd = ["tar", "czf", tmp, "-C", root] + members
+    rc = subprocess.run(cmd).returncode
+    if rc != 0:
+        if os.path.exists(tmp):
+            os.remove(tmp)
+        _die("backup failed (tar rc={})".format(rc))
+    os.replace(tmp, out)
+    print("backup: OK -> {} ({})".format(
+        out, _human(os.path.getsize(out))))
+
+
+def cmd_restore(args):
+    root = paths.repo_root()
+    paths.ensure_workspace(root)
+    src = os.path.abspath(args.archive)
+    if not os.path.isfile(src):
+        _die("backup not found: {}".format(src))
+    rc = subprocess.run(["tar", "xzf", src, "-C", root]).returncode
+    if rc != 0:
+        _die("restore failed (tar rc={})".format(rc))
+    print("restore: OK from {} -- run 'ffmake all' to resume".format(src))
+
+
+def _human(n):
+    for unit in ("B", "KiB", "MiB", "GiB"):
+        if n < 1024:
+            return "{:.1f} {}".format(n, unit)
+        n /= 1024.0
+    return "{:.1f} TiB".format(n)
+
+
 def cmd_probe(_args):
     prefix = paths.prefix(paths.repo_root(), triplets_mod.DEFAULT)
 
@@ -334,6 +392,16 @@ def _make_parser():
     pl = port_sub.add_parser("list", help="list known ports and status")
     _add_common(pl)
     pl.set_defaults(fn=cmd_port_list)
+
+    # snapshot/restore of everything expensive to rebuild (vcpkg binary
+    # caching analog, archive form): distfiles + stamps + out/ + lock
+    bk = sub.add_parser("backup", help="snapshot distfiles+stamps+out")
+    bk.add_argument("-o", "--output", default="ffmake-backup-{stamp}.tar.gz",
+                    metavar="FILE")
+    bk.set_defaults(fn=cmd_backup)
+    rs = sub.add_parser("restore", help="restore a backup archive")
+    rs.add_argument("archive", metavar="FILE")
+    rs.set_defaults(fn=cmd_restore)
     return parser
 
 

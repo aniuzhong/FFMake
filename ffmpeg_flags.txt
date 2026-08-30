@@ -68,3 +68,48 @@
 --enable-libxcb-xfixes
 --enable-libxcb-shape
 --enable-sdl2
+# ---- phase 6: extreme closure (upstream EXTERNAL_LIBRARY_LIST minus
+# platform-only (jni/mediacodec/ohcodec/audiotoolbox/videotoolbox/d3d*va/
+# dxva2), giants (tensorflow/torch/onnxruntime/openvino/opencv/opencolorio/
+# smbclient/rsvg), and duplicate backends (gnutls/gcrypt/libtls/
+# vulkan_static/cuda_llvm/libglslang — same feature already covered)) ----
+--enable-amf
+--enable-cairo
+--enable-chromaprint
+--enable-ladspa
+--enable-lcms2
+--enable-libaribcaption
+--enable-libbluray
+--enable-libdc1394
+--enable-libdrm
+--enable-libflite
+--enable-libfontconfig
+--enable-libgme
+--enable-libiec61883
+--enable-libilbc
+--enable-libjack
+--enable-libklvanc
+--enable-liblc3
+--enable-liblcevc_dec
+--enable-liboapv
+--enable-libopenmpt
+--enable-libplacebo
+--enable-libpulse
+--enable-librabbitmq
+--enable-librav1e
+--enable-librist
+--enable-librtmp
+--enable-libshaderc
+--enable-libsvtjpegxs
+--enable-libtesseract
+--enable-libv4l2
+--enable-libxevd
+--enable-libxeve
+--enable-libzmq
+--enable-lv2
+--enable-openal
+--enable-opengl
+--enable-pocketsphinx
+--enable-vaapi
+--enable-vapoursynth
+--enable-whisper

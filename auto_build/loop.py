@@ -83,6 +83,36 @@ def ensure_ffmpeg_src(ctx, ffmpeg_cfg):
     return dst
 
 
+def apply_ffmpeg_patches(ctx):
+    """Idempotently apply patches/ffmpeg/*.patch to the FFmpeg source tree.
+
+    The workspace source persists across runs, so each patch is probed
+    with a dry run first: clean forward -> apply; clean reverse ->
+    already applied -> skip; anything else is a conflict and dies.
+    """
+    src = paths.ffmpeg_src_dir(ctx["root"])
+    pdir = os.path.join(ctx["root"], "patches", "ffmpeg")
+    if not os.path.isdir(pdir):
+        return
+    for name in sorted(os.listdir(pdir)):
+        if not name.endswith(".patch"):
+            continue
+        path = os.path.join(pdir, name)
+        fwd = subprocess.run(["patch", "-d", src, "-p1", "--dry-run",
+                              "-i", path], capture_output=True).returncode
+        if fwd == 0:
+            subprocess.run(["patch", "-d", src, "-p1", "-i", path],
+                           check=True, capture_output=True)
+            print("ffmpeg: applied patch {}".format(name))
+            continue
+        rev = subprocess.run(["patch", "-d", src, "-p1", "--dry-run",
+                              "-R", "-i", path],
+                             capture_output=True).returncode
+        if rev != 0:
+            _die("ffmpeg patch '{}' does not apply and is not fully "
+                 "applied (conflict?)".format(name))
+
+
 def _read_flags(path):
     flags = []
     with open(path) as f:
@@ -149,6 +179,7 @@ def read_flags(root):
 def configure_loop(ctx):
     data, deps, index = _load_deps(ctx["root"])
     src = ctx.get("ffmpeg_src") or ensure_ffmpeg_src(ctx, data.get("ffmpeg"))
+    apply_ffmpeg_patches(ctx)
     out = paths.ffmpeg_out(ctx["root"], ctx["triplet"])
     os.makedirs(out, exist_ok=True)
     log = os.path.join(ctx["logs"], "ffmpeg_configure.log")

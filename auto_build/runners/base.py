@@ -27,7 +27,7 @@ from .. import paths
 from .. import triplets as triplets_mod
 
 # Bump to invalidate all stamps after recipe changes.
-RECIPE_VERSION = 2
+RECIPE_VERSION = 3
 
 # User-provided local proxy; used as fallback when a network step fails.
 FALLBACK_PROXY = "http://127.0.0.1:10808"
@@ -76,12 +76,13 @@ class Runner(object):
         return paths.stamp_file(self.ctx["root"], self.ns(dep), key)
 
     def _stamp_data(self, key, dep):
+        """vcpkg-style ABI hash: the WHOLE deps.json entry is the recipe.
+        Hash the full dict (plus RECIPE_VERSION for engine-level bumps) so
+        any deps.json edit invalidates the port automatically."""
         source = dep.get("source") or {}
         payload = json.dumps({
-            "recipe": self.system,
             "recipe_version": RECIPE_VERSION,
-            "rev": source.get("rev") or "",
-            "args": dep.get("configure_args", []),
+            "entry": dep,
         }, sort_keys=True)
         return {
             "hash": hashlib.sha256(payload.encode("utf-8")).hexdigest(),

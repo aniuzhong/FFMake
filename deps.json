@@ -21,6 +21,21 @@
       },
       "configure_args": []
     },
+    "cmake": {
+      "tool": true,
+      "tool_bin": "cmake",
+      "system": "custom",
+      "source": {
+        "type": "tar",
+        "url": "http://deb.debian.org/debian/pool/main/c/cmake/cmake_3.25.1.orig.tar.gz",
+        "sha256": "1c511d09516af493694ed9baf13c55947a36389674d657a2d5e0ccedc6b291d8"
+      },
+      "steps": [
+        "cd {src} && ./configure --prefix={tools} --parallel={jobs}",
+        "cd {src} && make -j{jobs}",
+        "cd {src} && make install"
+      ]
+    },
     "ninja": {
       "tool": true,
       "system": "custom",
@@ -237,18 +252,18 @@
         "theora"
       ],
       "pc": "theora",
- "system": "makefile",
- "needs": [
-  "libogg",
-  "libvorbis"
- ],
- "source": {
-  "type": "tar",
-  "url": "https://downloads.xiph.org/releases/theora/libtheora-1.1.1.tar.gz"
- },
- "configure_args": [
-  "--disable-examples"
- ]
+      "system": "makefile",
+      "needs": [
+        "libogg",
+        "libvorbis"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://downloads.xiph.org/releases/theora/libtheora-1.1.1.tar.gz"
+      },
+      "configure_args": [
+        "--disable-examples"
+      ]
     },
     "libopus": {
       "match_names": [
@@ -440,10 +455,10 @@
       "source": {
         "type": "git",
         "url": "https://github.com/toots/shine.git",
-   "rev": "3.1.1"
- },
- "autogen": "sh {src}/bootstrap",
- "prefixup": "sed -i 's/^bin_PROGRAMS.*/bin_PROGRAMS =/' Makefile.am && sed -i 's| -export-symbols libshine.sym| -export-symbols $(top_srcdir)/libshine.sym|' Makefile.am",
+        "rev": "3.1.1"
+      },
+      "autogen": "sh {src}/bootstrap",
+      "prefixup": "sed -i 's/^bin_PROGRAMS.*/bin_PROGRAMS =/' Makefile.am && sed -i 's| -export-symbols libshine.sym| -export-symbols $(top_srcdir)/libshine.sym|' Makefile.am",
       "configure_args": []
     },
     "libvvenc": {
@@ -458,10 +473,10 @@
         "rev": "v1.13.0"
       },
       "cmake_args": [
-  "-DBUILD_SHARED_LIBS=ON",
-  "-DVVENC_ENABLE_APP=OFF",
-  "-DVVENC_ENABLE_TESTS=OFF"
- ]
+        "-DBUILD_SHARED_LIBS=ON",
+        "-DVVENC_ENABLE_APP=OFF",
+        "-DVVENC_ENABLE_TESTS=OFF"
+      ]
     },
     "libsvtav1": {
       "match_names": [
@@ -486,13 +501,13 @@
         "libdvdread"
       ],
       "pc": "dvdread",
- "system": "makefile",
- "source": {
-  "type": "tar",
-  "url": "https://download.videolan.org/pub/videolan/libdvdread/6.1.3/libdvdread-6.1.3.tar.bz2",
-  "sha256": "ce35454997a208cbe50e91232f0e73fb1ac3471965813a13b8730a8f18a15369"
- },
- "configure_args": []
+      "system": "makefile",
+      "source": {
+        "type": "tar",
+        "url": "https://download.videolan.org/pub/videolan/libdvdread/6.1.3/libdvdread-6.1.3.tar.bz2",
+        "sha256": "ce35454997a208cbe50e91232f0e73fb1ac3471965813a13b8730a8f18a15369"
+      },
+      "configure_args": []
     },
     "libdvdnav": {
       "match_names": [
@@ -500,16 +515,16 @@
         "libdvdnav"
       ],
       "pc": "dvdnav",
- "system": "makefile",
- "needs": [
-  "libdvdread"
- ],
- "source": {
-  "type": "tar",
-  "url": "https://download.videolan.org/pub/videolan/libdvdnav/6.1.1/libdvdnav-6.1.1.tar.bz2",
-  "sha256": "c191a7475947d323ff7680cf92c0fb1be8237701885f37656c64d04e98d18d48"
- },
- "configure_args": []
+      "system": "makefile",
+      "needs": [
+        "libdvdread"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://download.videolan.org/pub/videolan/libdvdnav/6.1.1/libdvdnav-6.1.1.tar.bz2",
+        "sha256": "c191a7475947d323ff7680cf92c0fb1be8237701885f37656c64d04e98d18d48"
+      },
+      "configure_args": []
     },
     "libwebp": {
       "match_names": [
@@ -544,11 +559,11 @@
         "rev": "openssl-3.2.1"
       },
       "configure_name": "Configure",
- "configure_args": [
-  "linux-x86_64",
-  "shared",
-  "--libdir=lib"
- ],
+      "configure_args": [
+        "linux-x86_64",
+        "shared",
+        "--libdir=lib"
+      ],
       "install_target": "install_sw"
     },
     "libsrt": {
@@ -576,17 +591,17 @@
         "libssh"
       ],
       "pc": "libssh",
- "system": "cmake",
- "needs": [
-  "openssl"
- ],
- "source": {
-  "type": "git",
-  "url": "https://gitlab.com/libssh/libssh-mirror.git",
-  "rev": "libssh-0.10.6"
- },
- "prefixup": "sed -i 's/if(OPENSSL_VERSION VERSION_LESS \"1.1.0\")/if(FALSE)/' src/CMakeLists.txt",
- "cmake_args": [
+      "system": "cmake",
+      "needs": [
+        "openssl"
+      ],
+      "source": {
+        "type": "git",
+        "url": "https://gitlab.com/libssh/libssh-mirror.git",
+        "rev": "libssh-0.10.6"
+      },
+      "prefixup": "sed -i 's/if(OPENSSL_VERSION VERSION_LESS \"1.1.0\")/if(FALSE)/' src/CMakeLists.txt",
+      "cmake_args": [
         "-DWITH_EXAMPLES=OFF",
         "-DWITH_GCRYPT=OFF"
       ]
@@ -622,7 +637,7 @@
       "source": {
         "type": "tar",
         "url": "http://deb.debian.org/debian/pool/main/o/opencore-amr/opencore-amr_0.1.6.orig.tar.gz",
-  "sha256": "483eb4061088e2b34b358e47540b5d495a96cd468e361050fae615b1809dc4a1"
+        "sha256": "483eb4061088e2b34b358e47540b5d495a96cd468e361050fae615b1809dc4a1"
       },
       "configure_args": []
     },
@@ -637,7 +652,7 @@
       "source": {
         "type": "tar",
         "url": "http://deb.debian.org/debian/pool/main/v/vo-amrwbenc/vo-amrwbenc_0.1.3.orig.tar.gz",
-  "sha256": "5652b391e0f0e296417b841b02987d3fd33e6c0af342c69542cbb016a71d9d4e"
+        "sha256": "5652b391e0f0e296417b841b02987d3fd33e6c0af342c69542cbb016a71d9d4e"
       },
       "configure_args": []
     },
@@ -650,8 +665,8 @@
       "source": {
         "type": "tar",
         "url": "https://sourceforge.net/projects/modplug-xmms/files/libmodplug/0.8.9.0/libmodplug-0.8.9.0.tar.gz/download"
- },
- "configure_args": []
+      },
+      "configure_args": []
     },
     "libopenh264": {
       "match_names": [
@@ -727,19 +742,19 @@
         "quirc"
       ],
       "pc": "quirc",
- "system": "custom",
- "source": {
-  "type": "git",
-  "url": "https://github.com/dlbeer/quirc.git",
-  "rev": "v1.2"
- },
- "prefixup": "sed -i 's/^SDL_CFLAGS := .*/SDL_CFLAGS :=/; s/^OPENCV_CFLAGS := .*/OPENCV_CFLAGS :=/' Makefile",
- "steps": [
-  "make -C {src} -j{jobs} libquirc.so",
-  "cp {src}/lib/quirc.h {prefix}/include/",
-  "cp -L {src}/libquirc.so.1.2 {prefix}/lib/libquirc.so.1.2 && ln -sf libquirc.so.1.2 {prefix}/lib/libquirc.so.1 && ln -sf libquirc.so.1 {prefix}/lib/libquirc.so",
-  "mkdir -p {prefix}/lib/pkgconfig && printf 'prefix={prefix}\\nlibdir={prefix}/lib\\nincludedir={prefix}/include\\n\\nName: quirc\\nDescription: QR decoder library\\nVersion: 1.2\\nLibs: -L{prefix}/lib -lquirc\\nCflags: -I{prefix}/include\\n' > {prefix}/lib/pkgconfig/quirc.pc"
- ]
+      "system": "custom",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/dlbeer/quirc.git",
+        "rev": "v1.2"
+      },
+      "prefixup": "sed -i 's/^SDL_CFLAGS := .*/SDL_CFLAGS :=/; s/^OPENCV_CFLAGS := .*/OPENCV_CFLAGS :=/' Makefile",
+      "steps": [
+        "make -C {src} -j{jobs} libquirc.so",
+        "cp {src}/lib/quirc.h {prefix}/include/",
+        "cp -L {src}/libquirc.so.1.2 {prefix}/lib/libquirc.so.1.2 && ln -sf libquirc.so.1.2 {prefix}/lib/libquirc.so.1 && ln -sf libquirc.so.1 {prefix}/lib/libquirc.so",
+        "mkdir -p {prefix}/lib/pkgconfig && printf 'prefix={prefix}\\nlibdir={prefix}/lib\\nincludedir={prefix}/include\\n\\nName: quirc\\nDescription: QR decoder library\\nVersion: 1.2\\nLibs: -L{prefix}/lib -lquirc\\nCflags: -I{prefix}/include\\n' > {prefix}/lib/pkgconfig/quirc.pc"
+      ]
     },
     "libqrencode": {
       "match_names": [
@@ -835,15 +850,34 @@
         "vulkan-headers"
       ],
       "pc": "vulkan",
-      "system": "cmake",
+      "system": "custom",
       "source": {
         "type": "tar",
-        "url": "https://github.com/KhronosGroup/Vulkan-Headers/archive/refs/tags/v1.3.290.tar.gz",
-        "sha256": "f38a653bf93cab7a2a229a53d2d53b1cba9a2819e4c0a7de13c54085bde9bcf5"
+        "url": "https://github.com/KhronosGroup/Vulkan-Headers/archive/refs/tags/vulkan-sdk-1.4.357.0.tar.gz",
+        "sha256": "e87dce08116151f6b6d7de6b6faf41498e87e6cf848ff16fa3bd5402190ad4a3"
       },
-      "cmake_args": [],
-      "fixups": [
-        "share_pc"
+      "steps": [
+        "cmake -S {src} -B {bdir} -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX={prefix}",
+        "cmake --build {bdir} -j{jobs}",
+        "cmake --install {bdir}",
+        "mkdir -p {prefix}/lib/pkgconfig",
+        "printf 'prefix=%s\\nincludedir=${{prefix}}/include\\n\\nName: Vulkan-Headers\\nDescription: Vulkan header files\\nVersion: 1.4.357.0\\nCflags: -I${{includedir}}\\n' \"{prefix}\" > {prefix}/lib/pkgconfig/vulkan.pc"
+      ]
+    },
+    "spirv-headers": {
+      "match_names": [
+        "spirv-headers"
+      ],
+      "pc": "spirv-headers",
+      "system": "custom",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/KhronosGroup/SPIRV-Headers/archive/refs/tags/vulkan-sdk-1.4.357.0.tar.gz#/spirv-headers-1.4.357.0.tar.gz",
+        "sha256": "4d703067a7e06331ccb37bdfed3f9b7879cc61969a2689ae95c95db34a47ff07"
+      },
+      "steps": [
+        "mkdir -p {prefix}/include && cp -r {src}/include/spirv {prefix}/include/",
+        "mkdir -p {prefix}/lib/pkgconfig && printf 'prefix={prefix}\\nincludedir={prefix}/include\\n\\nName: SPIRV-Headers\\nDescription: Khronos SPIR-V headers\\nVersion: 1.4.357.0\\nCflags: -I{prefix}/include\\n' > {prefix}/lib/pkgconfig/spirv-headers.pc"
       ]
     },
     "vulkan-loader": {
@@ -859,8 +893,8 @@
       ],
       "source": {
         "type": "tar",
-        "url": "https://github.com/KhronosGroup/Vulkan-Loader/archive/refs/tags/v1.3.290.tar.gz",
-        "sha256": "a1f0d80c4ee448d4fa37d1d4a4c4cf1d6d0f5873d3ca6dffe2a9498e6e654142"
+        "url": "https://github.com/KhronosGroup/Vulkan-Loader/archive/refs/tags/vulkan-sdk-1.4.357.0.tar.gz#/vulkan-sdk-1.4.357.0-loader.tar.gz",
+        "sha256": "54f2537df22313768da0317dda2abdaaab7711b4081c48c869a79db343d0ae70"
       },
       "cmake_args": [
         "-DCMAKE_PREFIX_PATH={prefix}",
@@ -953,16 +987,16 @@
         "xavs2"
       ],
       "pc": "xavs2",
- "system": "custom",
- "source": {
-  "type": "git",
-  "url": "https://github.com/pkuvcl/xavs2.git",
-  "rev": "eae1e8b9d12468059bdd7dee893508e470fa83d8"
- },
- "prefixup": "sed -i 's/CPU amdnop//' source/common/x86/x86inc.asm",
- "steps": [
-  "cd {src}/build/linux && AS=/usr/bin/nasm ./configure --prefix={prefix} --extra-cflags=-fPIC --extra-asflags=-DPIC && make -j{jobs} && make install"
- ]
+      "system": "custom",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/pkuvcl/xavs2.git",
+        "rev": "eae1e8b9d12468059bdd7dee893508e470fa83d8"
+      },
+      "prefixup": "sed -i 's/CPU amdnop//' source/common/x86/x86inc.asm",
+      "steps": [
+        "cd {src}/build/linux && AS=/usr/bin/nasm ./configure --prefix={prefix} --extra-cflags=-fPIC --extra-asflags=-DPIC && make -j{jobs} && make install"
+      ]
     },
     "libdavs2": {
       "match_names": [
@@ -970,15 +1004,15 @@
         "libdavs2"
       ],
       "pc": "davs2",
- "system": "custom",
- "source": {
-  "type": "git",
-  "url": "https://github.com/pkuvcl/davs2.git",
-  "rev": "1.7"
- },
- "steps": [
-  "cd {src}/build/linux && ./configure --prefix={prefix} --extra-cflags=-fPIC --extra-asflags=-DPIC && make -j{jobs} && make install"
- ]
+      "system": "custom",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/pkuvcl/davs2.git",
+        "rev": "1.7"
+      },
+      "steps": [
+        "cd {src}/build/linux && ./configure --prefix={prefix} --extra-cflags=-fPIC --extra-asflags=-DPIC && make -j{jobs} && make install"
+      ]
     },
     "libxml2": {
       "match_names": [
@@ -1109,6 +1143,1005 @@
         "-DJPEGXL_ENABLE_SJPEG=OFF",
         "-DJPEGXL_ENABLE_OPENEXR=OFF",
         "-DJPEGXL_ENABLE_SKCMS=ON"
+      ]
+    },
+    "expat": {
+      "match_names": [
+        "expat",
+        "libexpat"
+      ],
+      "pc": "expat",
+      "system": "makefile",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/libexpat/libexpat/releases/download/R_2_7_1/expat-2.7.1.tar.gz",
+        "sha256": "0cce2e6e69b327fc607b8ff264f4b66bdf71ead55a87ffd5f3143f535f15cfa2"
+      },
+      "configure_args": []
+    },
+    "cython": {
+      "match_names": [
+        "cython"
+      ],
+      "system": "pip",
+      "tool": true,
+      "pip": {
+        "require": [
+          "cython==3.0.11"
+        ],
+        "wrappers": {
+          "cython": "cython:main"
+        }
+      }
+    },
+    "lcms2": {
+      "match_names": [
+        "lcms2",
+        "lcms"
+      ],
+      "pc": "lcms2",
+      "system": "makefile",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/mm2/Little-CMS/releases/download/lcms2.16/lcms2.16.tar.gz",
+        "sha256": "d873d34ad8b9b4cea010631f1a6228d2087475e4dc5e763eb81acc23d9d45a51"
+      },
+      "configure_args": []
+    },
+    "libbluray": {
+      "match_names": [
+        "libbluray",
+        "bluray"
+      ],
+      "pc": "libbluray",
+      "system": "makefile",
+      "needs": [
+        "libxml2",
+        "libfreetype",
+        "fontconfig"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://download.videolan.org/pub/videolan/libbluray/1.3.4/libbluray-1.3.4.tar.bz2",
+        "sha256": "478ffd68a0f5dde8ef6ca989b7f035b5a0a22c599142e5cd3ff7b03bbebe5f2b"
+      },
+      "configure_args": [
+        "--disable-bdjava-jar",
+        "--disable-doxygen-doc",
+        "--disable-bdjavaglue"
+      ]
+    },
+    "fontconfig": {
+      "match_names": [
+        "fontconfig"
+      ],
+      "pc": "fontconfig",
+      "system": "meson",
+      "needs": [
+        "expat"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://www.freedesktop.org/software/fontconfig/release/fontconfig-2.15.0.tar.xz",
+        "sha256": "63a0658d0e06e0fa886106452b58ef04f21f58202ea02a94c39de0d3335d7c0e"
+      },
+      "meson_args": [
+        "-Dtests=disabled",
+        "-Ddoc=disabled"
+      ]
+    },
+    "mpg123": {
+      "match_names": [
+        "mpg123",
+        "libmpg123"
+      ],
+      "pc": "libmpg123",
+      "system": "makefile",
+      "source": {
+        "type": "tar",
+        "url": "http://deb.debian.org/debian/pool/main/m/mpg123/mpg123_1.32.10.orig.tar.xz",
+        "sha256": "98867a796fa1eeb161847d211734d585ff61c56712fbc333de416fea7b59de29"
+      },
+      "configure_args": [
+        "--disable-static",
+        "--enable-shared",
+        "--with-audio=dummy"
+      ]
+    },
+    "libopenmpt": {
+      "match_names": [
+        "libopenmpt",
+        "openmpt"
+      ],
+      "pc": "libopenmpt",
+      "system": "makefile",
+      "needs": [
+        "mpg123",
+        "zlib"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://lib.openmpt.org/files/libopenmpt/src/libopenmpt-0.7.13%2Brelease.autotools.tar.gz",
+        "sha256": "dcd7cde4f9c498eb496c4556e1c1b81353e2a74747e8270a42565117ea42e1f1"
+      },
+      "configure_args": [
+        "--disable-openmpt123",
+        "--disable-examples",
+        "--disable-tests"
+      ]
+    },
+    "libzmq": {
+      "match_names": [
+        "libzmq",
+        "zmq"
+      ],
+      "pc": "libzmq",
+      "system": "cmake",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/zeromq/libzmq/releases/download/v4.3.5/zeromq-4.3.5.tar.gz",
+        "sha256": "6653ef5910f17954861fe72332e68b03ca6e4d9c7160eb3a8de5a5a913bfab43"
+      },
+      "cmake_args": [
+        "-DBUILD_TESTS=OFF",
+        "-DBUILD_SHARED=ON",
+        "-DBUILD_STATIC=OFF",
+        "-DENABLE_DRAFTS=OFF"
+      ]
+    },
+    "librabbitmq": {
+      "match_names": [
+        "librabbitmq",
+        "rabbitmq"
+      ],
+      "pc": "librabbitmq",
+      "system": "cmake",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/alanxz/rabbitmq-c/archive/refs/tags/v0.15.0.tar.gz",
+        "sha256": "7b652df52c0de4d19ca36c798ed81378cba7a03a0f0c5d498881ae2d79b241c2"
+      },
+      "cmake_args": [
+        "-DBUILD_TESTS=OFF",
+        "-DBUILD_TOOLS=OFF",
+        "-DBUILD_EXAMPLES=OFF",
+        "-DBUILD_SHARED_LIBS=ON"
+      ]
+    },
+    "chromaprint": {
+      "match_names": [
+        "libchromaprint",
+        "chromaprint"
+      ],
+      "pc": "libchromaprint",
+      "system": "cmake",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/acoustid/chromaprint/releases/download/v1.5.1/chromaprint-1.5.1.tar.gz",
+        "sha256": "a1aad8fa3b8b18b78d3755b3767faff9abb67242e01b478ec9a64e190f335e1c"
+      },
+      "cmake_args": [
+        "-DBUILD_TOOLS=OFF"
+      ]
+    },
+    "flite": {
+      "match_names": [
+        "flite",
+        "libflite"
+      ],
+      "pc": "flite",
+      "system": "custom",
+      "source": {
+        "type": "tar",
+        "url": "http://deb.debian.org/debian/pool/main/f/flite/flite_2.2.orig.tar.gz",
+        "sha256": "ab1555fe5adc3f99f1d4a1a0eb1596d329fd6d74f1464a0097c81f53c0cf9e5c"
+      },
+      "steps": [
+        "cd {src} && ./configure --prefix={prefix} --with-audio=alsa --enable-shared",
+        "cd {src} && make -j{jobs}",
+        "cd {src} && make install"
+      ]
+    },
+    "libjpeg-turbo": {
+      "match_names": [
+        "libjpeg",
+        "libjpeg-turbo",
+        "turbojpeg"
+      ],
+      "pc": "libjpeg",
+      "system": "cmake",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/3.2.0/libjpeg-turbo-3.2.0.tar.gz",
+        "sha256": "6f30092cef9fb839779646608f4ee14ae3cbac989c47fa05e841b0841f09878e"
+      },
+      "cmake_args": [
+        "-DENABLE_STATIC=OFF",
+        "-DENABLE_SHARED=ON",
+        "-DWITH_TURBOJPEG=OFF"
+      ]
+    },
+    "libtiff": {
+      "match_names": [
+        "libtiff-4",
+        "libtiff",
+        "tiff"
+      ],
+      "pc": "libtiff-4",
+      "system": "makefile",
+      "needs": [
+        "zlib",
+        "libjpeg-turbo"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://download.osgeo.org/libtiff/tiff-4.7.2.tar.gz",
+        "sha256": "672bd7d10aee4606171afb864f3570b83340f6a33e2c186dc0512f7145ffdf6a"
+      },
+      "configure_args": [
+        "--disable-static",
+        "--enable-shared",
+        "--disable-webp",
+        "--disable-zstd",
+        "--disable-lzma",
+        "--disable-jbig"
+      ]
+    },
+    "leptonica": {
+      "match_names": [
+        "leptonica",
+        "lept"
+      ],
+      "pc": "lept",
+      "system": "custom",
+      "needs": [
+        "zlib",
+        "libpng",
+        "libjpeg-turbo",
+        "libtiff",
+        "libwebp",
+        "libopenjpeg"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/DanBloomberg/leptonica/releases/download/1.85.0/leptonica-1.85.0.tar.gz",
+        "sha256": "3745ae3bf271a6801a2292eead83ac926e3a9bc1bf622e9cd4dd0f3786e17205"
+      },
+      "steps": [
+        "cmake -S {src} -B {bdir} -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX={prefix} -DCMAKE_PREFIX_PATH={prefix} -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DBUILD_PROG=OFF -DSW_BUILD=OFF",
+        "cmake --build {bdir} -j{jobs}",
+        "cmake --install {bdir}",
+        "[ -f {prefix}/lib/pkgconfig/lept.pc ] || mv {prefix}/lib/pkgconfig/lept_Release.pc {prefix}/lib/pkgconfig/lept.pc",
+        "sed -i -E -e 's|\\$<LINK_ONLY:-lwebp>|{prefix}/lib/libwebp.so|g' -e 's|\\$<LINK_ONLY:openjp2>|{prefix}/lib/libopenjp2.so|g' -e 's|WebP::libwebpmux|{prefix}/lib/libwebpmux.so|g' -e 's|WebP::webp|{prefix}/lib/libwebp.so|g' -e 's|/usr/lib/x86_64-linux-gnu/libjpeg.so|{prefix}/lib/libjpeg.so|g' -e 's|/usr/lib/x86_64-linux-gnu/libtiff.so|{prefix}/lib/libtiff.so|g' -e 's|/usr/lib/x86_64-linux-gnu/libpng.so|{prefix}/lib/libpng16.so|g' {prefix}/lib/cmake/leptonica/LeptonicaTargets.cmake {prefix}/lib/cmake/leptonica/LeptonicaTargets-release.cmake"
+      ]
+    },
+    "libtesseract": {
+      "match_names": [
+        "libtesseract",
+        "tesseract"
+      ],
+      "pc": "tesseract",
+      "system": "cmake",
+      "needs": [
+        "leptonica"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/tesseract-ocr/tesseract/archive/refs/tags/5.5.0.tar.gz",
+        "sha256": "f2fb34ca035b6d087a42875a35a7a5c4155fa9979c6132365b1e5a28ebc3fc11"
+      },
+      "cmake_args": [
+        "-DBUILD_SHARED_LIBS=ON",
+        "-DSW_BUILD=OFF",
+        "-DENABLE_TRAINING=OFF",
+        "-DBUILD_TRAINING_TOOLS=OFF",
+        "-DUSE_OPENMP=OFF",
+        "-DCMAKE_PREFIX_PATH={prefix}"
+      ]
+    },
+    "openal": {
+      "match_names": [
+        "openal",
+        "openal-soft"
+      ],
+      "pc": "openal",
+      "system": "cmake",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/kcat/openal-soft/releases/download/1.24.3/openal-soft-1.24.3.tar.bz2",
+        "sha256": "cb5e6197a1c0da0edcf2a81024953cc8fa8545c3b9474e48c852af709d587892"
+      },
+      "cmake_args": [
+        "-DALSOFT_EXAMPLES=OFF",
+        "-DALSOFT_UTILS=OFF",
+        "-DALSOFT_TESTS=OFF",
+        "-DALSOFT_REQUIRE_ALSA=OFF"
+      ]
+    },
+    "libraw1394": {
+      "match_names": [
+        "libraw1394",
+        "raw1394"
+      ],
+      "pc": "libraw1394",
+      "system": "makefile",
+      "source": {
+        "type": "tar",
+        "url": "https://kernel.org/pub/linux/libs/ieee1394/libraw1394-2.1.2.tar.xz",
+        "sha256": "03ccc69761d22c7deb1127fc301010dd13e70e44bb7134b8ff0d07590259a55e"
+      },
+      "configure_args": []
+    },
+    "libdc1394": {
+      "match_names": [
+        "libdc1394",
+        "dc1394",
+        "libdc1394-2"
+      ],
+      "pc": "libdc1394-2",
+      "system": "makefile",
+      "needs": [
+        "libraw1394",
+        "libavc1394"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://downloads.sourceforge.net/project/libdc1394/libdc1394-2/2.2.7/libdc1394-2.2.7.tar.gz",
+        "sha256": "537ceb78dd3cef271a183f4a176191d1cecf85f025520e6bd3758b0e19e6609f"
+      },
+      "configure_args": []
+    },
+    "libavc1394": {
+      "match_names": [
+        "libavc1394",
+        "avc1394",
+        "rom1394"
+      ],
+      "pc": "libavc1394",
+      "system": "makefile",
+      "needs": [
+        "libraw1394"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "http://deb.debian.org/debian/pool/main/liba/libavc1394/libavc1394_0.5.4.orig.tar.gz",
+        "sha256": "7cb1ff09506ae911ca9860bef4af08c2403f3e131f6c913a2cbd6ddca4215b53"
+      }
+    },
+    "libiec61883": {
+      "match_names": [
+        "libiec61883",
+        "iec61883",
+        "libiec61883/iec61883.h"
+      ],
+      "pc": "libiec61883",
+      "system": "makefile",
+      "needs": [
+        "libraw1394",
+        "libavc1394"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://kernel.org/pub/linux/libs/ieee1394/libiec61883-1.2.0.tar.xz",
+        "sha256": "d1e02c7e276fac37313a2f8c1c33d7a9e19282ff16f32e72435428ff5121f09e"
+      },
+      "configure_args": []
+    },
+    "libdrm": {
+      "match_names": [
+        "libdrm",
+        "drm"
+      ],
+      "pc": "libdrm",
+      "system": "meson",
+      "source": {
+        "type": "tar",
+        "url": "https://dri.freedesktop.org/libdrm/libdrm-2.4.124.tar.xz",
+        "sha256": "ac36293f61ca4aafaf4b16a2a7afff312aa4f5c37c9fbd797de9e3c0863ca379"
+      },
+      "meson_args": [
+        "-Dtests=false",
+        "-Dman-pages=disabled"
+      ]
+    },
+    "libva": {
+      "match_names": [
+        "libva",
+        "va",
+        "vaapi"
+      ],
+      "pc": "libva",
+      "system": "meson",
+      "needs": [
+        "libdrm"
+      ],
+      "strict_pkgconfig": false,
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/intel/libva/releases/download/2.22.0/libva-2.22.0.tar.bz2",
+        "sha256": "e3da2250654c8d52b3f59f8cb3f3d8e7fb1a2ee64378dbc400fbc5663de7edb8"
+      },
+      "meson_args": []
+    },
+    "amf": {
+      "match_names": [
+        "amf"
+      ],
+      "pc": "amf",
+      "system": "custom",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/GPUOpen-LibrariesAndSDKs/AMF/archive/refs/tags/v1.5.2.tar.gz",
+        "sha256": "8a70b6dc85261e6e6e57769bd81ac1e09c0a4c96bbd5e358ffbc2dee51e8e50a"
+      },
+      "steps": [
+        "mkdir -p {prefix}/include/AMF && cp -r {src}/amf/public/include/core {src}/amf/public/include/components {prefix}/include/AMF/",
+        "mkdir -p {prefix}/lib/pkgconfig && printf 'prefix={prefix}\\nlibdir={prefix}/lib\\nincludedir={prefix}/include\\n\\nName: amf\\nDescription: AMD Advanced Media Framework headers\\nVersion: 1.5.2\\nCflags: -I{prefix}/include\\n' > {prefix}/lib/pkgconfig/amf.pc"
+      ]
+    },
+    "ladspa": {
+      "match_names": [
+        "ladspa",
+        "ladspa.h"
+      ],
+      "pc": "ladspa",
+      "system": "custom",
+      "source": {
+        "type": "tar",
+        "url": "https://www.ladspa.org/download/ladspa_sdk_1.17.tgz",
+        "sha256": "27d24f279e4b81bd17ecbdcc38e4c42991bb388826c0b200067ce0eb59d3da5b"
+      },
+      "steps": [
+        "mkdir -p {prefix}/include && cp {src}/src/ladspa.h {prefix}/include/",
+        "mkdir -p {prefix}/lib/pkgconfig && printf 'prefix={prefix}\\nlibdir={prefix}/lib\\nincludedir={prefix}/include\\n\\nName: ladspa\\nDescription: Linux Audio Developer Simple Plugin API\\nVersion: 1.17\\nCflags: -I{prefix}/include\\n' > {prefix}/lib/pkgconfig/ladspa.pc"
+      ]
+    },
+    "lv2": {
+      "match_names": [
+        "lv2"
+      ],
+      "pc": "lv2",
+      "system": "meson",
+      "source": {
+        "type": "tar",
+        "url": "https://lv2plug.in/spec/lv2-1.18.10.tar.xz",
+        "sha256": "78c51bcf21b54e58bb6329accbb4dae03b2ed79b520f9a01e734bd9de530953f"
+      },
+      "meson_args": [
+        "-Ddocs=disabled",
+        "-Dtests=disabled"
+      ]
+    },
+    "serd": {
+      "match_names": [
+        "serd",
+        "serd-0"
+      ],
+      "pc": "serd-0",
+      "system": "meson",
+      "source": {
+        "type": "tar",
+        "url": "https://download.drobilla.net/serd-0.32.4.tar.xz",
+        "sha256": "cbefb569e8db686be8c69cb3866a9538c7cb055e8f24217dd6a4471effa7d349"
+      },
+      "meson_args": [
+        "-Dtests=disabled",
+        "-Ddocs=disabled"
+      ]
+    },
+    "zix": {
+      "match_names": [
+        "zix",
+        "zix-0"
+      ],
+      "pc": "zix-0",
+      "system": "meson",
+      "source": {
+        "type": "tar",
+        "url": "https://download.drobilla.net/zix-0.6.2.tar.xz",
+        "sha256": "4bc771abf4fcf399ea969a1da6b375f0117784f8fd0e2db356a859f635f616a7"
+      },
+      "meson_args": [
+        "-Dtests=disabled",
+        "-Ddocs=disabled"
+      ]
+    },
+    "sord": {
+      "match_names": [
+        "sord",
+        "sord-0"
+      ],
+      "pc": "sord-0",
+      "system": "meson",
+      "needs": [
+        "serd",
+        "zix"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://download.drobilla.net/sord-0.16.18.tar.xz",
+        "sha256": "4f398b635894491a4774b1498959805a08e11734c324f13d572dea695b13d3b3"
+      },
+      "meson_args": [
+        "-Dtests=disabled",
+        "-Ddocs=disabled"
+      ]
+    },
+    "sratom": {
+      "match_names": [
+        "sratom",
+        "sratom-0"
+      ],
+      "pc": "sratom-0",
+      "system": "meson",
+      "needs": [
+        "serd",
+        "sord",
+        "zix",
+        "lv2"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://download.drobilla.net/sratom-0.6.18.tar.xz",
+        "sha256": "4c6a6d9e0b4d6c01cc06a8849910feceb92e666cb38779c614dd2404a9931e92"
+      },
+      "meson_args": [
+        "-Dtests=disabled",
+        "-Ddocs=disabled"
+      ]
+    },
+    "lilv": {
+      "match_names": [
+        "lilv",
+        "lilv-0"
+      ],
+      "pc": "lilv-0",
+      "system": "meson",
+      "needs": [
+        "serd",
+        "sord",
+        "sratom",
+        "zix",
+        "lv2"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://download.drobilla.net/lilv-0.24.26.tar.xz",
+        "sha256": "22feed30bc0f952384a25c2f6f4b04e6d43836408798ed65a8a934c055d5d8ac"
+      },
+      "meson_args": [
+        "-Dtests=disabled",
+        "-Ddocs=disabled"
+      ]
+    },
+    "libklvanc": {
+      "match_names": [
+        "libklvanc",
+        "klvanc",
+        "libklvanc/vanc.h"
+      ],
+      "pc": "libklvanc",
+      "system": "makefile",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/stoth68000/libklvanc.git",
+        "rev": "d2bec177f68fe807a8c12d3b8d18ee8208bbdc32"
+      },
+      "autogen": "sh {src}/autogen.sh --build",
+      "configure_args": [
+        "--disable-static",
+        "--enable-shared"
+      ]
+    },
+    "liblcevc_dec": {
+      "match_names": [
+        "lcevc_dec",
+        "liblcevc_dec"
+      ],
+      "pc": "lcevc_dec",
+      "system": "cmake",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/v-novaltd/LCEVCdec/archive/refs/tags/4.2.1.tar.gz",
+        "sha256": "997e69cfc539f5800a20d92d3f07c3bc4ec0e5b710a3b364b07bcb39a69b8898"
+      },
+      "cmake_args": [
+        "-DBUILD_SHARED_LIBS=ON",
+        "-DVN_SDK_SYSTEM_INSTALL=OFF"
+      ]
+    },
+    "libplacebo": {
+      "match_names": [
+        "libplacebo"
+      ],
+      "pc": "libplacebo",
+      "system": "meson",
+      "needs": [
+        "vulkan-loader",
+        "vulkan-headers",
+        "libshaderc"
+      ],
+      "source": {
+        "type": "git",
+        "url": "https://code.videolan.org/videolan/libplacebo.git",
+        "rev": "v7.360.1",
+        "submodules": true
+      },
+      "meson_args": [
+        "-Dvulkan=enabled",
+        "-Dshaderc=enabled",
+        "-Dglslang=disabled",
+        "-Dopengl=disabled",
+        "-Dd3d11=disabled",
+        "-Dtests=false",
+        "-Ddemos=false"
+      ]
+    },
+    "libshaderc": {
+      "match_names": [
+        "shaderc",
+        "shaderc_shared"
+      ],
+      "pc": "shaderc",
+      "system": "cmake",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/google/shaderc.git",
+        "rev": "v2026.3"
+      },
+      "prefixup": "python3 {src}/utils/git-sync-deps",
+      "cmake_args": [
+        "-DSHADERC_SKIP_TESTS=ON",
+        "-DSHADERC_SKIP_EXAMPLES=ON",
+        "-DSHADERC_SKIP_COPYRIGHT_CHECK=ON",
+        "-DBUILD_SHARED_LIBS=ON"
+      ]
+    },
+    "libsvtjpegxs": {
+      "match_names": [
+        "SvtJpegxs",
+        "svtjpegxs",
+        "libsvtjpegxs"
+      ],
+      "pc": "SvtJpegxs",
+      "system": "cmake",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/OpenVisualCloud/SVT-JPEG-XS.git",
+        "rev": "96f8f06e65011042b265221c8558a46090c679bd"
+      },
+      "cmake_args": [
+        "-DBUILD_SHARED_LIBS=ON",
+        "-DENABLE_NASM=ON"
+      ]
+    },
+    "libv4l2": {
+      "match_names": [
+        "libv4l2"
+      ],
+      "pc": "libv4l2",
+      "system": "meson",
+      "source": {
+        "type": "tar",
+        "url": "https://linuxtv.org/downloads/v4l-utils/v4l-utils-1.32.0.tar.xz",
+        "sha256": "6828828a17775526eb93fb258a9294d1d1073d633c344dd71ecd4e7a1ffb7dfc"
+      },
+      "meson_args": [
+        "-Dv4l-utils=false",
+        "-Dv4l-wrappers=false",
+        "-Dv4l-plugins=false",
+        "-Dlibdvbv5=disabled",
+        "-Dv4l2-tracer=disabled",
+        "-Dbpf=disabled",
+        "-Dgconv=disabled",
+        "-Dqv4l2=disabled",
+        "-Dqvidcap=disabled"
+      ]
+    },
+    "libxevd": {
+      "match_names": [
+        "xevd"
+      ],
+      "pc": "xevd",
+      "system": "cmake",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/mpeg5/xevd.git",
+        "rev": "0f066b3ea33834fe4e25b41c32c66f912f0b5d30"
+      },
+      "cmake_args": [
+        "-DBUILD_SHARED_LIBS=ON"
+      ]
+    },
+    "libxeve": {
+      "match_names": [
+        "xeve"
+      ],
+      "pc": "xeve",
+      "system": "cmake",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/mpeg5/xeve.git",
+        "rev": "4325639f8dff8274c023df3d7c1ca6d3cdcfc11b"
+      },
+      "cmake_args": [
+        "-DBUILD_SHARED_LIBS=ON"
+      ]
+    },
+    "librav1e": {
+      "match_names": [
+        "rav1e",
+        "librav1e"
+      ],
+      "pc": "rav1e",
+      "system": "custom",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/xiph/rav1e.git",
+        "rev": "1fe82de02510767539e89b2ee6fa846920ae2686"
+      },
+      "steps": [
+        "cd {src} && $HOME/.cargo/bin/cargo rustc --lib --release --features capi --crate-type cdylib --crate-type staticlib --quiet",
+        "cd {src} && PATH=$HOME/.cargo/bin:$PATH $HOME/.cargo/bin/cbindgen --crate rav1e --output include/rav1e/rav1e.h",
+        "mkdir -p {prefix}/include {prefix}/lib/pkgconfig",
+        "cp -a {src}/include/rav1e {prefix}/include/",
+        "cp -a {src}/target/release/librav1e.so* {src}/target/release/librav1e.a {prefix}/lib/",
+        "printf 'prefix=%s\\nexec_prefix=${{prefix}}\\nlibdir=${{prefix}}/lib\\nincludedir=${{prefix}}/include\\n\\nName: rav1e\\nDescription: The fastest and safest AV1 encoder\\nVersion: 0.8.1\\nLibs: -L${{libdir}} -lrav1e\\nLibs.private: -lm -lpthread -ldl\\nCflags: -I${{includedir}}/rav1e\\n' \"{prefix}\" > {prefix}/lib/pkgconfig/rav1e.pc"
+      ]
+    },
+    "pocketsphinx": {
+      "match_names": [
+        "pocketsphinx"
+      ],
+      "pc": "pocketsphinx",
+      "system": "custom",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/cmusphinx/pocketsphinx/archive/refs/tags/v5.1.1.tar.gz",
+        "sha256": "e2db414eb66618cd0a98de77507db32517a48f6900b06bfb94c0acc4bef5761d"
+      },
+      "steps": [
+        "cmake -S {src} -B {bdir} -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX={prefix} -DBUILD_SHARED_LIBS=ON",
+        "cmake --build {bdir} -j{jobs}",
+        "cmake --install {bdir}",
+        "[ -f {prefix}/include/pocketsphinx/pocketsphinx.h ] || mv {prefix}/include/pocketsphinx.h {prefix}/include/pocketsphinx/"
+      ]
+    },
+    "whisper": {
+      "match_names": [
+        "whisper"
+      ],
+      "pc": "whisper",
+      "system": "cmake",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/ggml-org/whisper.cpp/archive/refs/tags/v1.9.3.tar.gz",
+        "sha256": "1650f884effba487025143bd8facd2f9fb40a83b3737a732803c67a8d659d9c0"
+      },
+      "cmake_args": [
+        "-DBUILD_SHARED_LIBS=ON",
+        "-DWHISPER_BUILD_TESTS=OFF",
+        "-DWHISPER_BUILD_EXAMPLES=OFF"
+      ]
+    },
+    "libilbc": {
+      "match_names": [
+        "libilbc",
+        "ilbc"
+      ],
+      "pc": "libilbc",
+      "system": "cmake",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/TimothyGu/libilbc/releases/download/v3.0.3/libilbc-3.0.3.tar.gz",
+        "sha256": "47c57deb26a36da11cbf7d51e76894c7b909ab007664f736319267bde57c73d0"
+      },
+      "cmake_args": []
+    },
+    "liblc3": {
+      "match_names": [
+        "liblc3",
+        "lc3"
+      ],
+      "pc": "liblc3",
+      "system": "meson",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/google/liblc3/archive/refs/tags/v1.1.1.tar.gz",
+        "sha256": "b65e38943708529efd04a87dd1a9f16a9856ed6199d082b18e7d42fb5c59486e"
+      },
+      "meson_args": []
+    },
+    "libgme": {
+      "match_names": [
+        "libgme",
+        "gme"
+      ],
+      "pc": "libgme",
+      "system": "cmake",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/libgme/game-music-emu/archive/refs/tags/0.6.3.tar.gz",
+        "sha256": "4c5a7614acaea44e5cb1423817d2889deb82674ddbc4e3e1291614304b86fca0"
+      },
+      "cmake_args": [
+        "-DBUILD_SHARED_LIBS=ON",
+        "-DBUILD_EXAMPLES=OFF"
+      ]
+    },
+    "libaribcaption": {
+      "match_names": [
+        "libaribcaption",
+        "aribcaption"
+      ],
+      "pc": "libaribcaption",
+      "system": "cmake",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/xqq/libaribcaption/releases/download/v1.1.1/libaribcaption-1.1.1.tar.gz",
+        "sha256": "278d03a0a662d00a46178afc64f32535ede2d78c603842b6fd1c55fa9cd44683"
+      },
+      "cmake_args": [
+        "-DBUILD_SHARED_LIBS=ON"
+      ]
+    },
+    "librtmp": {
+      "match_names": [
+        "librtmp",
+        "rtmp"
+      ],
+      "pc": "librtmp",
+      "system": "custom",
+      "needs": [
+        "zlib"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "http://deb.debian.org/debian/pool/main/r/rtmpdump/rtmpdump_2.4+20151223.gitfa8646d.1.orig.tar.gz",
+        "sha256": "5c032f5c8cc2937eb55a81a94effdfed3b0a0304b6376147b86f951e225e3ab5"
+      },
+      "steps": [
+        "make -C {src}/librtmp -j{jobs} CRYPTO= OPT=\"-O2 -I{prefix}/include\" XLDFLAGS=\"-L{prefix}/lib -Wl,-rpath,{prefix}/lib\"",
+        "make -C {src}/librtmp install prefix={prefix} CRYPTO= OPT=\"-O2 -I{prefix}/include\" XLDFLAGS=\"-L{prefix}/lib\""
+      ]
+    },
+    "pulseaudio": {
+      "match_names": [
+        "libpulse",
+        "pulse"
+      ],
+      "pc": "libpulse",
+      "system": "meson",
+      "needs": [
+        "libsndfile"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://freedesktop.org/software/pulseaudio/releases/pulseaudio-17.0.tar.xz",
+        "sha256": "053794d6671a3e397d849e478a80b82a63cb9d8ca296bd35b73317bb5ceb87b5"
+      },
+      "meson_args": [
+        "-Ddaemon=disabled",
+        "-Dtests=disabled",
+        "-Ddoxygen=disabled",
+        "-Dman=disabled",
+        "-Dbluez5=disabled",
+        "-Dgtk-videotest=disabled",
+        "-Dgsettings=disabled",
+        "-Dwebrtc-aec=disabled"
+      ]
+    },
+    "mbedtls": {
+      "match_names": [
+        "mbedtls",
+        "mbedcrypto"
+      ],
+      "pc": "mbedtls",
+      "system": "cmake",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-3.6.2/mbedtls-3.6.2.tar.bz2",
+        "sha256": "8b54fb9bcf4d5a7078028e0520acddefb7900b3e66fec7f7175bb5b7d85ccdca"
+      },
+      "cmake_args": [
+        "-DUSE_SHARED_MBEDTLS_LIBRARY=ON",
+        "-DENABLE_TESTING=OFF",
+        "-DENABLE_PROGRAMS=OFF"
+      ]
+    },
+    "librist": {
+      "match_names": [
+        "librist",
+        "rist"
+      ],
+      "pc": "librist",
+      "system": "meson",
+      "needs": [
+        "mbedtls"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://code.videolan.org/rist/librist/-/archive/v0.2.10/librist-v0.2.10.tar.gz",
+        "sha256": "797e486961cd09bc220c5f6561ca5a08e7747b313ec84029704d39cbd73c598c"
+      },
+      "meson_args": [
+        "-Duse_mbedtls=true",
+        "-Dtest=false"
+      ]
+    },
+    "libjack": {
+      "match_names": [
+        "libjack",
+        "jack"
+      ],
+      "pc": "jack",
+      "system": "custom",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/jackaudio/jack2/archive/refs/tags/v1.9.22.tar.gz",
+        "sha256": "1e42b9fc4ad7db7befd414d45ab2f8a159c0b30fcd6eee452be662298766a849"
+      },
+      "steps": [
+        "sed -i \"s/latin-1/utf-8/g\" {src}/waflib/*.py && cd {src} && python3 waf configure --prefix={prefix} --autostart=none && python3 waf build -j{jobs} && python3 waf install"
+      ]
+    },
+    "vapoursynth": {
+      "match_names": [
+        "vapoursynth",
+        "vapoursynth/VSScript4.h",
+        "vapoursynth/VSAPI4.h"
+      ],
+      "pc": "vapoursynth",
+      "system": "makefile",
+      "needs": [
+        "zimg",
+        "cython"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/vapoursynth/vapoursynth/archive/refs/tags/R70.tar.gz",
+        "sha256": "59c813ec36046be33812408ff00e16cae63c6843af6acf4e34595910a80e267b"
+      },
+      "autogen": "sh {src}/autogen.sh",
+      "configure_args": [
+        "--disable-vspipe",
+        "--disable-python-module"
+      ],
+      "strict_pkgconfig": false
+    },
+    "cairo": {
+      "system": "system-pc",
+      "pcs": [
+        "cairo"
+      ]
+    },
+    "opengl": {
+      "system": "system-pc",
+      "pcs": [
+        "gl",
+        "egl"
+      ],
+      "match_names": [
+        "GL/glx.h"
+      ]
+    },
+    "openapv": {
+      "match_names": [
+        "oapv",
+        "liboapv"
+      ],
+      "pc": "oapv",
+      "system": "cmake",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/AcademySoftwareFoundation/openapv.git",
+        "rev": "a5312e4fa405057ff0be2c370283fabfe588c1f4"
+      },
+      "cmake_args": [
+        "-DBUILD_SHARED_LIBS=ON"
+      ],
+      "fixups": [
+        "share_pc"
       ]
     }
   }

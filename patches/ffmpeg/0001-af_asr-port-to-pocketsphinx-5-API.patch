@@ -1,0 +1,37 @@
+--- a/libavfilter/af_asr.c
++++ b/libavfilter/af_asr.c
+@@ -41,7 +41,7 @@
+     char *logfn;
+ 
+     ps_decoder_t *ps;
+-    cmd_ln_t *config;
++    ps_config_t *config;
+ 
+     int utt_started;
+ } ASRContext;
+@@ -109,11 +109,14 @@
+                            "-samprate", rate,
+                            NULL };
+ 
+-    s->config = cmd_ln_parse_r(NULL, ps_args(), 14, (char **)argv, 0);
++    s->config = ps_config_init(ps_args());
+     av_free(rate);
+     if (!s->config)
+         return AVERROR(ENOMEM);
+-
++    for (int i = 0; argv[i] != NULL && argv[i + 1] != NULL; i += 2)
++        if (argv[i + 1] != NULL)
++            ps_config_set_str(s->config, argv[i] + (argv[i][0] == '-'),
++                              argv[i + 1]);
+     ps_default_search_args(s->config);
+     s->ps = ps_init(s->config);
+     if (!s->ps)
+@@ -160,7 +163,7 @@
+ 
+     ps_free(s->ps);
+     s->ps = NULL;
+-    cmd_ln_free_r(s->config);
++    ps_config_free(s->config);
+     s->config = NULL;
+ }
+ 
