@@ -26,7 +26,14 @@ TRIPLETS = {
     # cmake_system_* / meson_system feed the runners' cross-file generators:
     # a triplet is a declaration, the runner emits the correct plumbing
     # (CMake toolchain file / Meson cross file) from this metadata.
+    # mingw-w64 cross via the distro gcc (FROZEN 2026-08-31, superseded by
+    # mingw-x86_64-llvm): kept for revival on newer hosts -- its overrides
+    # in deps.json and the flags file stay valid. The engine refuses to run
+    # frozen triplets unless FFMAKE_ALLOW_FROZEN=1 is set. Reasons: binutils
+    # 2.34 cannot link static deps (.refptr), mingw-w64 7.0 header ceiling,
+    # and pe_runtime paths hardcode this host's gcc layout (lesson #106).
     "mingw-x86_64": {
+        "frozen": "2026-08-31",
         "cross_prefix": "x86_64-w64-mingw32-",
         # posix-thread compiler variant: std::mutex/std::thread in C++
         # ports need the posix model (win32 model lacks libstdc++ threads)

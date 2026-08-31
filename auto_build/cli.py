@@ -39,6 +39,13 @@ def _ctx(args):
     paths.ensure_workspace(root, args.triplet)
     # ASCII alias symlinks + pkg-config wrapper (non-ASCII repo path guard)
     paths.ensure_ascii_alias(root, args.triplet)
+    triplet_cfg = triplets_mod.get(args.triplet)
+    frozen = triplet_cfg.get("frozen")
+    if frozen and not os.environ.get("FFMAKE_ALLOW_FROZEN"):
+        _die("triplet '{}' is frozen since {} (superseded; see triplets.py "
+             "and lessons #106/#109)\n"
+             "revive deliberately with: FFMAKE_ALLOW_FROZEN=1".format(
+                 args.triplet, frozen))
     src = args.ffmpeg_src or os.environ.get("FFMAKE_FFMPEG_SRC")
     if src:
         # explicit source must exist; otherwise loop resolves lazily:
@@ -51,7 +58,7 @@ def _ctx(args):
     return {
         "root": root,
         "triplet": args.triplet,
-        "triplet_cfg": triplets_mod.get(args.triplet),
+        "triplet_cfg": triplet_cfg,
         "prefix": paths.prefix(root, args.triplet),
         "tools_prefix": paths.tools_prefix(root),
         "pcdir": paths.sysroot_alias(root, args.triplet) + "/lib/pkgconfig",
