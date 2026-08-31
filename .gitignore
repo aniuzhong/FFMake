@@ -9,6 +9,8 @@ __pycache__/
 workspace/**
 !workspace/.gitkeep
 
+/release/
+
 # experience docs (Chinese) - untracked for now
 doc/
 .vscode/

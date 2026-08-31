@@ -11,8 +11,8 @@
 #   libvpx           vpx configure: no mingw shared target, and static libs
 #                    break the .refptr address-taking check
 --enable-gpl
---enable-version3
 --enable-nonfree
+--enable-version3
 --enable-libx264
 --enable-libx265
 --enable-libdav1d
@@ -68,7 +68,7 @@
 --enable-lcms2
 --enable-libaribcaption
 --enable-libbluray
---enable-libfontconfig
+--enable-fontconfig
 --enable-libgme
 --enable-libilbc
 --enable-liblc3

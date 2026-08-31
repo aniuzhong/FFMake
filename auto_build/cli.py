@@ -14,6 +14,8 @@ Triplets: linux-x86_64 (native), mingw-x86_64 (cross, wine-tested).
 
 import argparse
 import glob
+import hashlib
+import json
 import os
 import shutil
 import subprocess
@@ -254,6 +256,149 @@ def cmd_all(args):
     cmd_test(args)
 
 
+def _copy_filtered(src, dst, skip_ext=(".la",)):
+    """copytree that drops libtool .la files (they embed absolute
+    build-tree paths and are useless to consumers)."""
+    shutil.copytree(src, dst,
+                    ignore=shutil.ignore_patterns(*["*" + e for e in
+                                                    skip_ext]))
+
+
+def _dir_size(path):
+    total = 0
+    for root, _, files in os.walk(path):
+        for f in files:
+            total += os.path.getsize(os.path.join(root, f))
+    return total
+
+
+def cmd_dist(args):
+    import tarfile
+    import zipfile
+
+    ctx = _ctx(args)
+    prefix = ctx["prefix"]
+    exe = os.path.join(prefix, "bin", ctx["triplet_cfg"]["exe"])
+    if not os.path.isfile(exe):
+        _die("no installed ffmpeg at {} -- run 'install' first".format(exe))
+
+    out_root = os.path.abspath(getattr(args, "out", None) or "release")
+    date = time.strftime("%Y%m%d")
+    name = "ffmpeg-{}-{}".format(date, ctx["triplet"])
+    stage = os.path.join(out_root, name)
+    if os.path.exists(stage):
+        _die("release dir already exists: {}".format(stage))
+    os.makedirs(stage)
+
+    # runtime: fftools + co-located DLLs/shared libs (PE loaders resolve
+    # imports from the exe directory; keep bin/ together)
+    _copy_filtered(os.path.join(prefix, "bin"), os.path.join(stage, "bin"))
+    # dev: headers + import/static archives + pkgconfig + cmake configs
+    _copy_filtered(os.path.join(prefix, "include"),
+                   os.path.join(stage, "include"))
+    _copy_filtered(os.path.join(prefix, "lib"), os.path.join(stage, "lib"))
+
+    # version banner (run the real binary; wine for PE triplets)
+    base = _ffmpeg_cmd(ctx)
+    version_lines, config_line = "", ""
+    if base:
+        r = subprocess.run(base + ["-hide_banner", "-version"],
+                           stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                           text=True)
+        lines = r.stdout.splitlines()
+        version_lines = "\n".join(lines[:2])
+        for line in lines:
+            if line.startswith("configuration:"):
+                config_line = line
+                break
+
+    # lock summary
+    lock_ports = "-"
+    lock_path = os.path.join(ctx["root"], "lock.json")
+    if os.path.isfile(lock_path):
+        with open(lock_path) as f:
+            lk = json.load(f)
+        section = lk.get("triplets", {}).get(ctx["triplet"])
+        if section is not None:
+            lock_ports = str(len(section.get("ports", section)))
+
+    mingw = ctx["triplet_cfg"]["target_os"] == "mingw32"
+    reloc = ("Windows: keep bin/ together (PE DLL search is exe-relative)."
+             if mingw else
+             "Linux: ELF RPATH still points at the build sysroot -- the "
+             "tree runs in place until the linkage-relocation phase.")
+    manifest = "\n".join([
+        "# {} release".format(name),
+        "",
+        "- generated: {}".format(time.strftime("%Y-%m-%d %H:%M %Z")),
+        "- triplet: `{}` (target {})".format(ctx["triplet"],
+                                             ctx["triplet_cfg"]["target_os"]),
+        "- version: {}".format(version_lines.splitlines()[0]
+                               if version_lines else "unknown"),
+        "- built with: {}".format(
+            version_lines.splitlines()[1][len("built with "):]
+            if len(version_lines.splitlines()) > 1
+            and version_lines.splitlines()[1].startswith("built with ")
+            else "unknown"),
+        "- closure ports (lock.json): {}".format(lock_ports),
+        "- relocatability: {}".format(reloc),
+        "",
+        "## configuration",
+        "",
+        "    {}".format(config_line or "(unknown)"),
+        "",
+        "## layout",
+        "",
+        "- `bin/`   -- fftools + runtime libraries (keep together)",
+        "- `include/` -- ffmpeg and dependency headers",
+        "- `lib/`   -- import/static archives + pkgconfig + cmake configs"
+        + (" (MinGW COFF import libs `.dll.a`; MSVC-compatible for C APIs)"
+           if mingw else ""),
+        "",
+        "## verification",
+        "",
+        "SHA256SUMS covers every file in this tree:",
+        "`sha256sum -c SHA256SUMS`",
+        "",
+    ])
+    with open(os.path.join(stage, "MANIFEST.md"), "w") as f:
+        f.write(manifest)
+
+    # checksums
+    sums = []
+    for root, _, files in os.walk(stage):
+        for f in sorted(files):
+            if f == "SHA256SUMS":
+                continue
+            p = os.path.join(root, f)
+            rel = os.path.relpath(p, stage)
+            h = hashlib.sha256()
+            with open(p, "rb") as fh:
+                for chunk in iter(lambda: fh.read(1 << 20), b""):
+                    h.update(chunk)
+            sums.append("{}  {}".format(h.hexdigest(), rel))
+    with open(os.path.join(stage, "SHA256SUMS"), "w") as f:
+        f.write("\n".join(sums) + "\n")
+
+    # archive
+    if mingw:
+        arc = stage + ".zip"
+        with zipfile.ZipFile(arc, "w", zipfile.ZIP_DEFLATED) as z:
+            for root, _, files in os.walk(stage):
+                for f in sorted(files):
+                    p = os.path.join(root, f)
+                    z.write(p, os.path.relpath(p, out_root))
+    else:
+        arc = stage + ".tar.xz"
+        with tarfile.open(arc, "w:xz") as t:
+            t.add(stage, arcname=name)
+
+    print("dist: {} ({} MB tree, {} MB archive)".format(
+        stage, _dir_size(stage) >> 20,
+        os.path.getsize(arc) >> 20))
+    print("dist: archive {}".format(arc))
+
+
 def cmd_port_install(args):
     ctx = _ctx(args)
     for key in args.keys:
@@ -412,6 +557,8 @@ def _make_parser():
          cmd_install),
         ("test", "smoke-test the installed binaries", cmd_test),
         ("all", "configure -> build -> install -> test", cmd_all),
+        ("dist", "assemble a redistributable package "
+                 "(bin + dev + manifest)", cmd_dist),
     ):
         sp = sub.add_parser(name, help=help_)
         _add_common(sp)

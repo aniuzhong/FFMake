@@ -3,8 +3,8 @@
 # lines starting with '#' are comments.
 # Full baseline: mirrors the proven 55-lib build (old prefix oracle).
 --enable-gpl
---enable-version3
 --enable-nonfree
+--enable-version3
 --enable-libx264
 --enable-libx265
 --enable-libdav1d
@@ -83,7 +83,7 @@
 --enable-libdc1394
 --enable-libdrm
 --enable-libflite
---enable-libfontconfig
+--enable-fontconfig
 --enable-libgme
 --enable-libiec61883
 --enable-libilbc

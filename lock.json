@@ -134,8 +134,8 @@
       "ffmpeg": {
         "flags": [
           "--enable-gpl",
-          "--enable-version3",
           "--enable-nonfree",
+          "--enable-version3",
           "--enable-libx264",
           "--enable-libx265",
           "--enable-libdav1d",
@@ -209,7 +209,7 @@
           "--enable-libdc1394",
           "--enable-libdrm",
           "--enable-libflite",
-          "--enable-libfontconfig",
+          "--enable-fontconfig",
           "--enable-libgme",
           "--enable-libiec61883",
           "--enable-libilbc",
@@ -276,11 +276,15 @@
         "chromaprint": {
           "recipe": {
             "cmake_args": [
-              "-DBUILD_TOOLS=OFF"
+              "-DBUILD_TOOLS=OFF",
+              "-DBUILD_TESTS=OFF"
             ],
             "match_names": [
               "libchromaprint",
               "chromaprint"
+            ],
+            "needs": [
+              "fftw3"
             ],
             "pc": "libchromaprint",
             "source": {
@@ -316,6 +320,9 @@
         "expat": {
           "recipe": {
             "configure_args": [],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "expat",
               "libexpat"
@@ -349,6 +356,30 @@
           "resolved_commit": "c69278340ab1d5559c7d7bf0edf615dc33ddbba7",
           "stamp_hash": "786d21a657faeb1a714b752cd42fc17169ca60ed42fa06b684b6f3348b3bc206"
         },
+        "fftw3": {
+          "recipe": {
+            "configure_args": [
+              "--enable-shared",
+              "--disable-static",
+              "--enable-float"
+            ],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
+            "match_names": [
+              "fftw3",
+              "fftw3f"
+            ],
+            "pc": "fftw3f",
+            "source": {
+              "sha256": "56c932549852cddcfafdab3820b0200c7742675be92179e59e6215b340e26467",
+              "type": "tar",
+              "url": "https://www.fftw.org/fftw-3.3.10.tar.gz"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": null
+        },
         "flite": {
           "recipe": {
             "match_names": [
@@ -356,6 +387,9 @@
               "libflite"
             ],
             "pc": "flite",
+            "platforms": [
+              "linux"
+            ],
             "source": {
               "sha256": "ab1555fe5adc3f99f1d4a1a0eb1596d329fd6d74f1464a0097c81f53c0cf9e5c",
               "type": "tar",
@@ -415,6 +449,9 @@
         "lcms2": {
           "recipe": {
             "configure_args": [],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "lcms2",
               "lcms"
@@ -431,6 +468,15 @@
         },
         "leptonica": {
           "recipe": {
+            "cmake_args": [
+              "-DCMAKE_PREFIX_PATH={prefix}",
+              "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
+              "-DBUILD_PROG=OFF",
+              "-DSW_BUILD=OFF"
+            ],
+            "fixups": [
+              "lept_pc"
+            ],
             "match_names": [
               "leptonica",
               "lept"
@@ -449,14 +495,27 @@
               "type": "tar",
               "url": "https://github.com/DanBloomberg/leptonica/releases/download/1.85.0/leptonica-1.85.0.tar.gz"
             },
-            "steps": [
-              "cmake -S {src} -B {bdir} -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX={prefix} -DCMAKE_PREFIX_PATH={prefix} -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DBUILD_PROG=OFF -DSW_BUILD=OFF",
-              "cmake --build {bdir} -j{jobs}",
-              "cmake --install {bdir}",
-              "[ -f {prefix}/lib/pkgconfig/lept.pc ] || mv {prefix}/lib/pkgconfig/lept_Release.pc {prefix}/lib/pkgconfig/lept.pc",
-              "sed -i -E -e 's|\\$<LINK_ONLY:-lwebp>|{prefix}/lib/libwebp.so|g' -e 's|\\$<LINK_ONLY:openjp2>|{prefix}/lib/libopenjp2.so|g' -e 's|WebP::libwebpmux|{prefix}/lib/libwebpmux.so|g' -e 's|WebP::webp|{prefix}/lib/libwebp.so|g' -e 's|/usr/lib/x86_64-linux-gnu/libjpeg.so|{prefix}/lib/libjpeg.so|g' -e 's|/usr/lib/x86_64-linux-gnu/libtiff.so|{prefix}/lib/libtiff.so|g' -e 's|/usr/lib/x86_64-linux-gnu/libpng.so|{prefix}/lib/libpng16.so|g' {prefix}/lib/cmake/leptonica/LeptonicaTargets.cmake {prefix}/lib/cmake/leptonica/LeptonicaTargets-release.cmake"
-            ],
-            "system": "custom"
+            "system": "cmake",
+            "triplet_overrides": {
+              "mingw-x86_64": {
+                "cmake_args": [
+                  "-DCMAKE_PREFIX_PATH={prefix}",
+                  "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
+                  "-DBUILD_PROG=OFF",
+                  "-DSW_BUILD=OFF",
+                  "-DBUILD_SHARED_LIBS=ON"
+                ]
+              },
+              "mingw-x86_64-llvm": {
+                "cmake_args": [
+                  "-DCMAKE_PREFIX_PATH={prefix}",
+                  "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
+                  "-DBUILD_PROG=OFF",
+                  "-DSW_BUILD=OFF",
+                  "-DBUILD_SHARED_LIBS=ON"
+                ]
+              }
+            }
           },
           "stamp_hash": "8519c7d7cd3a476ce97ebe6468f83edd4f534e8d701cf96829851656b76a5499"
         },
@@ -488,6 +547,9 @@
           "recipe": {
             "autogen": "autoreconf -fi",
             "configure_args": [],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "aribb24",
               "libaribb24"
@@ -509,7 +571,9 @@
         "libaribcaption": {
           "recipe": {
             "cmake_args": [
-              "-DBUILD_SHARED_LIBS=ON"
+              "-DBUILD_SHARED_LIBS=ON",
+              "-DCMAKE_C_FLAGS=-D_WIN32_WINNT=0x0601",
+              "-DCMAKE_CXX_FLAGS=-D_WIN32_WINNT=0x0601"
             ],
             "match_names": [
               "libaribcaption",
@@ -582,6 +646,9 @@
               "--disable-doxygen-doc",
               "--disable-bdjavaglue"
             ],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "libbluray",
               "bluray"
@@ -603,7 +670,13 @@
         },
         "libbs2b": {
           "recipe": {
-            "configure_args": [],
+            "configure_args": [
+              "ac_cv_func_malloc_0_nonnull=yes",
+              "ac_cv_func_realloc_0_nonnull=yes"
+            ],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "libbs2b"
             ],
@@ -616,26 +689,50 @@
               "type": "tar",
               "url": "https://sourceforge.net/projects/bs2b/files/libbs2b/3.1.0/libbs2b-3.1.0.tar.gz"
             },
-            "system": "makefile"
+            "system": "makefile",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "make_args": [
+                  "LDFLAGS=-no-undefined -Wl,--whole-archive,-lclang_rt.builtins-x86_64,--no-whole-archive"
+                ]
+              }
+            }
           },
           "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
         },
         "libcaca": {
           "recipe": {
             "autogen": "autoreconf -fi",
-            "configure_args": [],
+            "configure_args": [
+              "ac_cv_header_zlib_h=no"
+            ],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "caca",
               "libcaca"
             ],
             "pc": "caca",
-            "prefixup": "sed -i 's/^bin_PROGRAMS =.*/bin_PROGRAMS =/' src/Makefile.am && sed -i 's/^noinst_PROGRAMS =.*/noinst_PROGRAMS =/' src/Makefile.am && sed -i 's/^noinst_PROGRAMS =.*/noinst_PROGRAMS =/' examples/Makefile.am",
+            "prefixup": "sed -i 's/^#if defined _WIN32 && defined __GNUC__ && __GNUC__ >= 3/#if 0/' {src}/caca/string.c {src}/caca/figfont.c && sed -i 's/^bin_PROGRAMS =.*/bin_PROGRAMS =/' {src}/src/Makefile.am && sed -i 's/^bin_PROGRAMS =.*/bin_PROGRAMS =/; s/^noinst_PROGRAMS =.*/noinst_PROGRAMS =/' {src}/examples/Makefile.am",
             "source": {
               "rev": "v0.99.beta20",
               "type": "git",
               "url": "https://github.com/cacalabs/libcaca.git"
             },
-            "system": "makefile"
+            "system": "makefile",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "configure_args": [
+                  "--disable-doc",
+                  "--disable-cxx",
+                  "CFLAGS=-O2 -Wno-error=implicit-function-declaration -Wno-error=int-conversion"
+                ],
+                "make_args": [
+                  "LDFLAGS=-no-undefined -L{alias}/lib -Wl,--whole-archive,-lclang_rt.builtins-x86_64,--no-whole-archive"
+                ]
+              }
+            }
           },
           "resolved_commit": "373c88b9890e67bde91e6acb8f1c442e847d1203",
           "stamp_hash": null
@@ -651,6 +748,7 @@
               "libcodec2"
             ],
             "pc": "codec2",
+            "prefixup": "curl -fsSL -o {src}/cmake/GetPrerequisites.cmake https://raw.githubusercontent.com/Kitware/CMake/v3.20.6/Modules/GetPrerequisites.cmake",
             "source": {
               "rev": "1.2.0",
               "type": "git",
@@ -732,6 +830,9 @@
         "libdvdnav": {
           "recipe": {
             "configure_args": [],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "dvdnav",
               "libdvdnav"
@@ -752,6 +853,9 @@
         "libdvdread": {
           "recipe": {
             "configure_args": [],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "dvdread",
               "libdvdread"
@@ -812,7 +916,8 @@
           "recipe": {
             "cmake_args": [
               "-DBUILD_SHARED_LIBS=ON",
-              "-DBUILD_EXAMPLES=OFF"
+              "-DBUILD_EXAMPLES=OFF",
+              "-DENABLE_UBSAN=OFF"
             ],
             "match_names": [
               "libgme",
@@ -868,6 +973,34 @@
           },
           "resolved_commit": "63973005bc07aba599b47fdd4cf788647b601ccd",
           "stamp_hash": "b82beb3a9727f53f4489a436c0e2ad8652a1daac40c24d287ebebd82aafe5a41"
+        },
+        "libiconv": {
+          "recipe": {
+            "configure_args": [
+              "--disable-nls"
+            ],
+            "fixups": [
+              "iconv_pc"
+            ],
+            "make_args": [
+              "LDFLAGS=-no-undefined -Wl,--export-all-symbols"
+            ],
+            "match_names": [
+              "iconv",
+              "libiconv"
+            ],
+            "pc": "iconv",
+            "platforms": [
+              "mingw-x86_64",
+              "mingw-x86_64-llvm"
+            ],
+            "source": {
+              "type": "tar",
+              "url": "https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.17.tar.gz"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": null
         },
         "libiec61883": {
           "recipe": {
@@ -1013,6 +1146,9 @@
           "recipe": {
             "autogen": "sh {src}/autogen.sh",
             "configure_args": [],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "kvazaar",
               "libkvazaar"
@@ -1066,6 +1202,9 @@
         "libmodplug": {
           "recipe": {
             "configure_args": [],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "libmodplug"
             ],
@@ -1074,7 +1213,14 @@
               "type": "tar",
               "url": "https://sourceforge.net/projects/modplug-xmms/files/libmodplug/0.8.9.0/libmodplug-0.8.9.0.tar.gz/download"
             },
-            "system": "makefile"
+            "system": "makefile",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "configure_args": [
+                  "CXXFLAGS=-O2 -Wno-register"
+                ]
+              }
+            }
           },
           "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
         },
@@ -1083,11 +1229,15 @@
             "configure_args": [
               "--disable-frontend"
             ],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "libmp3lame",
               "mp3lame"
             ],
             "pc": "mp3lame",
+            "prefixup": "sed -i 's/#if DEPRECATED_OR_OBSOLETE_CODE_REMOVED/#if 0/' {src}/libmp3lame/lame.c {src}/libmp3lame/set_get.c",
             "source": {
               "type": "tar",
               "url": "https://sourceforge.net/projects/lame/files/lame/3.100/lame-3.100.tar.gz"
@@ -1102,6 +1252,9 @@
               "-DBUILD_TESTS=OFF",
               "-DBUILD_SHARED_LIBS=ON"
             ],
+            "fixups": [
+              "mysofa_pc"
+            ],
             "match_names": [
               "libmysofa",
               "mysofa"
@@ -1112,7 +1265,15 @@
               "type": "git",
               "url": "https://github.com/hoene/libmysofa.git"
             },
-            "system": "cmake"
+            "system": "cmake",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "cmake_args": [
+                  "-DBUILD_TESTS=OFF",
+                  "-DBUILD_SHARED_LIBS=OFF"
+                ]
+              }
+            }
           },
           "resolved_commit": "33974839677da7044ef5a70be7ad5550735aae6e",
           "stamp_hash": "ea447e47d47fa1732e4af17829df3f03634f27e7c3a97eb5a15685a2ec269f3e"
@@ -1120,6 +1281,9 @@
         "libogg": {
           "recipe": {
             "configure_args": [],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "libogg",
               "ogg"
@@ -1161,6 +1325,9 @@
               "openh264"
             ],
             "pc": "openh264",
+            "platforms": [
+              "linux"
+            ],
             "source": {
               "rev": "v2.4.1",
               "type": "git",
@@ -1203,11 +1370,16 @@
               "--disable-examples",
               "--disable-tests"
             ],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "libopenmpt",
               "openmpt"
             ],
             "needs": [
+              "libogg",
+              "libvorbis",
               "mpg123",
               "zlib"
             ],
@@ -1224,11 +1396,15 @@
         "libopus": {
           "recipe": {
             "configure_args": [],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "libopus",
               "opus"
             ],
             "pc": "opus",
+            "prefixup": "sed -i 's/-D_FORTIFY_SOURCE=2//g' {src}/configure",
             "source": {
               "type": "tar",
               "url": "https://downloads.xiph.org/releases/opus/opus-1.4.tar.gz"
@@ -1293,6 +1469,9 @@
           "recipe": {
             "autogen": "sh {src}/autogen.sh",
             "configure_args": [],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "libqrencode"
             ],
@@ -1334,14 +1513,20 @@
         "librabbitmq": {
           "recipe": {
             "cmake_args": [
-              "-DBUILD_TESTS=OFF",
+              "-DBUILD_TESTING=OFF",
               "-DBUILD_TOOLS=OFF",
               "-DBUILD_EXAMPLES=OFF",
               "-DBUILD_SHARED_LIBS=ON"
             ],
+            "fixups": [
+              "mingw_import_soversion"
+            ],
             "match_names": [
               "librabbitmq",
               "rabbitmq"
+            ],
+            "needs": [
+              "openssl"
             ],
             "pc": "librabbitmq",
             "source": {
@@ -1360,6 +1545,9 @@
               "librav1e"
             ],
             "pc": "rav1e",
+            "platforms": [
+              "linux"
+            ],
             "source": {
               "rev": "1fe82de02510767539e89b2ee6fa846920ae2686",
               "type": "git",
@@ -1440,7 +1628,21 @@
               "make -C {src}/librtmp -j{jobs} CRYPTO= OPT=\"-O2 -I{prefix}/include\" XLDFLAGS=\"-L{prefix}/lib -Wl,-rpath,{prefix}/lib\"",
               "make -C {src}/librtmp install prefix={prefix} CRYPTO= OPT=\"-O2 -I{prefix}/include\" XLDFLAGS=\"-L{prefix}/lib\""
             ],
-            "system": "custom"
+            "system": "custom",
+            "triplet_overrides": {
+              "mingw-x86_64": {
+                "steps": [
+                  "make -C {src}/librtmp -j{jobs} SYS=mingw CROSS_COMPILE=x86_64-w64-mingw32- CC=x86_64-w64-mingw32-gcc-posix CRYPTO= OPT=\"-O2 -I{prefix}/include\" XLDFLAGS=\"-L{prefix}/lib\"",
+                  "make -C {src}/librtmp install prefix={prefix} SYS=mingw CROSS_COMPILE=x86_64-w64-mingw32- CC=x86_64-w64-mingw32-gcc-posix CRYPTO= OPT=\"-O2 -I{prefix}/include\" XLDFLAGS=\"-L{prefix}/lib\""
+                ]
+              },
+              "mingw-x86_64-llvm": {
+                "steps": [
+                  "make -C {src}/librtmp -j{jobs} SYS=mingw CROSS_COMPILE=x86_64-w64-mingw32- CC=x86_64-w64-mingw32-gcc CRYPTO= OPT=\"-O2 -I{prefix}/include\" XLDFLAGS=\"-L{prefix}/lib\"",
+                  "make -C {src}/librtmp install prefix={prefix} SYS=mingw CROSS_COMPILE=x86_64-w64-mingw32- CC=x86_64-w64-mingw32-gcc CRYPTO= OPT=\"-O2 -I{prefix}/include\" XLDFLAGS=\"-L{prefix}/lib\""
+                ]
+              }
+            }
           },
           "stamp_hash": "5612537437a4fa72d227cf46823a10002018b87d214d265546e24fbdeb1a23a1"
         },
@@ -1472,6 +1674,9 @@
           "recipe": {
             "autogen": "sh {src}/bootstrap",
             "configure_args": [],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "libshine",
               "shine"
@@ -1556,6 +1761,9 @@
         "libspeex": {
           "recipe": {
             "configure_args": [],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "libspeex",
               "speex"
@@ -1683,7 +1891,15 @@
               "type": "tar",
               "url": "https://github.com/tesseract-ocr/tesseract/archive/refs/tags/5.5.0.tar.gz"
             },
-            "system": "cmake"
+            "system": "cmake",
+            "triplet_overrides": {
+              "mingw-x86_64": {
+                "prefixup": "sed -i 's/set(LIB_Ws2_32 Ws2_32)/set(LIB_Ws2_32 ws2_32)/' {src}/CMakeLists.txt"
+              },
+              "mingw-x86_64-llvm": {
+                "prefixup": "sed -i 's/set(LIB_Ws2_32 Ws2_32)/set(LIB_Ws2_32 ws2_32)/' {src}/CMakeLists.txt"
+              }
+            }
           },
           "stamp_hash": "b3a4e9a3b82e755bf24291eebbffdf63f85b277f87c2a219a5e72d464d3c17ba"
         },
@@ -1691,6 +1907,9 @@
           "recipe": {
             "configure_args": [
               "--disable-examples"
+            ],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
             ],
             "match_names": [
               "libtheora",
@@ -1701,6 +1920,7 @@
               "libvorbis"
             ],
             "pc": "theora",
+            "prefixup": "sed -i 's/\\r$//' {src}/win32/xmingw32/libtheoradec-all.def {src}/win32/xmingw32/libtheoraenc-all.def",
             "source": {
               "type": "tar",
               "url": "https://downloads.xiph.org/releases/theora/libtheora-1.1.1.tar.gz"
@@ -1718,6 +1938,9 @@
               "--disable-zstd",
               "--disable-lzma",
               "--disable-jbig"
+            ],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
             ],
             "match_names": [
               "libtiff-4",
@@ -1741,11 +1964,15 @@
         "libtwolame": {
           "recipe": {
             "configure_args": [],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "libtwolame",
               "twolame"
             ],
             "pc": "twolame",
+            "prefixup": "sed -i 's/^int twolame_encode_buffer_float32_interleaved(/TL_API int twolame_encode_buffer_float32_interleaved(/' {src}/libtwolame/twolame.h",
             "source": {
               "type": "tar",
               "url": "https://github.com/njh/twolame/releases/download/0.4.0/twolame-0.4.0.tar.gz"
@@ -1758,6 +1985,9 @@
           "recipe": {
             "cmake_args": [
               "-DBUILD_SHARED_LIBS=ON"
+            ],
+            "fixups": [
+              "mingw_bin_dlls"
             ],
             "match_names": [
               "libuavs3d",
@@ -1893,6 +2123,9 @@
         "libvo-amrwbenc": {
           "recipe": {
             "configure_args": [],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "libvo-amrwbenc",
               "vo-amrwbenc",
@@ -1911,6 +2144,9 @@
         "libvorbis": {
           "recipe": {
             "configure_args": [],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "libvorbis",
               "vorbis"
@@ -1936,6 +2172,9 @@
               "--disable-examples",
               "--disable-tools"
             ],
+            "fixups": [
+              "vpx_pc"
+            ],
             "match_names": [
               "libvpx",
               "vpx"
@@ -1946,7 +2185,30 @@
               "type": "git",
               "url": "https://github.com/webmproject/libvpx.git"
             },
-            "system": "makefile"
+            "system": "makefile",
+            "triplet_overrides": {
+              "mingw-x86_64": {
+                "configure_args": [
+                  "--enable-shared",
+                  "--disable-unit-tests",
+                  "--disable-docs",
+                  "--disable-examples",
+                  "--disable-tools",
+                  "--target=x86_64-win64-gcc"
+                ],
+                "no_cross_args": true
+              },
+              "mingw-x86_64-llvm": {
+                "configure_args": [
+                  "--disable-unit-tests",
+                  "--disable-docs",
+                  "--disable-examples",
+                  "--disable-tools",
+                  "--target=x86_64-win64-gcc"
+                ],
+                "no_cross_args": true
+              }
+            }
           },
           "resolved_commit": "9f9b7e9ba2eb9d01640a9e69a3d655866265cf7f",
           "stamp_hash": "a5ad2d78592829712845cdf452f2200830db6fd18e4c67a51096c8b9346d5299"
@@ -1958,6 +2220,9 @@
               "-DVVENC_ENABLE_APP=OFF",
               "-DVVENC_ENABLE_TESTS=OFF"
             ],
+            "fixups": [
+              "vvenc_pc"
+            ],
             "match_names": [
               "libvvenc"
             ],
@@ -1967,7 +2232,14 @@
               "type": "git",
               "url": "https://github.com/fraunhoferhhi/vvenc.git"
             },
-            "system": "cmake"
+            "system": "cmake",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "cmake_args": [
+                  "-DCMAKE_CXX_FLAGS=-Wno-error -Wno-deprecated-literal-operator"
+                ]
+              }
+            }
           },
           "resolved_commit": "0c2c21eba8b336a273e7dc6e5e7fc0a95e8c5fcc",
           "stamp_hash": "745713230f03121a35c1ae1b5242f933e911f4bbb1f24aefcb7c9d0328c60b61"
@@ -2021,6 +2293,9 @@
         "libxcb": {
           "recipe": {
             "configure_args": [],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "libxcb",
               "xcb",
@@ -2108,6 +2383,9 @@
         },
         "libxvid": {
           "recipe": {
+            "fixups": [
+              "xvid_pc"
+            ],
             "match_names": [
               "libxvid"
             ],
@@ -2118,7 +2396,19 @@
             "steps": [
               "cd {src}/build/generic && ./configure --prefix={prefix} && make -j{jobs} && make install"
             ],
-            "system": "custom"
+            "system": "custom",
+            "triplet_overrides": {
+              "mingw-x86_64": {
+                "steps": [
+                  "cd {src}/build/generic && CC=x86_64-w64-mingw32-gcc-posix ./configure --prefix={prefix} --host=x86_64-w64-mingw32 && make -j{jobs} && make install"
+                ]
+              },
+              "mingw-x86_64-llvm": {
+                "steps": [
+                  "cd {src}/build/generic && CC=x86_64-w64-mingw32-gcc ./configure --prefix={prefix} --host=x86_64-w64-mingw32 && make -j{jobs} && make install"
+                ]
+              }
+            }
           },
           "stamp_hash": "f3efd1e02558499a3ed8ce1511391e76b904e8754ecd06176d96e5da691f0731"
         },
@@ -2140,7 +2430,28 @@
               "type": "tar",
               "url": "https://github.com/zeromq/libzmq/releases/download/v4.3.5/zeromq-4.3.5.tar.gz"
             },
-            "system": "cmake"
+            "system": "cmake",
+            "triplet_overrides": {
+              "mingw-x86_64": {
+                "cmake_args": [
+                  "-DBUILD_TESTS=OFF",
+                  "-DBUILD_SHARED=ON",
+                  "-DBUILD_STATIC=OFF",
+                  "-DENABLE_DRAFTS=OFF",
+                  "-DCMAKE_SYSTEM_VERSION=6.1"
+                ]
+              },
+              "mingw-x86_64-llvm": {
+                "cmake_args": [
+                  "-DBUILD_TESTS=OFF",
+                  "-DBUILD_SHARED=ON",
+                  "-DBUILD_STATIC=OFF",
+                  "-DENABLE_DRAFTS=OFF",
+                  "-DCMAKE_SYSTEM_VERSION=6.1"
+                ],
+                "prefixup": "sed -i 's/check_include_files(\"winsock2.h;afunix.h\" ZMQ_HAVE_IPC)/set(ZMQ_HAVE_IPC OFF)/' {src}/CMakeLists.txt"
+              }
+            }
           },
           "stamp_hash": "ed99a8313bc515001fa7bbd99dc5e922743373c627b3ea578b7209a392dae55f"
         },
@@ -2149,6 +2460,10 @@
             "autogen": "AUTOPOINT=true autoreconf -fi",
             "configure_args": [
               "--disable-nls"
+            ],
+            "make_args": [
+              "LDFLAGS=-no-undefined",
+              "libzvbi_la_LIBADD=libzvbiinline.la $(LIBS) $(UNICODE_LIBS) $(LTLIBICONV)"
             ],
             "match_names": [
               "libzvbi",
@@ -2160,7 +2475,29 @@
               "type": "tar",
               "url": "http://deb.debian.org/debian/pool/main/z/zvbi/zvbi_0.2.44.orig.tar.gz"
             },
-            "system": "makefile"
+            "system": "makefile",
+            "triplet_overrides": {
+              "mingw-x86_64": {
+                "configure_args": [
+                  "--disable-nls",
+                  "--disable-examples",
+                  "--with-libiconv-prefix={prefix}"
+                ],
+                "needs": [
+                  "libiconv"
+                ]
+              },
+              "mingw-x86_64-llvm": {
+                "configure_args": [
+                  "--disable-nls",
+                  "--disable-examples",
+                  "--with-libiconv-prefix={prefix}"
+                ],
+                "needs": [
+                  "libiconv"
+                ]
+              }
+            }
           },
           "stamp_hash": "5dd3a87434c4b76027d3f9f6300935e88925a65653c75946d048686f08d90d4b"
         },
@@ -2238,6 +2575,9 @@
               "--enable-shared",
               "--with-audio=dummy"
             ],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "mpg123",
               "libmpg123"
@@ -2270,7 +2610,20 @@
               "type": "tar",
               "url": "https://github.com/kcat/openal-soft/releases/download/1.24.3/openal-soft-1.24.3.tar.bz2"
             },
-            "system": "cmake"
+            "system": "cmake",
+            "triplet_overrides": {
+              "mingw-x86_64": {
+                "cmake_args": [
+                  "-DALSOFT_EXAMPLES=OFF",
+                  "-DALSOFT_UTILS=OFF",
+                  "-DALSOFT_TESTS=OFF",
+                  "-DALSOFT_REQUIRE_ALSA=OFF",
+                  "-DALSOFT_BACKEND_WASAPI=OFF",
+                  "-DALSOFT_BACKEND_DSOUND=ON",
+                  "-DALSOFT_BACKEND_WINMM=ON"
+                ]
+              }
+            }
           },
           "stamp_hash": "35cbd699dd906ac49de8c438ea6d795390da212e6636ec8b9656e3ae64215cd4"
         },
@@ -2280,7 +2633,8 @@
               "-DBUILD_SHARED_LIBS=ON"
             ],
             "fixups": [
-              "share_pc"
+              "share_pc",
+              "mingw_import_lib"
             ],
             "match_names": [
               "oapv",
@@ -2328,13 +2682,45 @@
               "type": "git",
               "url": "https://github.com/openssl/openssl.git"
             },
-            "system": "makefile"
+            "system": "makefile",
+            "triplet_overrides": {
+              "mingw-x86_64": {
+                "configure_args": [
+                  "mingw64",
+                  "shared",
+                  "--libdir=lib",
+                  "--cross-compile-prefix=x86_64-w64-mingw32-",
+                  "CC=gcc-posix",
+                  "CXX=g++-posix"
+                ],
+                "install_target": "install_sw",
+                "no_cross_args": true
+              },
+              "mingw-x86_64-llvm": {
+                "configure_args": [
+                  "mingw64",
+                  "shared",
+                  "--libdir=lib",
+                  "--cross-compile-prefix=x86_64-w64-mingw32-",
+                  "CC=gcc",
+                  "CXX=g++"
+                ],
+                "install_target": "install_sw",
+                "no_cross_args": true
+              }
+            }
           },
           "resolved_commit": "a7e992847de83aa36be0c399c89db3fb827b0be2",
           "stamp_hash": "6e8a72075993d9488d07cd07d131c4ace3ac73bbe6b98e02c9daf0c0b0f5f441"
         },
         "pocketsphinx": {
           "recipe": {
+            "cmake_args": [
+              "-DBUILD_SHARED_LIBS=ON"
+            ],
+            "fixups": [
+              "pocketsphinx_hdr"
+            ],
             "match_names": [
               "pocketsphinx"
             ],
@@ -2344,13 +2730,7 @@
               "type": "tar",
               "url": "https://github.com/cmusphinx/pocketsphinx/archive/refs/tags/v5.1.1.tar.gz"
             },
-            "steps": [
-              "cmake -S {src} -B {bdir} -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX={prefix} -DBUILD_SHARED_LIBS=ON",
-              "cmake --build {bdir} -j{jobs}",
-              "cmake --install {bdir}",
-              "[ -f {prefix}/include/pocketsphinx/pocketsphinx.h ] || mv {prefix}/include/pocketsphinx.h {prefix}/include/pocketsphinx/"
-            ],
-            "system": "custom"
+            "system": "cmake"
           },
           "stamp_hash": "72dc39a99141b267085db96ebe04101f55ffdb0cd55790ca4cda2fa8cfa07e7b"
         },
@@ -2588,7 +2968,12 @@
               "type": "tar",
               "url": "https://github.com/ggml-org/whisper.cpp/archive/refs/tags/v1.9.3.tar.gz"
             },
-            "system": "cmake"
+            "system": "cmake",
+            "triplet_overrides": {
+              "mingw-x86_64": {
+                "prefixup": "sed -i 's/        #if _WIN32_WINNT >= 0x0602$/        #if 0 \\/\\/ mingw-w64 7.0 headers lack THREAD_POWER_THROTTLING_STATE/' {src}/ggml/src/ggml-cpu/ggml-cpu.c"
+              }
+            }
           },
           "stamp_hash": "5b7776cee1a9b4c620e5696993b6bc3015fb18564ef120b7de70c11b7eab8bb8"
         },
@@ -2666,6 +3051,12 @@
           "recipe": {
             "autogen": "sh {src}/autogen.sh",
             "configure_args": [],
+            "fixups": [
+              "zimg_pc"
+            ],
+            "make_args": [
+              "LDFLAGS=-no-undefined"
+            ],
             "match_names": [
               "libzimg",
               "zimg"
@@ -2676,7 +3067,15 @@
               "type": "tar",
               "url": "https://github.com/sekrit-twc/zimg/archive/refs/tags/release-3.0.5.tar.gz"
             },
-            "system": "makefile"
+            "system": "makefile",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "configure_args": [
+                  "--disable-shared",
+                  "--enable-static"
+                ]
+              }
+            }
           },
           "stamp_hash": "d8a7de1b19c44ed3b9fcfd7ffacd2854b8fd10a029480543fd31e5c597c52d89"
         },
@@ -2702,10 +3101,23 @@
         },
         "zlib": {
           "recipe": {
-            "pcs": [
+            "cmake_args": [
+              "-DBUILD_SHARED_LIBS=ON"
+            ],
+            "fixups": [
+              "zlib_alias",
+              "share_pc"
+            ],
+            "match_names": [
               "zlib"
             ],
-            "system": "system-pc"
+            "pc": "zlib",
+            "source": {
+              "sha256": "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
+              "type": "tar",
+              "url": "https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz"
+            },
+            "system": "cmake"
           },
           "stamp_hash": "81e248260988661edcaed86b31f93eab5e649f5cf98e699638fd92a12366495d"
         }
@@ -5551,8 +5963,8 @@
       "ffmpeg": {
         "flags": [
           "--enable-gpl",
-          "--enable-version3",
           "--enable-nonfree",
+          "--enable-version3",
           "--enable-libx264",
           "--enable-libx265",
           "--enable-libdav1d",
@@ -5608,7 +6020,7 @@
           "--enable-lcms2",
           "--enable-libaribcaption",
           "--enable-libbluray",
-          "--enable-libfontconfig",
+          "--enable-fontconfig",
           "--enable-libgme",
           "--enable-libilbc",
           "--enable-liblc3",
@@ -5632,14 +6044,7 @@
         "resolved_rev": null,
         "url": null
       },
-      "last_built": [
-        "amf",
-        "ffnvcodec",
-        "libzvbi",
-        "openal",
-        "pocketsphinx",
-        "sdl2"
-      ],
+      "last_built": [],
       "ports": {
         "amf": {
           "recipe": {
