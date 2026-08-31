@@ -113,3 +113,10 @@
 --enable-vaapi
 --enable-vapoursynth
 --enable-whisper
+--enable-frei0r
+--enable-gmp
+--enable-librubberband
+--enable-libfdk-aac
+--enable-libcdio
+--enable-opencl
+--enable-libvpl

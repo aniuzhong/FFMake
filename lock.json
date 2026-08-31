@@ -238,7 +238,14 @@
           "--enable-pocketsphinx",
           "--enable-vaapi",
           "--enable-vapoursynth",
-          "--enable-whisper"
+          "--enable-whisper",
+          "--enable-frei0r",
+          "--enable-gmp",
+          "--enable-librubberband",
+          "--enable-libfdk-aac",
+          "--enable-libcdio",
+          "--enable-opencl",
+          "--enable-libvpl"
         ],
         "resolved_rev": null,
         "url": null
@@ -337,6 +344,22 @@
           },
           "stamp_hash": "f808ce8303278569f4005cf3682ec448cae62c0aeba2c99d5feb75f4f9f2bc5c"
         },
+        "fdk-aac": {
+          "recipe": {
+            "match_names": [
+              "fdk-aac",
+              "libfdk_aac"
+            ],
+            "needs": [],
+            "pc": "fdk-aac",
+            "source": {
+              "type": "tar",
+              "url": "https://downloads.sourceforge.net/opencore-amr/fdk-aac/fdk-aac-2.0.2.tar.gz"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "4e4528cdca31bb82feedcc4324008f2d8df654eb06242c77453286da5be66d21"
+        },
         "ffnvcodec": {
           "recipe": {
             "match_names": [
@@ -425,6 +448,45 @@
             "system": "meson"
           },
           "stamp_hash": "a84499e689f18ce2cf4b97cfeb3469886470b82f61f11420828e0df476bc1672"
+        },
+        "frei0r": {
+          "recipe": {
+            "cmake_args": [
+              "-DWITHOUT_OPENCV=ON",
+              "-DWITHOUT_GAVL=ON",
+              "-DBUILD_TESTS=OFF"
+            ],
+            "fixups": [
+              "frei0r_pc"
+            ],
+            "match_names": [
+              "frei0r",
+              "frei0r.h"
+            ],
+            "source": {
+              "type": "tar",
+              "url": "https://github.com/dyne/frei0r/archive/refs/tags/v2.3.3.tar.gz"
+            },
+            "system": "cmake"
+          },
+          "stamp_hash": "5326e88afc681f73425288d32a88e1c1c7eed458260c5caddc15fec3a780210a"
+        },
+        "gmp": {
+          "recipe": {
+            "configure_args": [
+              "--enable-cxx"
+            ],
+            "match_names": [
+              "gmp"
+            ],
+            "pc": "gmp",
+            "source": {
+              "type": "tar",
+              "url": "https://ftp.gnu.org/pub/gnu/gmp/gmp-6.3.0.tar.xz"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "f630b64accd25766a9d9dccc16bbce774060c820f1e0a34c111a75dfa3bdd8b7"
         },
         "ladspa": {
           "recipe": {
@@ -736,6 +798,43 @@
           },
           "resolved_commit": "373c88b9890e67bde91e6acb8f1c442e847d1203",
           "stamp_hash": null
+        },
+        "libcdio": {
+          "recipe": {
+            "configure_args": [
+              "--disable-example-progs",
+              "--disable-tests"
+            ],
+            "match_names": [
+              "libcdio",
+              "cdio"
+            ],
+            "pc": "libcdio",
+            "source": {
+              "type": "tar",
+              "url": "https://github.com/libcdio/libcdio/releases/download/2.4.0/libcdio-2.4.0.tar.bz2"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "4f349c1ec59918660c7aaae81638c7f57391c8d1b6494ef72e5adba62bb4b47b"
+        },
+        "libcdio-paranoia": {
+          "recipe": {
+            "match_names": [
+              "libcdio_paranoia",
+              "libcdio-paranoia"
+            ],
+            "needs": [
+              "libcdio"
+            ],
+            "pc": "libcdio_paranoia",
+            "source": {
+              "type": "tar",
+              "url": "https://github.com/rocky/libcdio-paranoia/releases/download/release-10.2%2B2.0.2/libcdio-paranoia-10.2+2.0.2.tar.bz2"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "dc141abd64ce59cc81bb229df56ca6340137ff910ae00ab82d975cdaec78a998"
         },
         "libcodec2": {
           "recipe": {
@@ -2651,6 +2750,50 @@
           "resolved_commit": "a5312e4fa405057ff0be2c370283fabfe588c1f4",
           "stamp_hash": "340af4860544ab0e2ce71221faa9fb223c09bfb329984186b68c753f58b15ebf"
         },
+        "opencl": {
+          "recipe": {
+            "cmake_args": [
+              "-DOPENCL_ICD_LOADER_HEADERS_DIR={prefix}/include",
+              "-DBUILD_TESTS=OFF"
+            ],
+            "fixups": [
+              "share_pc"
+            ],
+            "match_names": [
+              "opencl",
+              "OpenCL"
+            ],
+            "needs": [
+              "opencl-headers"
+            ],
+            "pc": "OpenCL",
+            "source": {
+              "type": "tar",
+              "url": "https://github.com/KhronosGroup/OpenCL-ICD-Loader/archive/refs/tags/v2023.04.17.tar.gz"
+            },
+            "system": "cmake"
+          },
+          "stamp_hash": "101785250ef3bad0328cc65edd20383de9b17ac65169b62606873249bcea4174"
+        },
+        "opencl-headers": {
+          "recipe": {
+            "match_names": [
+              "opencl-headers"
+            ],
+            "pc": "opencl-headers",
+            "source": {
+              "type": "tar",
+              "url": "https://github.com/KhronosGroup/OpenCL-Headers/archive/refs/tags/v2024.05.08.tar.gz"
+            },
+            "steps": [
+              "mkdir -p {prefix}/include {prefix}/lib/pkgconfig",
+              "cp -r {src}/CL {prefix}/include/",
+              "printf 'prefix=%s\\nincludedir=${{prefix}}/include\\n\\nName: opencl-headers\\nDescription: OpenCL API headers\\nVersion: 2024.05.08\\nCflags: -I${{includedir}}\\n' \"{prefix}\" > {prefix}/lib/pkgconfig/opencl-headers.pc"
+            ],
+            "system": "custom"
+          },
+          "stamp_hash": "14506f98068a7733596b8186a7db4f997805472efdb990c28722729443c861be"
+        },
         "opengl": {
           "recipe": {
             "match_names": [
@@ -2765,6 +2908,27 @@
             "system": "meson"
           },
           "stamp_hash": null
+        },
+        "rubberband": {
+          "recipe": {
+            "match_names": [
+              "rubberband",
+              "librubberband"
+            ],
+            "meson_args": [
+              "-Dladspa=disabled",
+              "-Dvamp=disabled",
+              "-Djni=disabled",
+              "-Dtests=disabled"
+            ],
+            "pc": "rubberband",
+            "source": {
+              "type": "tar",
+              "url": "https://breakfastquay.com/files/releases/rubberband-3.3.0.tar.bz2"
+            },
+            "system": "meson"
+          },
+          "stamp_hash": "be01b3cb1d13091de01090790c12b6e3007b68653b86f1c1c940cc943db5416e"
         },
         "sdl2": {
           "recipe": {
@@ -2903,6 +3067,26 @@
             "system": "makefile"
           },
           "stamp_hash": "83ae2ac79786b5705fa86e9234443a33d74d3e9da34cec2ca6196bc52e78b17a"
+        },
+        "vpl": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_EXAMPLES=OFF",
+              "-DBUILD_TESTS=OFF",
+              "-DBUILD_TOOLS=OFF"
+            ],
+            "match_names": [
+              "vpl",
+              "libvpl"
+            ],
+            "pc": "vpl",
+            "source": {
+              "type": "tar",
+              "url": "https://github.com/oneapi-src/oneVPL/archive/refs/tags/v2023.4.0.tar.gz"
+            },
+            "system": "cmake"
+          },
+          "stamp_hash": "43f2f0814dbd9b64de3f2162342c468d44b9ba83eb929820d32b700af838f8bb"
         },
         "vulkan-headers": {
           "recipe": {
@@ -6039,7 +6223,14 @@
           "--enable-openal",
           "--enable-opengl",
           "--enable-pocketsphinx",
-          "--enable-whisper"
+          "--enable-whisper",
+          "--enable-frei0r",
+          "--enable-gmp",
+          "--enable-librubberband",
+          "--enable-libfdk-aac",
+          "--enable-libcdio",
+          "--enable-opencl",
+          "--enable-libvpl"
         ],
         "resolved_rev": null,
         "url": null
@@ -6138,6 +6329,22 @@
           },
           "stamp_hash": "143c94ebeaee1387b14357c0e029c4bc96c2a9917c589f7ca4fb49b400a1c071"
         },
+        "fdk-aac": {
+          "recipe": {
+            "match_names": [
+              "fdk-aac",
+              "libfdk_aac"
+            ],
+            "needs": [],
+            "pc": "fdk-aac",
+            "source": {
+              "type": "tar",
+              "url": "https://downloads.sourceforge.net/opencore-amr/fdk-aac/fdk-aac-2.0.2.tar.gz"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "4e4528cdca31bb82feedcc4324008f2d8df654eb06242c77453286da5be66d21"
+        },
         "ffnvcodec": {
           "recipe": {
             "match_names": [
@@ -6226,6 +6433,45 @@
             "system": "meson"
           },
           "stamp_hash": "a84499e689f18ce2cf4b97cfeb3469886470b82f61f11420828e0df476bc1672"
+        },
+        "frei0r": {
+          "recipe": {
+            "cmake_args": [
+              "-DWITHOUT_OPENCV=ON",
+              "-DWITHOUT_GAVL=ON",
+              "-DBUILD_TESTS=OFF"
+            ],
+            "fixups": [
+              "frei0r_pc"
+            ],
+            "match_names": [
+              "frei0r",
+              "frei0r.h"
+            ],
+            "source": {
+              "type": "tar",
+              "url": "https://github.com/dyne/frei0r/archive/refs/tags/v2.3.3.tar.gz"
+            },
+            "system": "cmake"
+          },
+          "stamp_hash": "5326e88afc681f73425288d32a88e1c1c7eed458260c5caddc15fec3a780210a"
+        },
+        "gmp": {
+          "recipe": {
+            "configure_args": [
+              "--enable-cxx"
+            ],
+            "match_names": [
+              "gmp"
+            ],
+            "pc": "gmp",
+            "source": {
+              "type": "tar",
+              "url": "https://ftp.gnu.org/pub/gnu/gmp/gmp-6.3.0.tar.xz"
+            },
+            "system": "makefile"
+          },
+          "stamp_hash": "f630b64accd25766a9d9dccc16bbce774060c820f1e0a34c111a75dfa3bdd8b7"
         },
         "ladspa": {
           "recipe": {
@@ -6537,6 +6783,64 @@
           },
           "resolved_commit": "373c88b9890e67bde91e6acb8f1c442e847d1203",
           "stamp_hash": "fdabfd707e0b5fc380e3bb033a1ad4cd940f42dc2df6e580991ce54377181da1"
+        },
+        "libcdio": {
+          "recipe": {
+            "configure_args": [
+              "--disable-example-progs",
+              "--disable-tests"
+            ],
+            "match_names": [
+              "libcdio",
+              "cdio"
+            ],
+            "pc": "libcdio",
+            "source": {
+              "type": "tar",
+              "url": "https://github.com/libcdio/libcdio/releases/download/2.4.0/libcdio-2.4.0.tar.bz2"
+            },
+            "system": "makefile",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "configure_args": [
+                  "--disable-cxx",
+                  "--disable-example-progs",
+                  "--disable-tests"
+                ],
+                "make_args": [
+                  "LDFLAGS=-no-undefined"
+                ],
+                "prefixup": "find {src} \\( -name Makefile.am -o -name Makefile.in \\) -exec sed -i 's/ -Wl,--version-script=[^ ]*//g' {{}} +"
+              }
+            }
+          },
+          "stamp_hash": "286d114f671d8e5fbe0464b24e07587de8f0b672736939a28c9604d77d4da2e3"
+        },
+        "libcdio-paranoia": {
+          "recipe": {
+            "match_names": [
+              "libcdio_paranoia",
+              "libcdio-paranoia"
+            ],
+            "needs": [
+              "libcdio"
+            ],
+            "pc": "libcdio_paranoia",
+            "source": {
+              "type": "tar",
+              "url": "https://github.com/rocky/libcdio-paranoia/releases/download/release-10.2%2B2.0.2/libcdio-paranoia-10.2+2.0.2.tar.bz2"
+            },
+            "system": "makefile",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "make_args": [
+                  "LDFLAGS=-no-undefined"
+                ],
+                "prefixup": "find {src} \\( -name Makefile.am -o -name Makefile.in \\) -exec sed -i 's/ -Wl,--version-script=[^ ]*//g' {{}} +"
+              }
+            }
+          },
+          "stamp_hash": "d89b95ed949aec332fabbff40d6212692cffe7c3cc8fc6d9b13792879b91bf02"
         },
         "libcodec2": {
           "recipe": {
@@ -8452,6 +8756,50 @@
           "resolved_commit": "a5312e4fa405057ff0be2c370283fabfe588c1f4",
           "stamp_hash": "2563a86eef3fc4a58287daa94e4d324d801f9e5b344cf82861867652e2cdd051"
         },
+        "opencl": {
+          "recipe": {
+            "cmake_args": [
+              "-DOPENCL_ICD_LOADER_HEADERS_DIR={prefix}/include",
+              "-DBUILD_TESTS=OFF"
+            ],
+            "fixups": [
+              "share_pc"
+            ],
+            "match_names": [
+              "opencl",
+              "OpenCL"
+            ],
+            "needs": [
+              "opencl-headers"
+            ],
+            "pc": "OpenCL",
+            "source": {
+              "type": "tar",
+              "url": "https://github.com/KhronosGroup/OpenCL-ICD-Loader/archive/refs/tags/v2023.04.17.tar.gz"
+            },
+            "system": "cmake"
+          },
+          "stamp_hash": "101785250ef3bad0328cc65edd20383de9b17ac65169b62606873249bcea4174"
+        },
+        "opencl-headers": {
+          "recipe": {
+            "match_names": [
+              "opencl-headers"
+            ],
+            "pc": "OpenCL-Headers",
+            "source": {
+              "type": "tar",
+              "url": "https://github.com/KhronosGroup/OpenCL-Headers/archive/refs/tags/v2024.05.08.tar.gz"
+            },
+            "steps": [
+              "mkdir -p {prefix}/include {prefix}/lib/pkgconfig",
+              "cp -r {src}/CL {prefix}/include/",
+              "printf 'prefix=%s\\nincludedir=${{prefix}}/include\\n\\nName: OpenCL-Headers\\nDescription: OpenCL API headers\\nVersion: 2024.05.08\\nCflags: -I${{includedir}}\\n' \"{prefix}\" > {prefix}/lib/pkgconfig/OpenCL-Headers.pc"
+            ],
+            "system": "custom"
+          },
+          "stamp_hash": "fa7bd875e884cd0b8fe774856f21883ccd67caef382e40c43f56cda7b540bed7"
+        },
         "opengl": {
           "recipe": {
             "match_names": [
@@ -8566,6 +8914,27 @@
             "system": "meson"
           },
           "stamp_hash": null
+        },
+        "rubberband": {
+          "recipe": {
+            "match_names": [
+              "rubberband",
+              "librubberband"
+            ],
+            "meson_args": [
+              "-Dladspa=disabled",
+              "-Dvamp=disabled",
+              "-Djni=disabled",
+              "-Dtests=disabled"
+            ],
+            "pc": "rubberband",
+            "source": {
+              "type": "tar",
+              "url": "https://breakfastquay.com/files/releases/rubberband-3.3.0.tar.bz2"
+            },
+            "system": "meson"
+          },
+          "stamp_hash": "be01b3cb1d13091de01090790c12b6e3007b68653b86f1c1c940cc943db5416e"
         },
         "sdl2": {
           "recipe": {
@@ -8704,6 +9073,26 @@
             "system": "makefile"
           },
           "stamp_hash": null
+        },
+        "vpl": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_EXAMPLES=OFF",
+              "-DBUILD_TESTS=OFF",
+              "-DBUILD_TOOLS=OFF"
+            ],
+            "match_names": [
+              "vpl",
+              "libvpl"
+            ],
+            "pc": "vpl",
+            "source": {
+              "type": "tar",
+              "url": "https://github.com/oneapi-src/oneVPL/archive/refs/tags/v2023.4.0.tar.gz"
+            },
+            "system": "cmake"
+          },
+          "stamp_hash": "43f2f0814dbd9b64de3f2162342c468d44b9ba83eb929820d32b700af838f8bb"
         },
         "vulkan-headers": {
           "recipe": {

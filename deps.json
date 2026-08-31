@@ -2582,6 +2582,183 @@
         "share_pc",
         "mingw_import_lib"
       ]
+    },
+    "gmp": {
+      "match_names": [
+        "gmp"
+      ],
+      "pc": "gmp",
+      "system": "makefile",
+      "source": {
+        "type": "tar",
+        "url": "https://ftp.gnu.org/pub/gnu/gmp/gmp-6.3.0.tar.xz"
+      },
+      "configure_args": [
+        "--enable-cxx"
+      ]
+    },
+    "fdk-aac": {
+      "match_names": [
+        "fdk-aac",
+        "libfdk_aac"
+      ],
+      "pc": "fdk-aac",
+      "system": "makefile",
+      "source": {
+        "type": "tar",
+        "url": "https://downloads.sourceforge.net/opencore-amr/fdk-aac/fdk-aac-2.0.2.tar.gz"
+      },
+      "needs": []
+    },
+    "frei0r": {
+      "match_names": [
+        "frei0r",
+        "frei0r.h"
+      ],
+      "system": "cmake",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/dyne/frei0r/archive/refs/tags/v2.3.3.tar.gz"
+      },
+      "cmake_args": [
+        "-DWITHOUT_OPENCV=ON",
+        "-DWITHOUT_GAVL=ON",
+        "-DBUILD_TESTS=OFF"
+      ],
+      "fixups": [
+        "frei0r_pc"
+      ]
+    },
+    "rubberband": {
+      "match_names": [
+        "rubberband",
+        "librubberband"
+      ],
+      "pc": "rubberband",
+      "system": "meson",
+      "source": {
+        "type": "tar",
+        "url": "https://breakfastquay.com/files/releases/rubberband-3.3.0.tar.bz2"
+      },
+      "meson_args": [
+        "-Dladspa=disabled",
+        "-Dvamp=disabled",
+        "-Djni=disabled",
+        "-Dtests=disabled"
+      ]
+    },
+    "libcdio": {
+      "match_names": [
+        "libcdio",
+        "cdio"
+      ],
+      "pc": "libcdio",
+      "system": "makefile",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/libcdio/libcdio/releases/download/2.4.0/libcdio-2.4.0.tar.bz2"
+      },
+      "configure_args": [
+        "--disable-example-progs",
+        "--disable-tests"
+      ],
+      "triplet_overrides": {
+        "mingw-x86_64-llvm": {
+          "prefixup": "find {src} \\( -name Makefile.am -o -name Makefile.in \\) -exec sed -i 's/ -Wl,--version-script=[^ ]*//g' {{}} +",
+          "configure_args": [
+            "--disable-cxx",
+            "--disable-example-progs",
+            "--disable-tests"
+          ],
+          "make_args": [
+            "LDFLAGS=-no-undefined"
+          ]
+        }
+      },
+      "fixups": [
+        "mingw_bin_dlls"
+      ]
+    },
+    "libcdio-paranoia": {
+      "match_names": [
+        "libcdio_paranoia",
+        "libcdio-paranoia"
+      ],
+      "pc": "libcdio_paranoia",
+      "system": "makefile",
+      "needs": [
+        "libcdio"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/rocky/libcdio-paranoia/releases/download/release-10.2%2B2.0.2/libcdio-paranoia-10.2+2.0.2.tar.bz2"
+      },
+      "triplet_overrides": {
+        "mingw-x86_64-llvm": {
+          "prefixup": "find {src} \\( -name Makefile.am -o -name Makefile.in \\) -exec sed -i 's/ -Wl,--version-script=[^ ]*//g' {{}} +",
+          "make_args": [
+            "LDFLAGS=-no-undefined"
+          ]
+        }
+      },
+      "fixups": [
+        "mingw_bin_dlls"
+      ]
+    },
+    "opencl-headers": {
+      "match_names": [
+        "opencl-headers"
+      ],
+      "pc": "OpenCL-Headers",
+      "system": "custom",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/KhronosGroup/OpenCL-Headers/archive/refs/tags/v2024.05.08.tar.gz"
+      },
+      "steps": [
+        "mkdir -p {prefix}/include {prefix}/lib/pkgconfig",
+        "cp -r {src}/CL {prefix}/include/",
+        "printf 'prefix=%s\\nincludedir=${{prefix}}/include\\n\\nName: OpenCL-Headers\\nDescription: OpenCL API headers\\nVersion: 2024.05.08\\nCflags: -I${{includedir}}\\n' \"{prefix}\" > {prefix}/lib/pkgconfig/OpenCL-Headers.pc"
+      ]
+    },
+    "opencl": {
+      "match_names": [
+        "opencl",
+        "OpenCL"
+      ],
+      "pc": "OpenCL",
+      "system": "cmake",
+      "needs": [
+        "opencl-headers"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/KhronosGroup/OpenCL-ICD-Loader/archive/refs/tags/v2023.04.17.tar.gz"
+      },
+      "cmake_args": [
+        "-DOPENCL_ICD_LOADER_HEADERS_DIR={prefix}/include",
+        "-DBUILD_TESTS=OFF"
+      ],
+      "fixups": [
+        "share_pc"
+      ]
+    },
+    "vpl": {
+      "match_names": [
+        "vpl",
+        "libvpl"
+      ],
+      "pc": "vpl",
+      "system": "cmake",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/oneapi-src/oneVPL/archive/refs/tags/v2023.4.0.tar.gz"
+      },
+      "cmake_args": [
+        "-DBUILD_EXAMPLES=OFF",
+        "-DBUILD_TESTS=OFF",
+        "-DBUILD_TOOLS=OFF"
+      ]
     }
   }
 }

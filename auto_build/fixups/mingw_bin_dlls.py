@@ -33,5 +33,13 @@ def run(ctx, key, dep):
             os.makedirs(bindir, exist_ok=True)
             shutil.copy2(hits[0], os.path.join(bindir, base + ".dll"))
             staged += 1
+    # some autotools ports install their runtime DLL into lib/ (libtool
+    # SODIR differences); PE loaders search the exe directory, so stage
+    # every top-level lib/*.dll next to the tools too.
+    for dll in glob.glob(os.path.join(libdir, "*.dll")):
+        dst = os.path.join(bindir, os.path.basename(dll))
+        if not os.path.exists(dst):
+            shutil.copy2(dll, dst)
+            staged += 1
     if staged:
         print("fixup mingw_bin_dlls: {} DLL(s) -> {}".format(staged, bindir))
