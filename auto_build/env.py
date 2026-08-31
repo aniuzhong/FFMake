@@ -44,7 +44,8 @@ _SYSTEM_PATH = "/usr/bin:/bin"
 
 
 def build_child_env(prefix, strict_pkgconfig=False, pythonpath=None,
-                    tools_bin=None, prepend_path=None, pcdir=None, extra=None):
+                    tools_bin=None, prepend_path=None, cross_bin=None,
+                    pcdir=None, extra=None):
     """Build the child-process environment.
 
     prefix            per-triplet sysroot (workspace/out/<triplet>)
@@ -54,6 +55,9 @@ def build_child_env(prefix, strict_pkgconfig=False, pythonpath=None,
     tools_bin         host tools bin dir (pkg-config wrapper, nasm), first
                       in PATH
     prepend_path      extra bin dirs before tools_bin (e.g. CUDA toolkit)
+    cross_bin         cross toolchain bin dir (triplet's cross_toolchain,
+                      e.g. llvm-mingw); bare x86_64-w64-mingw32-* names
+                      resolve here instead of the distro toolchain
     pcdir             PKG_CONFIG_PATH dir; defaults to prefix/lib/pkgconfig
                       (pass the ASCII alias dir when the sysroot path is
                       non-ASCII)
@@ -70,6 +74,8 @@ def build_child_env(prefix, strict_pkgconfig=False, pythonpath=None,
         path_parts.append(prepend_path)
     if tools_bin:
         path_parts.append(tools_bin)
+    if cross_bin:
+        path_parts.append(cross_bin)
     path_parts.append(os.path.join(prefix, "bin"))
     child["PATH"] = ":".join(path_parts) + ":" + _SYSTEM_PATH
     pcdir = pcdir or os.path.join(prefix, "lib", "pkgconfig")

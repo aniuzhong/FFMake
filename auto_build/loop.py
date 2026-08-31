@@ -28,6 +28,13 @@ from .runners.base import BuildError
 # check_lib/require errors do not -> capture the spec, first token = name
 _ERROR_NOT_FOUND = re.compile(
     r"ERROR:\s+(.+?)\s+not found(?: using pkg-config)?")
+# require() on a header/func pair word it as "X must be installed and
+# version must be >= Y" when the compile/link probe fails
+_ERROR_MUST_INSTALL = re.compile(
+    r"ERROR:\s+(\S+)\s+must be installed")
+# multi-check libs (libvpx) die with "X enabled but no supported ... found"
+_ERROR_ENABLED_BUT = re.compile(
+    r"^(\S+) enabled but", re.MULTILINE)
 # feature probes report unsatisfied deps as
 # "X requested, but not all dependencies are satisfied: a, b"
 _DEPS_UNSAT = re.compile(
@@ -137,6 +144,13 @@ def _ensure_dep(ctx, deps, key, _stack=()):
     if key in _stack:
         _die("dependency cycle: {}".format(" -> ".join(_stack + (key,))))
     dep = deps[key]
+    # per-triplet entry overrides (vcpkg-style port tweaks): deps.json
+    # "triplet_overrides": {"<triplet>": {...fields to overlay...}}
+    # merged BEFORE the needs walk so overrides can also declare per-triplet
+    # needs (e.g. libzvbi only wants libiconv under mingw)
+    ov = dep.get("triplet_overrides", {}).get(ctx["triplet"])
+    if ov:
+        dep = {**dep, **ov}
     for need in dep.get("needs", []):
         _ensure_dep(ctx, deps, need, _stack + (key,))
     runner = get_runner(dep.get("system", "makefile"), ctx)
@@ -171,8 +185,17 @@ def cuda_bin(flags):
     return None
 
 
-def read_flags(root):
-    """Public accessor: parsed ffmpeg_flags.txt as an argv list."""
+def read_flags(root, triplet=None):
+    """Public accessor: parsed ffmpeg_flags.txt as an argv list.
+
+    Per-triplet file (ffmpeg_flags.<triplet>.txt) wins when present --
+    cross triplets trim Linux-only flags there; the global file is the
+    fallback shared by every triplet.
+    """
+    if triplet:
+        per = os.path.join(root, "ffmpeg_flags.{}.txt".format(triplet))
+        if os.path.isfile(per):
+            return _read_flags(per)
     return _read_flags(os.path.join(root, "ffmpeg_flags.txt"))
 
 
@@ -189,7 +212,7 @@ def configure_loop(ctx):
         if dep.get("tool"):
             _ensure_dep(ctx, deps, key)
 
-    flags = read_flags(ctx["root"])
+    flags = read_flags(ctx["root"], ctx["triplet"])
     base = [
         os.path.join(src, "configure"),
         # FFmpeg's configure only accepts --opt=value joined form
@@ -201,16 +224,22 @@ def configure_loop(ctx):
         "--pkg-config=pkg-config",
         "--extra-cflags=-I" + os.path.join(ctx["prefix"], "include"),
         # --disable-new-dtags keeps DT_RPATH (not RUNPATH): transitive
-        # deps like libjxl_cms.so resolve from the sysroot RPATH
-        "--extra-ldflags=-L{lib} -Wl,-rpath,{lib} -Wl,--disable-new-dtags".format(
-            lib=os.path.join(ctx["prefix"], "lib")),
+        # deps like libjxl_cms.so resolve from the sysroot RPATH.
+        # ELF-only: mingw's PE ld rejects the option outright.
+        "--extra-ldflags=-L{lib} -Wl,-rpath,{lib}{dtags}".format(
+            lib=os.path.join(ctx["prefix"], "lib"),
+            dtags=" -Wl,--disable-new-dtags"
+            if ctx["triplet_cfg"]["target_os"] == "linux" else ""),
     ] + ctx["triplet_cfg"]["ffmpeg_flags"]
+    _tc = ctx["triplet_cfg"].get("cross_toolchain")
     env = env_mod.build_child_env(
         ctx["prefix"],  # prefix-first: system .pc ok
         tools_bin=os.path.join(ctx["tools_prefix"], "bin"),
         # --enable-cuda-nvcc builds PTX via nvcc; it is not in the
         # narrowed system PATH, so prepend the CUDA toolkit bin dir
-        prepend_path=cuda_bin(flags))
+        prepend_path=cuda_bin(flags),
+        # triplet's cross toolchain (e.g. llvm-mingw) beats the distro's
+        cross_bin=os.path.join(ctx["tools_prefix"], _tc) if _tc else None)
 
     built = []
     for attempt in range(1, _MAX_ATTEMPTS + 1):
@@ -229,6 +258,8 @@ def configure_loop(ctx):
             text = f.read()
         missing = [spec.split()[0]
                    for spec in _ERROR_NOT_FOUND.findall(text)]
+        missing += [name for name in _ERROR_MUST_INSTALL.findall(text)]
+        missing += [name for name in _ERROR_ENABLED_BUT.findall(text)]
         for spec in _DEPS_UNSAT.findall(text):
             for name in spec.split(","):
                 name = name.strip()
@@ -237,11 +268,19 @@ def configure_loop(ctx):
         if not missing:
             _die("configure failed with unknown error; log tail:\n" +
                  _tail(log))
+        print("configure: unsatisfied after checks: {}".format(
+            ", ".join(sorted(missing))))
+        print(_tail(log))
         for name in missing:
             key = index.get(name)
             if not key:
                 _die("dependency '{}' is not in deps.json; "
                      "add a knowledge entry for it".format(name))
+            plat = deps[key].get("platforms")
+            if plat and ctx["triplet"] not in plat:
+                _die("port '{}' covers {} only, but triplet '{}' requested "
+                     "it; trim the requesting flag from this triplet's "
+                     "flags file".format(key, "/".join(plat), ctx["triplet"]))
             if key not in built:
                 print("configure: missing '{}' -> building dep '{}'".format(
                     name, key))

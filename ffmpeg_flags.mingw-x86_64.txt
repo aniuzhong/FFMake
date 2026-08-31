@@ -1,0 +1,89 @@
+# mingw-x86_64 flags: global ffmpeg_flags.txt minus platform-Linux and
+# otherwise-unreachable items. Everything else is cross-plausible; the
+# marathon decides the long tail.
+# trimmed vs global:
+#   cuda-nvcc        nvcc host toolchain (keep cuvid/nvenc/nvdec/ffnvcodec:
+#                    header-only + runtime loading)
+#   vaapi/vdpau/libdrm/libv4l2/iec61883/dc1394/libklvanc   Linux-only
+#   libpulse/libjack/cairo/ladspa/vapoursynth              no usable target
+#   libxcb*          X11 grab stack
+#   librav1e         cargo cross (rustup windows-gnu target) unavailable
+#   libvpx           vpx configure: no mingw shared target, and static libs
+#                    break the .refptr address-taking check
+--enable-gpl
+--enable-version3
+--enable-nonfree
+--enable-libx264
+--enable-libx265
+--enable-libdav1d
+--enable-libzimg
+--enable-libmp3lame
+--enable-libopus
+--enable-libvorbis
+--enable-libspeex
+--enable-libtheora
+--enable-libxvid
+--enable-libfreetype
+--enable-libharfbuzz
+--enable-libfribidi
+--enable-libass
+--enable-libsoxr
+--enable-libaom
+--enable-libkvazaar
+--enable-libopenjpeg
+--enable-libtwolame
+--enable-libshine
+--enable-libvvenc
+--enable-libsvtav1
+--enable-libdvdnav
+--enable-libdvdread
+--enable-libwebp
+--enable-libssh
+--enable-libsrt
+--enable-openssl
+--enable-libopencore-amrnb
+--enable-libopencore-amrwb
+--enable-libvo-amrwbenc
+--enable-libmodplug
+--enable-libsnappy
+--enable-libmysofa
+--enable-libvidstab
+--enable-libqrencode
+--enable-libzvbi
+--enable-libaribb24
+--enable-libcaca
+--enable-libxml2
+--enable-libvmaf
+--enable-libbs2b
+--enable-libcodec2
+--enable-libuavs3d
+--enable-libjxl
+--enable-ffnvcodec
+--enable-cuvid
+--enable-nvenc
+--enable-nvdec
+--enable-sdl2
+--enable-amf
+--enable-chromaprint
+--enable-lcms2
+--enable-libaribcaption
+--enable-libbluray
+--enable-libfontconfig
+--enable-libgme
+--enable-libilbc
+--enable-liblc3
+--enable-liboapv
+--enable-libopenmpt
+--enable-librabbitmq
+--enable-librist
+--enable-librtmp
+--enable-libsvtjpegxs
+--enable-libtesseract
+--enable-libxevd
+--enable-libxeve
+--enable-libzmq
+--enable-lv2
+--enable-openal
+--enable-opengl
+--enable-pocketsphinx
+--enable-whisper

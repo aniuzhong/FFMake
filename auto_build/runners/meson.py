@@ -43,6 +43,12 @@ class MesonRunner(Runner):
                 "--buildtype=release",
                 "--default-library=shared",
                 "-Dlibdir=lib"] + list(dep.get("meson_args", []))
+        # cross triplets: triplet-declared cross file (binaries +
+        # host_machine); pkg-config stays the host binary with the
+        # target sysroot pinned via PKG_CONFIG_LIBDIR
+        cross = self.cross_file("meson", bdir)
+        if cross:
+            args += ["--cross-file=" + cross]
         self.run(args, bdir, os.path.join(logs, "configure.log"), env=env)
         self.run(["ninja", "-C", bdir, "-j", str(self.ctx["jobs"])], bdir,
                  os.path.join(logs, "build.log"), env=env)

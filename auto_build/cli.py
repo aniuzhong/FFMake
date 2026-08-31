@@ -13,6 +13,7 @@ Triplets: linux-x86_64 (native), mingw-x86_64 (cross, wine-tested).
 """
 
 import argparse
+import glob
 import os
 import shutil
 import subprocess
@@ -62,6 +63,13 @@ def cmd_configure(args):
     loop.configure_loop(_ctx(args))
 
 
+def _cross_bin(ctx):
+    tc = ctx["triplet_cfg"].get("cross_toolchain")
+    if not tc:
+        return None
+    return os.path.join(ctx["tools_prefix"], tc)
+
+
 def cmd_build(args):
     ctx = _ctx(args)
     out = paths.ffmpeg_out(ctx["root"], ctx["triplet"])
@@ -70,10 +78,13 @@ def cmd_build(args):
     log = os.path.join(ctx["logs"], "ffmpeg_make.log")
     # L0 env is mandatory for every subprocess: PATH must prefer the
     # host tools (nasm) over any system toolchain. cuda_bin keeps nvcc
-    # reachable for --enable-cuda-nvcc PTX builds.
+    # reachable for --enable-cuda-nvcc PTX builds; cross_bin resolves the
+    # triplet's cross toolchain ahead of the distro one.
     env = env_mod.build_child_env(
         ctx["prefix"], tools_bin=os.path.join(ctx["tools_prefix"], "bin"),
-        prepend_path=loop.cuda_bin(loop.read_flags(ctx["root"])))
+        prepend_path=loop.cuda_bin(loop.read_flags(
+            ctx["root"], ctx["triplet"])),
+        cross_bin=_cross_bin(ctx))
     with open(log, "w") as f:
         rc = subprocess.run(["make", "-j", str(ctx["jobs"])], cwd=out,
                             env=env, stdout=f, stderr=subprocess.STDOUT
@@ -88,13 +99,42 @@ def cmd_install(args):
     out = paths.ffmpeg_out(ctx["root"], ctx["triplet"])
     log = os.path.join(ctx["logs"], "ffmpeg_install.log")
     env = env_mod.build_child_env(
-        ctx["prefix"], tools_bin=os.path.join(ctx["tools_prefix"], "bin"))
+        ctx["prefix"], tools_bin=os.path.join(ctx["tools_prefix"], "bin"),
+        cross_bin=_cross_bin(ctx))
     with open(log, "w") as f:
         rc = subprocess.run(["make", "install"], cwd=out, env=env,
                             stdout=f, stderr=subprocess.STDOUT).returncode
     if rc != 0:
         _die("install failed (see {})".format(log))
+    _install_pe_runtime(ctx)
     print("install: OK -> {}".format(ctx["prefix"]))
+
+
+def _install_pe_runtime(ctx):
+    """Ship the toolchain's PE runtime DLLs next to the binaries.
+
+    Cross-built binaries dynamically link the toolchain runtime
+    (winpthread/gcc_seh/stdc++/gomp for the gcc triplet, libc++/unwind/
+    winpthread/libomp for llvm-mingw); a sysroot without them runs
+    nowhere -- neither under wine nor on real Windows. The triplet
+    table declares what to copy ([name-or-glob, src_dir] pairs, where
+    "TOOLS:" marks a path relative to the shared tools sysroot).
+    Idempotent.
+    """
+    entries = ctx["triplet_cfg"].get("pe_runtime")
+    if not entries:
+        return
+    bindir = os.path.join(ctx["prefix"], "bin")
+    for name, src_dir in entries:
+        if src_dir.startswith("TOOLS:"):
+            src_dir = os.path.join(ctx["tools_prefix"],
+                                   src_dir[len("TOOLS:"):])
+        for src in glob.glob(os.path.join(src_dir, name)):
+            dst = os.path.join(bindir, os.path.basename(src))
+            if os.path.isfile(src) and not os.path.exists(dst):
+                shutil.copy2(src, dst)
+                print("install: PE runtime {} -> bin/".format(
+                    os.path.basename(src)))
 
 
 def _ffmpeg_cmd(ctx):

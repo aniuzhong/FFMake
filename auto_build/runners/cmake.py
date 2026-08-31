@@ -48,6 +48,11 @@ class CmakeRunner(Runner):
                 "-DCMAKE_INSTALL_PREFIX=" + prefix,
                 "-DCMAKE_BUILD_TYPE=Release"] + \
                [a.format(**subst) for a in dep.get("cmake_args", [])]
+        # cross triplets: triplet-declared toolchain file (generators pick
+        # the cross compilers + FIND_ROOT_PATH sysroot isolation from it)
+        toolchain = self.cross_file("cmake", bdir)
+        if toolchain:
+            args += ["-DCMAKE_TOOLCHAIN_FILE=" + toolchain]
         self.run(args, bdir, os.path.join(logs, "configure.log"), env=env)
         self.run(["cmake", "--build", bdir, "-j", str(self.ctx["jobs"])],
                  bdir, os.path.join(logs, "build.log"), env=env)
