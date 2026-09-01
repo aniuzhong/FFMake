@@ -105,3 +105,4 @@
 --enable-avisynth
 --enable-cuda-nvcc
 --enable-librav1e
+--enable-ladspa

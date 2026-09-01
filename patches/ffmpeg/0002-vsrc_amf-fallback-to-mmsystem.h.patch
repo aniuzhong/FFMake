@@ -1,30 +1,16 @@
-From: ffmake engine
-Subject: [PATCH] vsrc_amf: fall back to mmsystem.h when timeapi.h is absent
-
-mingw-w64 7.0 (Ubuntu 20.04 cross toolchain) predates the timeapi.h
-split; timeGetTime and friends live in mmsystem.h there. Use
-__has_include to pick the right header on both old and new SDKs.
----
- libavfilter/vsrc_amf.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
 diff --git a/libavfilter/vsrc_amf.c b/libavfilter/vsrc_amf.c
+index 2a9811ae4a..e1ea0dc0f7 100644
 --- a/libavfilter/vsrc_amf.c
 +++ b/libavfilter/vsrc_amf.c
-@@ -72,9 +72,13 @@ AVFILTER_DEFINE_CLASS(amf_capture);
-
+@@ -74,7 +74,11 @@ AVFILTER_DEFINE_CLASS(amf_capture);
  // need to increase precision for capture timing accuracy
  #if defined (_WIN32)
-
--#include <timeapi.h>
+ 
 +#if __has_include(<timeapi.h>)
-+#include <timeapi.h>
+ #include <timeapi.h>
 +#else
 +#include <mmsystem.h>
 +#endif
-
- typedef WINMMAPI MMRESULT (WINAPI *timeBeginPeriod_fn)( UINT uPeriod);
- typedef WINMMAPI MMRESULT (WINAPI *timeEndPeriod_fn)(UINT uPeriod);
-
---
-2.39.5
+ 
+ typedef MMRESULT (WINAPI *timeBeginPeriod_fn)(UINT uPeriod);
+ typedef MMRESULT (WINAPI *timeEndPeriod_fn)(UINT uPeriod);

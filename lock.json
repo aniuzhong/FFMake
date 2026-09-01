@@ -225,7 +225,6 @@
           "--enable-librav1e",
           "--enable-librist",
           "--enable-librtmp",
-          "--enable-libshaderc",
           "--enable-libsvtjpegxs",
           "--enable-libtesseract",
           "--enable-libv4l2",
@@ -252,8 +251,8 @@
           "--enable-libopenvino",
           "--enable-libtensorflow"
         ],
-        "resolved_rev": null,
-        "url": null
+        "resolved_rev": "b1f564bda248dbe8ac37cb743966fdd7ee4b490c",
+        "url": "https://git.ffmpeg.org/ffmpeg.git"
       },
       "last_built": [],
       "ports": {

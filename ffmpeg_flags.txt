@@ -99,7 +99,6 @@
 --enable-librav1e
 --enable-librist
 --enable-librtmp
---enable-libshaderc
 --enable-libsvtjpegxs
 --enable-libtesseract
 --enable-libv4l2

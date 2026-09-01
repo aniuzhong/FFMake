@@ -1,0 +1,16 @@
+diff --git a/libavfilter/af_ladspa.c b/libavfilter/af_ladspa.c
+index ea5eb1a2ef..b64d45de64 100644
+--- a/libavfilter/af_ladspa.c
++++ b/libavfilter/af_ladspa.c
+@@ -24,7 +24,11 @@
+  * LADSPA wrapper
+  */
+ 
++#ifdef _WIN32
++#include "compat/w32dlfcn.h"
++#else
+ #include <dlfcn.h>
++#endif
+ #include <ladspa.h>
+ #include "libavutil/avassert.h"
+ #include "libavutil/avstring.h"

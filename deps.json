@@ -3048,5 +3048,11 @@
         "-lopenvino_c"
       ]
     }
+  },
+  "ffmpeg": {
+    "source": {
+      "type": "git",
+      "url": "https://git.ffmpeg.org/ffmpeg.git"
+    }
   }
 }
