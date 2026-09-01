@@ -1718,9 +1718,6 @@
       ]
     },
     "flite": {
-      "platforms": [
-        "linux"
-      ],
       "match_names": [
         "flite",
         "libflite"
@@ -1733,7 +1730,7 @@
         "sha256": "ab1555fe5adc3f99f1d4a1a0eb1596d329fd6d74f1464a0097c81f53c0cf9e5c"
       },
       "steps": [
-        "cd {src} && ./configure --prefix={prefix} --with-audio=alsa --enable-shared",
+        "cd {src} && ./configure --prefix={prefix} --with-audio=none --enable-shared && sed -i 's/-lasound//' config/config",
         "cd {src} && make -j{jobs}",
         "cd {src} && make install"
       ],
@@ -1746,10 +1743,11 @@
       ],
       "triplet_overrides": {
         "mingw-x86_64-llvm": {
+          "prefixup": "sed -i 's/^#define const$/#ifdef _WIN32\\n#include <windows.h>\\n#endif\\n#define const/' {src}/tools/find_sts_main.c && sed -i 's/^__inline int c99_/static __inline int c99_/' {src}/include/cst_file.h && sed -i 's/^inline /static inline /; s/^__inline /static __inline /' {src}/include/*.h && sed -i 's/^__inline int ts_utf8_sequence_length/int ts_utf8_sequence_length/' {src}/src/utils/cst_tokenstream.c && sed -i 's/static __inline int ts_utf8_sequence_length(char c0);/int ts_utf8_sequence_length(char c0);/' {src}/include/cst_tokenstream.h",
           "steps": [
-            "cd {src} && ./configure --host=x86_64-w64-mingw32 --prefix={prefix} --with-audio=none --enable-shared",
+            "cd {src} && ./configure --host=x86_64-w64-mingw32 --prefix={prefix} --with-audio=none --enable-shared && sed -i 's/i386-mingw32-/x86_64-w64-mingw32-/g' config/config config/system.mak",
             "cd {src} && make -j{jobs}",
-            "cd {src} && make install"
+            "cd {src} && mkdir -p {prefix}/include/flite {prefix}/lib && cp -f include/*.h {prefix}/include/flite/ && cp -f build/x86_64-mingw32/lib/*.a {prefix}/lib/"
           ]
         }
       }
@@ -2277,6 +2275,7 @@
       },
       "meson_args": [
         "-Dvulkan=enabled",
+        "-Dvk-proc-addr=disabled",
         "-Dshaderc=enabled",
         "-Dglslang=disabled",
         "-Dopengl=disabled",
@@ -2302,6 +2301,7 @@
         "-DSHADERC_SKIP_TESTS=ON",
         "-DSHADERC_SKIP_EXAMPLES=ON",
         "-DSHADERC_SKIP_COPYRIGHT_CHECK=ON",
+        "-DSPIRV_TOOLS_BUILD_STATIC=OFF",
         "-DBUILD_SHARED_LIBS=ON"
       ]
     },
@@ -2666,11 +2666,52 @@
       ],
       "strict_pkgconfig": false
     },
+    "pixman": {
+      "match_names": [
+        "pixman",
+        "pixman-1"
+      ],
+      "pc": "pixman-1",
+      "system": "meson",
+      "source": {
+        "type": "tar",
+        "url": "http://deb.debian.org/debian/pool/main/p/pixman/pixman_0.44.0.orig.tar.gz",
+        "sha256": "89a4c1e1e45e0b23dffe708202cb2eaffde0fe3727d7692b2e1739fec78a7dac"
+      },
+      "meson_args": [
+        "-Dtests=disabled",
+        "-Ddemos=disabled",
+        "-Dgtk=disabled",
+        "-Dlibpng=disabled"
+      ]
+    },
     "cairo": {
       "system": "system-pc",
       "pcs": [
         "cairo"
-      ]
+      ],
+      "triplet_overrides": {
+        "mingw-x86_64-llvm": {
+          "system": "meson",
+          "needs": [
+            "pixman"
+          ],
+          "source": {
+            "type": "tar",
+            "url": "http://deb.debian.org/debian/pool/main/c/cairo/cairo_1.18.4.orig.tar.xz",
+            "sha256": "445ed8208a6e4823de1226a74ca319d3600e83f6369f99b14265006599c32ccb"
+          },
+          "meson_args": [
+            "-Dtests=disabled",
+            "-Dglib=disabled",
+            "-Dxcb=disabled",
+            "-Dxlib=disabled",
+            "-Dtee=disabled",
+            "-Dquartz=disabled",
+            "-Ddwrite=disabled"
+          ]
+        }
+      }
     },
     "opengl": {
       "system": "system-pc",
@@ -2881,7 +2922,8 @@
     },
     "avisynth": {
       "match_names": [
-        "avisynth"
+        "avisynth",
+        "avisynth/avisynth_c.h"
       ],
       "system": "cmake",
       "source": {
@@ -3018,7 +3060,26 @@
         "-ltensorflow",
         "-ltensorflow_framework",
         "-lm"
-      ]
+      ],
+      "triplet_overrides": {
+        "mingw-x86_64-llvm": {
+          "source": {
+            "type": "tar",
+            "url": "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-windows-x86_64-2.15.0.zip"
+          },
+          "steps": [
+            "mkdir -p {prefix}/include {prefix}/lib {prefix}/bin {src}/linc",
+            "cp -a {src}/include/* {prefix}/include/",
+            "tar -xzf {prefix}/../../distfiles/libtensorflow-cpu-linux-x86_64-2.15.0.tar.gz -C {src}/linc",
+            "cp -a {src}/linc/include/* {prefix}/include/",
+            "cp -a {src}/lib/tensorflow.dll {prefix}/bin/",
+            "cp -a {src}/lib/tensorflow.dll {prefix}/lib/"
+          ],
+          "pc_libs": [
+            "-ltensorflow"
+          ]
+        }
+      }
     },
     "libopenvino": {
       "match_names": [
@@ -3027,9 +3088,6 @@
       ],
       "pc": "openvino",
       "system": "custom",
-      "platforms": [
-        "linux-x86_64"
-      ],
       "source": {
         "type": "tar",
         "url": "https://storage.openvinotoolkit.org/repositories/openvino/packages/2024.6/linux/l_openvino_toolkit_ubuntu20_2024.6.0.17404.4c0f47d2335_x86_64.tgz"
@@ -3046,7 +3104,27 @@
       "pc_libs": [
         "-lopenvino",
         "-lopenvino_c"
-      ]
+      ],
+      "triplet_overrides": {
+        "mingw-x86_64-llvm": {
+          "source": {
+            "type": "tar",
+            "url": "https://storage.openvinotoolkit.org/repositories/openvino/packages/2024.6/windows/w_openvino_toolkit_windows_2024.6.0.17404.4c0f47d2335_x86_64.zip"
+          },
+          "steps": [
+            "mkdir -p {prefix}/include {prefix}/lib {prefix}/bin",
+            "cp -a {src}/runtime/include/* {prefix}/include/",
+            "cp -a {src}/runtime/lib/intel64/Release/*.lib {prefix}/lib/",
+            "cp -a {src}/runtime/bin/intel64/Release/* {prefix}/bin/",
+            "cp -a {src}/runtime/3rdparty/tbb/bin/* {prefix}/bin/ 2>/dev/null || true",
+            "cp -a {src}/runtime/bin/intel64/Release/openvino_c.dll {prefix}/lib/",
+            "printf 'prefix=%s\\nlibdir=%s\\n\\nName: openvino\\nDescription: OpenVINO toolkit\\nVersion: 2024.6\\nLibs: -L%s/lib -lopenvino_c\\nCflags: -I%s/include\\n' \"{prefix}\" \"{prefix}\" \"{prefix}\" > {prefix}/lib/pkgconfig/openvino.pc"
+          ],
+          "pc_libs": [
+            "-lopenvino_c"
+          ]
+        }
+      }
     }
   },
   "ffmpeg": {

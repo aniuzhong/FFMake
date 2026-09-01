@@ -1,0 +1,18 @@
+diff --git a/configure b/configure
+--- a/configure
++++ b/configure
+@@ -4236,5 +4236,6 @@
+ interlace_vulkan_filter_deps="vulkan spirv_compiler"
+ kerndeint_filter_deps="gpl"
+-ladspa_filter_deps="ladspa libdl"
++ladspa_filter_deps="ladspa"
++ladspa_filter_deps_any="libdl LoadLibrary"
+ lcevc_filter_deps="liblcevc_dec"
+ lensfun_filter_deps="liblensfun version3"
+@@ -7323,5 +7323,5 @@
+ enabled gnutls            && require_pkg_config gnutls gnutls/gnutls.h gnutls_global_init
+ enabled jni               && { [ $target_os = "android" ] && check_headers jni.h && enabled pthreads || die "ERROR: jni not found"; }
+-enabled ladspa            && require_headers "ladspa.h dlfcn.h"
++enabled ladspa            && require_headers "ladspa.h"
+ enabled lcms2             && require_pkg_config lcms2 "lcms2 >= 2.13" lcms2.h cmsCreateContext
+ enabled libaom            && require_pkg_config libaom "aom >= 2.0.0" aom/aom_codec.h aom_codec_version

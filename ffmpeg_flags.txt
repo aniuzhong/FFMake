@@ -124,3 +124,4 @@
 --enable-libonnxruntime
 --enable-libopenvino
 --enable-libtensorflow
+--enable-avisynth

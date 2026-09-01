@@ -5,7 +5,7 @@
 #   cuda-nvcc        nvcc host toolchain (keep cuvid/nvenc/nvdec/ffnvcodec:
 #                    header-only + runtime loading)
 #   vaapi/vdpau/libdrm/libv4l2/iec61883/dc1394/libklvanc   Linux-only
-#   libpulse/libjack/cairo/ladspa/vapoursynth              no usable target
+#   libpulse/libjack/vapoursynth                          no usable target
 #   libxcb*          X11 grab stack
 #   librav1e         cargo cross (rustup windows-gnu target) unavailable
 #   (+libvpx vs the gcc triplet: static vpx links fine under clang/lld --
@@ -106,3 +106,9 @@
 --enable-cuda-nvcc
 --enable-librav1e
 --enable-ladspa
+--enable-libflite
+--enable-cairo
+--enable-libplacebo
+--enable-libonnxruntime
+--enable-libtensorflow
+--enable-libopenvino

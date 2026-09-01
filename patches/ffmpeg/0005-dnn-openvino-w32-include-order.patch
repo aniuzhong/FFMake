@@ -1,0 +1,11 @@
+diff --git a/libavfilter/dnn/dnn_backend_openvino.c b/libavfilter/dnn/dnn_backend_openvino.c
+--- a/libavfilter/dnn/dnn_backend_openvino.c
++++ b/libavfilter/dnn/dnn_backend_openvino.c
+@@ -33,6 +33,9 @@
+ #include "safe_queue.h"
++#ifdef _WIN32
++#include <windows.h>
++#endif
+ #if HAVE_OPENVINO2
+ #include <openvino/c/openvino.h>
+ #else

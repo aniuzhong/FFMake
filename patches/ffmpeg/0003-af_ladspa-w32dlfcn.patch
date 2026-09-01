@@ -1,16 +1,31 @@
 diff --git a/libavfilter/af_ladspa.c b/libavfilter/af_ladspa.c
-index ea5eb1a2ef..b64d45de64 100644
 --- a/libavfilter/af_ladspa.c
 +++ b/libavfilter/af_ladspa.c
-@@ -24,7 +24,11 @@
+@@ -24,7 +24,12 @@
   * LADSPA wrapper
   */
- 
+
 +#ifdef _WIN32
 +#include "compat/w32dlfcn.h"
++static const char *dlerror(void) { return "GetProcAddress failed"; }
 +#else
  #include <dlfcn.h>
 +#endif
  #include <ladspa.h>
  #include "libavutil/avassert.h"
  #include "libavutil/avstring.h"
+@@ -534,13 +539,13 @@
+     }
+     if (!s->dl_handle) {
+         av_log(ctx, AV_LOG_ERROR, "Failed to load '%s'\n", s->dl_name);
+         return AVERROR(EINVAL);
+     }
+
+-    descriptor_fn = dlsym(s->dl_handle, "ladspa_descriptor");
++    descriptor_fn = (LADSPA_Descriptor_Function)(uintptr_t)dlsym(s->dl_handle, "ladspa_descriptor");
+     if (!descriptor_fn) {
+         av_log(ctx, AV_LOG_ERROR, "Could not find ladspa_descriptor: %s\n", dlerror());
+         return AVERROR(EINVAL);
+     }
+
+     // Find the requested plugin, or list plugins
