@@ -123,3 +123,5 @@
 --enable-libsmbclient
 --enable-liblensfun
 --enable-libonnxruntime
+--enable-libopenvino
+--enable-libtensorflow

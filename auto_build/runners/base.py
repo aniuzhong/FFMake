@@ -278,11 +278,13 @@ class Runner(object):
                     t.extractall(tmp)
             entries = [e for e in os.listdir(tmp)
                        if e != "pax_global_header" and not e.startswith(".")]
-            if len(entries) != 1:
-                raise BuildError(
-                    "{}: expected one top-level dir, got {}".format(
-                        dist, entries))
-            os.rename(os.path.join(tmp, entries[0]), dst)
+            os.makedirs(dst, exist_ok=True)
+            if len(entries) == 1 and os.path.isdir(os.path.join(tmp, entries[0])):
+                os.rename(os.path.join(tmp, entries[0]), dst)
+            else:
+                # multi-root archive (prebuilt packages): merge into dst
+                for e in entries:
+                    os.rename(os.path.join(tmp, e), os.path.join(dst, e))
             os.rmdir(tmp)
         else:
             raise BuildError("unknown source type: {}".format(stype))

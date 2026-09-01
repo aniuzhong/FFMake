@@ -2993,6 +2993,60 @@
           ]
         }
       }
+    },
+    "libtensorflow": {
+      "match_names": [
+        "libtensorflow",
+        "tensorflow"
+      ],
+      "system": "custom",
+      "source": {
+        "type": "tar",
+        "url": "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-2.15.0.tar.gz"
+      },
+      "steps": [
+        "mkdir -p {prefix}/include {prefix}/lib",
+        "cp -a {src}/include/* {prefix}/include/",
+        "cp -a {src}/lib/* {prefix}/lib/",
+        "ln -sf libtensorflow.so.2 {prefix}/lib/libtensorflow.so",
+        "ln -sf libtensorflow_framework.so.2 {prefix}/lib/libtensorflow_framework.so"
+      ],
+      "fixups": [
+        "simple_pc"
+      ],
+      "pc_libs": [
+        "-ltensorflow",
+        "-ltensorflow_framework",
+        "-lm"
+      ]
+    },
+    "libopenvino": {
+      "match_names": [
+        "libopenvino",
+        "openvino"
+      ],
+      "pc": "openvino",
+      "system": "custom",
+      "platforms": [
+        "linux-x86_64"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://storage.openvinotoolkit.org/repositories/openvino/packages/2024.6/linux/l_openvino_toolkit_ubuntu20_2024.6.0.17404.4c0f47d2335_x86_64.tgz"
+      },
+      "steps": [
+        "mkdir -p {prefix}/include {prefix}/lib",
+        "cp -a {src}/runtime/include/* {prefix}/include/",
+        "cp -a {src}/runtime/lib/intel64/* {prefix}/lib/ && cp -a {src}/runtime/3rdparty/tbb/lib/libtbb* {prefix}/lib/",
+        "printf 'prefix=%s\\nlibdir=%s\\n\\nName: openvino\\nDescription: OpenVINO toolkit\\nVersion: 2024.6\\nLibs: -L%s/lib -lopenvino_c -lopenvino\\nCflags: -I%s/include\\n' \"{prefix}\" \"{prefix}\" \"{prefix}\" > {prefix}/lib/pkgconfig/openvino.pc"
+      ],
+      "fixups": [
+        "simple_pc"
+      ],
+      "pc_libs": [
+        "-lopenvino",
+        "-lopenvino_c"
+      ]
     }
   }
 }
