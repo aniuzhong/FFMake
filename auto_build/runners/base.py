@@ -257,19 +257,31 @@ class Runner(object):
             else:
                 print("WARNING: {} has no sha256 pin "
                       "(actual: {})".format(key, digest))
-            if not tarfile.is_tarfile(dist):
+            if dist.endswith(".zip"):
+                import zipfile
+                if not zipfile.is_zipfile(dist):
+                    raise BuildError("unsupported archive: " + dist)
+                tmp = dst + ".extract"
+                if os.path.isdir(tmp):
+                    shutil.rmtree(tmp)
+                os.makedirs(tmp)
+                with zipfile.ZipFile(dist) as z:
+                    z.extractall(tmp)
+            elif not tarfile.is_tarfile(dist):
                 raise BuildError("unsupported archive: " + dist)
-            tmp = dst + ".extract"
-            if os.path.isdir(tmp):
-                shutil.rmtree(tmp)
-            os.makedirs(tmp)
-            with tarfile.open(dist) as t:
-                t.extractall(tmp)
+            else:
+                tmp = dst + ".extract"
+                if os.path.isdir(tmp):
+                    shutil.rmtree(tmp)
+                os.makedirs(tmp)
+                with tarfile.open(dist) as t:
+                    t.extractall(tmp)
             entries = [e for e in os.listdir(tmp)
                        if e != "pax_global_header" and not e.startswith(".")]
             if len(entries) != 1:
-                raise BuildError("tarball {}: expected one top-level dir, "
-                                 "got {}".format(dist, entries))
+                raise BuildError(
+                    "{}: expected one top-level dir, got {}".format(
+                        dist, entries))
             os.rename(os.path.join(tmp, entries[0]), dst)
             os.rmdir(tmp)
         else:

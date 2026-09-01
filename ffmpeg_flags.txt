@@ -122,3 +122,4 @@
 --enable-libvpl
 --enable-libsmbclient
 --enable-liblensfun
+--enable-libonnxruntime

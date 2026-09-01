@@ -247,12 +247,15 @@
           "--enable-opencl",
           "--enable-libvpl",
           "--enable-libsmbclient",
-          "--enable-liblensfun"
+          "--enable-liblensfun",
+          "--enable-libonnxruntime"
         ],
         "resolved_rev": null,
         "url": null
       },
-      "last_built": [],
+      "last_built": [
+        "onnxruntime"
+      ],
       "ports": {
         "amf": {
           "recipe": {
@@ -2929,6 +2932,46 @@
             "system": "makefile"
           },
           "stamp_hash": "c6bb8ea864b66663a1d19a6c630300086c6e04f7a1106879d803cc98b6b7da47"
+        },
+        "onnxruntime": {
+          "recipe": {
+            "fixups": [
+              "simple_pc"
+            ],
+            "match_names": [
+              "onnxruntime",
+              "libonnxruntime"
+            ],
+            "pc": "onnxruntime",
+            "pc_libs": [
+              "-lonnxruntime"
+            ],
+            "source": {
+              "type": "tar",
+              "url": "https://github.com/microsoft/onnxruntime/releases/download/v1.29.0/onnxruntime-linux-x64-1.29.0.tgz"
+            },
+            "steps": [
+              "mkdir -p {prefix}/include {prefix}/lib",
+              "cp -a {src}/include/* {prefix}/include/",
+              "cp -a {src}/lib/* {prefix}/lib/"
+            ],
+            "system": "custom",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "source": {
+                  "type": "tar",
+                  "url": "https://github.com/microsoft/onnxruntime/releases/download/v1.29.0/onnxruntime-win-x64-1.29.0.zip"
+                },
+                "steps": [
+                  "mkdir -p {prefix}/include {prefix}/lib {prefix}/bin",
+                  "cp -a {src}/include/* {prefix}/include/",
+                  "cp -a {src}/lib/* {prefix}/lib/",
+                  "cp -a {src}/lib/* {prefix}/bin/ 2>/dev/null || true"
+                ]
+              }
+            }
+          },
+          "stamp_hash": "1046dd15671a5e484cac21eda6a523f8d540b733cba98151cafeba3ffefdb899"
         },
         "openal": {
           "recipe": {
@@ -6805,7 +6848,9 @@
           "recipe": {
             "cmake_args": [
               "-DBUILD_TESTS=OFF",
-              "-DBUILD_LENSFUN_ADDITIONAL=OFF"
+              "-DBUILD_LENSFUN_ADDITIONAL=OFF",
+              "-DGLIB2_INCLUDE_DIRS=/usr/include/glib-2.0;/usr/lib/x86_64-linux-gnu/glib-2.0/include",
+              "-DGLIB2_LIBRARIES=/usr/lib/x86_64-linux-gnu/libglib-2.0.so"
             ],
             "fixups": [
               "simple_pc"
@@ -6819,12 +6864,18 @@
               "-llensfun",
               "-lm"
             ],
+            "platforms": [
+              "linux-x86_64"
+            ],
+            "prefixup": "sed -i 's|^ADD_SUBDIRECTORY(apps)|# apps disabled (lenstool/python not needed)|' {src}/CMakeLists.txt",
             "source": {
-              "type": "tar",
-              "url": "https://github.com/lensfun/lensfun/archive/refs/tags/v0.3.4.tar.gz"
+              "rev": "23e8cb8050d680c7a293edb3d48b600754665f05",
+              "type": "git",
+              "url": "https://github.com/lensfun/lensfun.git"
             },
             "system": "cmake"
           },
+          "resolved_commit": "23e8cb8050d680c7a293edb3d48b600754665f05",
           "stamp_hash": null
         },
         "leptonica": {
@@ -7794,6 +7845,23 @@
           },
           "stamp_hash": "475fa2baa8119c3a4c0496229d837f4cace90636c1aeffcc7c91e0101af91b51"
         },
+        "libopencv": {
+          "recipe": {
+            "match_names": [
+              "libopencv",
+              "opencv4"
+            ],
+            "pc": "opencv4",
+            "pcs": [
+              "opencv4"
+            ],
+            "platforms": [
+              "linux-x86_64"
+            ],
+            "system": "system-pc"
+          },
+          "stamp_hash": null
+        },
         "libopenh264": {
           "recipe": {
             "fixups": [
@@ -8213,6 +8281,23 @@
           },
           "resolved_commit": "97f188efc3dc90315b79a2af1f477c0c18d85e82",
           "stamp_hash": "152c9da9b82d12dfd1da06225b1a2278fe360a1a22324f88c31249d2c047ae38"
+        },
+        "libsmbclient": {
+          "recipe": {
+            "match_names": [
+              "libsmbclient",
+              "smbclient"
+            ],
+            "pc": "smbclient",
+            "pcs": [
+              "smbclient"
+            ],
+            "platforms": [
+              "linux-x86_64"
+            ],
+            "system": "system-pc"
+          },
+          "stamp_hash": null
         },
         "libsnappy": {
           "recipe": {
@@ -9119,6 +9204,46 @@
             "system": "makefile"
           },
           "stamp_hash": "b1e8f64e950cc0790c8e514f2613d90bef31742fc79354df0eded8ff6d22b363"
+        },
+        "onnxruntime": {
+          "recipe": {
+            "fixups": [
+              "simple_pc"
+            ],
+            "match_names": [
+              "onnxruntime",
+              "libonnxruntime"
+            ],
+            "pc": "onnxruntime",
+            "pc_libs": [
+              "-lonnxruntime"
+            ],
+            "source": {
+              "type": "tar",
+              "url": "https://github.com/microsoft/onnxruntime/releases/download/v1.29.0/onnxruntime-linux-x64-1.29.0.tgz"
+            },
+            "steps": [
+              "mkdir -p {prefix}/include {prefix}/lib",
+              "cp -a {src}/include/* {prefix}/include/",
+              "cp -a {src}/lib/* {prefix}/lib/"
+            ],
+            "system": "custom",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "source": {
+                  "type": "tar",
+                  "url": "https://github.com/microsoft/onnxruntime/releases/download/v1.29.0/onnxruntime-win-x64-1.29.0.zip"
+                },
+                "steps": [
+                  "mkdir -p {prefix}/include {prefix}/lib {prefix}/bin",
+                  "cp -a {src}/include/* {prefix}/include/",
+                  "cp -a {src}/lib/* {prefix}/lib/",
+                  "cp -a {src}/lib/* {prefix}/bin/ 2>/dev/null || true"
+                ]
+              }
+            }
+          },
+          "stamp_hash": "b3ab08ca70c3ffaa604e8af92681182654765f9ca23843c84e086eb82a4be6ab"
         },
         "openal": {
           "recipe": {

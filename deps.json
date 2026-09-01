@@ -2956,6 +2956,43 @@
       "pcs": [
         "opencv4"
       ]
+    },
+    "onnxruntime": {
+      "match_names": [
+        "onnxruntime",
+        "libonnxruntime"
+      ],
+      "pc": "onnxruntime",
+      "system": "custom",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/microsoft/onnxruntime/releases/download/v1.29.0/onnxruntime-linux-x64-1.29.0.tgz"
+      },
+      "steps": [
+        "mkdir -p {prefix}/include {prefix}/lib",
+        "cp -a {src}/include/* {prefix}/include/",
+        "cp -a {src}/lib/* {prefix}/lib/"
+      ],
+      "fixups": [
+        "simple_pc"
+      ],
+      "pc_libs": [
+        "-lonnxruntime"
+      ],
+      "triplet_overrides": {
+        "mingw-x86_64-llvm": {
+          "source": {
+            "type": "tar",
+            "url": "https://github.com/microsoft/onnxruntime/releases/download/v1.29.0/onnxruntime-win-x64-1.29.0.zip"
+          },
+          "steps": [
+            "mkdir -p {prefix}/include {prefix}/lib {prefix}/bin",
+            "cp -a {src}/include/* {prefix}/include/",
+            "cp -a {src}/lib/* {prefix}/lib/",
+            "cp -a {src}/lib/* {prefix}/bin/ 2>/dev/null || true"
+          ]
+        }
+      }
     }
   }
 }
