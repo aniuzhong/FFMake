@@ -95,3 +95,13 @@
 --enable-libcdio
 --enable-opencl
 --enable-libvpl
+--enable-libdavs2
+--enable-libxavs2
+--enable-libopenh264
+--enable-libgsm
+--enable-libquirc
+--enable-libklvanc
+--enable-liblcevc-dec
+--enable-avisynth
+--enable-cuda-nvcc
+--enable-librav1e

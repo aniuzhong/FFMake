@@ -245,7 +245,9 @@
           "--enable-libfdk-aac",
           "--enable-libcdio",
           "--enable-opencl",
-          "--enable-libvpl"
+          "--enable-libvpl",
+          "--enable-libsmbclient",
+          "--enable-liblensfun"
         ],
         "resolved_rev": null,
         "url": null
@@ -270,6 +272,29 @@
             "system": "custom"
           },
           "stamp_hash": "8d5f55c9cfe2c084d3f3e4091c12b185bab996aeecd82c928648da9d5bd6de9c"
+        },
+        "avisynth": {
+          "recipe": {
+            "cmake_args": [
+              "-DENABLE_PLUGINS=OFF",
+              "-DENABLE_CORE_TOOLS=OFF",
+              "-DENABLE_TESTS=OFF"
+            ],
+            "match_names": [
+              "avisynth"
+            ],
+            "source": {
+              "type": "tar",
+              "url": "https://github.com/AviSynth/AviSynthPlus/archive/refs/tags/v3.7.3.tar.gz"
+            },
+            "system": "cmake",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "prefixup": "sed -i 's/#ifndef MSVC/#if 0/' {src}/avs_core/filters/AviSource/avi_source.cpp"
+              }
+            }
+          },
+          "stamp_hash": null
         },
         "cairo": {
           "recipe": {
@@ -405,11 +430,18 @@
         },
         "flite": {
           "recipe": {
+            "fixups": [
+              "simple_pc"
+            ],
             "match_names": [
               "flite",
               "libflite"
             ],
             "pc": "flite",
+            "pc_libs": [
+              "-lflite",
+              "-lm"
+            ],
             "platforms": [
               "linux"
             ],
@@ -423,7 +455,16 @@
               "cd {src} && make -j{jobs}",
               "cd {src} && make install"
             ],
-            "system": "custom"
+            "system": "custom",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "steps": [
+                  "cd {src} && ./configure --host=x86_64-w64-mingw32 --prefix={prefix} --with-audio=none --enable-shared",
+                  "cd {src} && make -j{jobs}",
+                  "cd {src} && make install"
+                ]
+              }
+            }
           },
           "stamp_hash": "ae9a5113261a446123284a6b6a5bdeab8954c2c42f5c803aafa12c2c57d9afa7"
         },
@@ -527,6 +568,40 @@
             "system": "makefile"
           },
           "stamp_hash": "52beae11631744eb8f7479371c8c60b8b3162dcec58014323538ff94c2c6872d"
+        },
+        "lensfun": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_TESTS=OFF",
+              "-DBUILD_LENSFUN_ADDITIONAL=OFF",
+              "-DGLIB2_INCLUDE_DIRS=/usr/include/glib-2.0;/usr/lib/x86_64-linux-gnu/glib-2.0/include",
+              "-DGLIB2_LIBRARIES=/usr/lib/x86_64-linux-gnu/libglib-2.0.so"
+            ],
+            "fixups": [
+              "simple_pc"
+            ],
+            "match_names": [
+              "lensfun",
+              "liblensfun"
+            ],
+            "pc": "lensfun",
+            "pc_libs": [
+              "-llensfun",
+              "-lm"
+            ],
+            "platforms": [
+              "linux-x86_64"
+            ],
+            "prefixup": "sed -i 's|^ADD_SUBDIRECTORY(apps)|# apps disabled (lenstool/python not needed)|' {src}/CMakeLists.txt",
+            "source": {
+              "rev": "23e8cb8050d680c7a293edb3d48b600754665f05",
+              "type": "git",
+              "url": "https://github.com/lensfun/lensfun.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "23e8cb8050d680c7a293edb3d48b600754665f05",
+          "stamp_hash": "368a1ce51174c074a202d25d4f2f4a7b1914988ce136cd1b131d0fcd06bd0938"
         },
         "leptonica": {
           "recipe": {
@@ -805,6 +880,9 @@
               "--disable-example-progs",
               "--disable-tests"
             ],
+            "fixups": [
+              "mingw_bin_dlls"
+            ],
             "match_names": [
               "libcdio",
               "cdio"
@@ -814,12 +892,28 @@
               "type": "tar",
               "url": "https://github.com/libcdio/libcdio/releases/download/2.4.0/libcdio-2.4.0.tar.bz2"
             },
-            "system": "makefile"
+            "system": "makefile",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "configure_args": [
+                  "--disable-cxx",
+                  "--disable-example-progs",
+                  "--disable-tests"
+                ],
+                "make_args": [
+                  "LDFLAGS=-no-undefined"
+                ],
+                "prefixup": "find {src} \\( -name Makefile.am -o -name Makefile.in \\) -exec sed -i 's/ -Wl,--version-script=[^ ]*//g' {{}} +"
+              }
+            }
           },
           "stamp_hash": "4f349c1ec59918660c7aaae81638c7f57391c8d1b6494ef72e5adba62bb4b47b"
         },
         "libcdio-paranoia": {
           "recipe": {
+            "fixups": [
+              "mingw_bin_dlls"
+            ],
             "match_names": [
               "libcdio_paranoia",
               "libcdio-paranoia"
@@ -832,7 +926,15 @@
               "type": "tar",
               "url": "https://github.com/rocky/libcdio-paranoia/releases/download/release-10.2%2B2.0.2/libcdio-paranoia-10.2+2.0.2.tar.bz2"
             },
-            "system": "makefile"
+            "system": "makefile",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "make_args": [
+                  "LDFLAGS=-no-undefined"
+                ],
+                "prefixup": "find {src} \\( -name Makefile.am -o -name Makefile.in \\) -exec sed -i 's/ -Wl,--version-script=[^ ]*//g' {{}} +"
+              }
+            }
           },
           "stamp_hash": "dc141abd64ce59cc81bb229df56ca6340137ff910ae00ab82d975cdaec78a998"
         },
@@ -873,7 +975,14 @@
             "steps": [
               "cd {src}/build/linux && ./configure --prefix={prefix} --extra-cflags=-fPIC --extra-asflags=-DPIC && make -j{jobs} && make install"
             ],
-            "system": "custom"
+            "system": "custom",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "steps": [
+                  "cd {src}/build/linux && CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ ./configure --host=x86_64-w64-mingw32 --prefix={prefix} --extra-cflags=-fPIC && make -j{jobs} && make install"
+                ]
+              }
+            }
           },
           "resolved_commit": "b06d7585620f4e90a6d19a2926bb4e59793b8942",
           "stamp_hash": "a074b491608a4fcf1c6727b3066f8ded2149d4c00d1ca169d0ce59a390ff80df"
@@ -1034,10 +1143,16 @@
         },
         "libgsm": {
           "recipe": {
+            "fixups": [
+              "simple_pc"
+            ],
             "match_names": [
               "libgsm"
             ],
             "pc": "gsm",
+            "pc_libs": [
+              "-lgsm"
+            ],
             "source": {
               "sha256": "f0072e91f6bb85a878b2f6dbf4a0b7c850c4deb8049d554c65340b3bf69df0ac",
               "type": "tar",
@@ -1048,7 +1163,16 @@
               "make -C {src} install GSM_INSTALL_ROOT={prefix} GSM_INSTALL_INC={prefix}/include GSM_INSTALL_LIB={prefix}/lib",
               "mkdir -p {prefix}/lib/pkgconfig && printf 'prefix={prefix}\\nlibdir={prefix}/lib\\nincludedir={prefix}/include\\n\\nName: gsm\\nDescription: GSM 06.10 lossy speech compression\\nVersion: 1.0.22\\nLibs: -L{prefix}/lib -lgsm\\nCflags: -I{prefix}/include\\n' > {prefix}/lib/pkgconfig/gsm.pc"
             ],
-            "system": "custom"
+            "system": "custom",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "steps": [
+                  "make -C {src} -j{jobs} TOAST= TCAT= UNTOAST= CC=x86_64-w64-mingw32-gcc AR=x86_64-w64-mingw32-ar ARFLAGS=cr RANLIB=x86_64-w64-mingw32-ranlib LIBTOOL=install INSTALL=install",
+                  "make -C {src} install TOAST= TCAT= UNTOAST= TOAST= GSM_INSTALL_ROOT={prefix} GSM_INSTALL_INC={prefix}/include GSM_INSTALL_LIB={prefix}/lib",
+                  "mkdir -p {prefix}/lib/pkgconfig && printf 'prefix={prefix}\\nlibdir={prefix}/lib\\nincludedir={prefix}/include\\n\\nName: gsm\\nDescription: GSM 06.10 lossy speech compression\\nVersion: 1.0.22\\nLibs: -L{prefix}/lib -lgsm\\nCflags: -I{prefix}/include\\n' > {prefix}/lib/pkgconfig/gsm.pc"
+                ]
+              }
+            }
           },
           "stamp_hash": "f3efd1e02558499a3ed8ce1511391e76b904e8754ecd06176d96e5da691f0731"
         },
@@ -1222,21 +1346,36 @@
               "--disable-static",
               "--enable-shared"
             ],
+            "fixups": [
+              "simple_pc"
+            ],
             "match_names": [
               "libklvanc",
               "klvanc",
               "libklvanc/vanc.h"
             ],
             "pc": "libklvanc",
+            "pc_libs": [
+              "-lklvanc"
+            ],
             "platforms": [
-              "linux"
+              "linux",
+              "mingw-x86_64-llvm"
             ],
             "source": {
               "rev": "d2bec177f68fe807a8c12d3b8d18ee8208bbdc32",
               "type": "git",
               "url": "https://github.com/stoth68000/libklvanc.git"
             },
-            "system": "makefile"
+            "system": "makefile",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "make_args": [
+                  "LDFLAGS=-no-undefined -L{alias}/lib -lwinpthread"
+                ],
+                "prefixup": "grep -rl '<sys/errno.h>' {src}/src 2>/dev/null | xargs -r sed -i 's|<sys/errno.h>|<errno.h>|g' && sed -i 's/ tools//' {src}/Makefile.am"
+              }
+            }
           },
           "resolved_commit": "d2bec177f68fe807a8c12d3b8d18ee8208bbdc32",
           "stamp_hash": "0fa67e910e07bd3b150a3d4e723ccc1f7003c404efd41c9e1843e21e10696a40"
@@ -1284,17 +1423,31 @@
               "-DBUILD_SHARED_LIBS=ON",
               "-DVN_SDK_SYSTEM_INSTALL=OFF"
             ],
+            "fixups": [
+              "simple_pc"
+            ],
             "match_names": [
               "lcevc_dec",
               "liblcevc_dec"
             ],
             "pc": "lcevc_dec",
+            "pc_libs": [
+              "-llcevc_dec"
+            ],
             "source": {
               "sha256": "997e69cfc539f5800a20d92d3f07c3bc4ec0e5b710a3b364b07bcb39a69b8898",
               "type": "tar",
               "url": "https://github.com/v-novaltd/LCEVCdec/archive/refs/tags/4.2.1.tar.gz"
             },
-            "system": "cmake"
+            "system": "cmake",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "cmake_args": [
+                  "-DCMAKE_CXX_FLAGS=-include errno.h",
+                  "-DCMAKE_C_FLAGS=-include errno.h"
+                ]
+              }
+            }
           },
           "stamp_hash": "eee1efef1ce8460171db50f1c8a30689868f9ba3e79a2c83fcebbc44f43eee0f"
         },
@@ -1417,15 +1570,36 @@
           },
           "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
         },
+        "libopencv": {
+          "recipe": {
+            "match_names": [
+              "libopencv",
+              "opencv4"
+            ],
+            "pc": "opencv4",
+            "pcs": [
+              "opencv4"
+            ],
+            "platforms": [
+              "linux-x86_64"
+            ],
+            "system": "system-pc"
+          },
+          "stamp_hash": "643a6fd6f46b69eb40b77690110087f8961f0257185295ed46dedd68b22df8db"
+        },
         "libopenh264": {
           "recipe": {
+            "fixups": [
+              "openh264_pc"
+            ],
             "match_names": [
               "libopenh264",
               "openh264"
             ],
             "pc": "openh264",
             "platforms": [
-              "linux"
+              "linux",
+              "mingw-x86_64-llvm"
             ],
             "source": {
               "rev": "v2.4.1",
@@ -1436,7 +1610,16 @@
               "make -C {src} -j{jobs} AR=x86_64-linux-gnu-ar",
               "make -C {src} PREFIX={prefix} install"
             ],
-            "system": "custom"
+            "system": "custom",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "prefixup": "grep -rl 'soname' {src}/Makefile {src}/build/*.mk 2>/dev/null | xargs -r sed -i -e 's/-Xlinker -soname -Xlinker [^ ]*//g' -e 's/-Wl,-soname,[^ ]*//g' && sed -i 's/-f elf64/-f win64/g; s/-f elf\b/-f win64/g; s/-f elf$/-f win64/g' {src}/build/platform-gnu-chain.mk",
+                "steps": [
+                  "make -C {src} -j{jobs} CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ AR=x86_64-w64-mingw32-ar",
+                  "make -C {src} PREFIX={prefix} install"
+                ]
+              }
+            }
           },
           "resolved_commit": "c59550a2147c255cc8e09451f6deb96de2526b6d",
           "stamp_hash": "ce50140a9e49075d158033219bc7efb5b633aec3aab56ebce0695a2153d09c45"
@@ -1587,11 +1770,18 @@
         },
         "libquirc": {
           "recipe": {
+            "fixups": [
+              "simple_pc"
+            ],
             "match_names": [
               "libquirc",
               "quirc"
             ],
             "pc": "quirc",
+            "pc_libs": [
+              "-lquirc",
+              "-lm"
+            ],
             "prefixup": "sed -i 's/^SDL_CFLAGS := .*/SDL_CFLAGS :=/; s/^OPENCV_CFLAGS := .*/OPENCV_CFLAGS :=/' Makefile",
             "source": {
               "rev": "v1.2",
@@ -1604,7 +1794,17 @@
               "cp -L {src}/libquirc.so.1.2 {prefix}/lib/libquirc.so.1.2 && ln -sf libquirc.so.1.2 {prefix}/lib/libquirc.so.1 && ln -sf libquirc.so.1 {prefix}/lib/libquirc.so",
               "mkdir -p {prefix}/lib/pkgconfig && printf 'prefix={prefix}\\nlibdir={prefix}/lib\\nincludedir={prefix}/include\\n\\nName: quirc\\nDescription: QR decoder library\\nVersion: 1.2\\nLibs: -L{prefix}/lib -lquirc\\nCflags: -I{prefix}/include\\n' > {prefix}/lib/pkgconfig/quirc.pc"
             ],
-            "system": "custom"
+            "system": "custom",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "steps": [
+                  "make -C {src} libquirc.a CC=x86_64-w64-mingw32-gcc",
+                  "mkdir -p {prefix}/lib {prefix}/include",
+                  "cp {src}/libquirc.a {prefix}/lib/",
+                  "cp {src}/lib/*.h {prefix}/include/"
+                ]
+              }
+            }
           },
           "resolved_commit": "542848dd6b9b0eaa9587bbf25b9bc67bd8a71fca",
           "stamp_hash": "cbe1bf386a302cc164d465acb2e670677b5db0ffb43a3473f2f710a06ba3e0f2"
@@ -1645,7 +1845,8 @@
             ],
             "pc": "rav1e",
             "platforms": [
-              "linux"
+              "linux",
+              "mingw-x86_64-llvm"
             ],
             "source": {
               "rev": "1fe82de02510767539e89b2ee6fa846920ae2686",
@@ -1660,7 +1861,21 @@
               "cp -a {src}/target/release/librav1e.so* {src}/target/release/librav1e.a {prefix}/lib/",
               "printf 'prefix=%s\\nexec_prefix=${{prefix}}\\nlibdir=${{prefix}}/lib\\nincludedir=${{prefix}}/include\\n\\nName: rav1e\\nDescription: The fastest and safest AV1 encoder\\nVersion: 0.8.1\\nLibs: -L${{libdir}} -lrav1e\\nLibs.private: -lm -lpthread -ldl\\nCflags: -I${{includedir}}/rav1e\\n' \"{prefix}\" > {prefix}/lib/pkgconfig/rav1e.pc"
             ],
-            "system": "custom"
+            "system": "custom",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "steps": [
+                  "cd {src} && PATH=$HOME/.cargo/bin:$PATH CARGO_TARGET_X86_64_PC_WINDOWS_GNU_LINKER=x86_64-w64-mingw32-gcc $HOME/.cargo/bin/cargo rustc --lib --release --features capi --crate-type cdylib --target x86_64-pc-windows-gnu --quiet",
+                  "cd {src} && PATH=$HOME/.cargo/bin:$PATH $HOME/.cargo/bin/cbindgen --crate rav1e --output include/rav1e/rav1e.h",
+                  "mkdir -p {prefix}/include/rav1e {prefix}/lib/pkgconfig {prefix}/bin",
+                  "cp -a {src}/include/rav1e {prefix}/include/",
+                  "cp {src}/include/rav1e/rav1e.h {prefix}/include/rav1e.h",
+                  "cp -a {src}/target/x86_64-pc-windows-gnu/release/rav1e.dll {prefix}/bin/",
+                  "cp -a {src}/target/x86_64-pc-windows-gnu/release/librav1e.dll.a {prefix}/lib/",
+                  "printf 'prefix=%s\\nexec_prefix=${{prefix}}\\nlibdir=${{prefix}}/lib\\nincludedir=${{prefix}}/include/rav1e\\n\\nName: rav1e\\nDescription: The fastest and safest AV1 encoder\\nVersion: 0.8.1\\nLibs: -L${{libdir}} -lrav1e\\n' \"{prefix}\" > {prefix}/lib/pkgconfig/rav1e.pc"
+                ]
+              }
+            }
           },
           "resolved_commit": "1fe82de02510767539e89b2ee6fa846920ae2686",
           "stamp_hash": "28833330481fe3ff5260103b3b7e814fdbf2f58217832db36743c2ace3a984ba"
@@ -1791,6 +2006,23 @@
           },
           "resolved_commit": "97f188efc3dc90315b79a2af1f477c0c18d85e82",
           "stamp_hash": "4e43d07ab8b9105dd3c8ada12f7af14d2a097948cab9efda6c30eee3c429af3c"
+        },
+        "libsmbclient": {
+          "recipe": {
+            "match_names": [
+              "libsmbclient",
+              "smbclient"
+            ],
+            "pc": "smbclient",
+            "pcs": [
+              "smbclient"
+            ],
+            "platforms": [
+              "linux-x86_64"
+            ],
+            "system": "system-pc"
+          },
+          "stamp_hash": "318e61ee75ac260d24a8d24f7ac25274d523d447d7fe7dbea1e4c0ef0898dbde"
         },
         "libsnappy": {
           "recipe": {
@@ -2384,7 +2616,14 @@
             "steps": [
               "cd {src}/build/linux && AS=/usr/bin/nasm ./configure --prefix={prefix} --extra-cflags=-fPIC --extra-asflags=-DPIC && make -j{jobs} && make install"
             ],
-            "system": "custom"
+            "system": "custom",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "steps": [
+                  "cd {src}/build/linux && AS=/usr/bin/nasm CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ ./configure --host=x86_64-w64-mingw32 --prefix={prefix} --extra-cflags=\"-fPIC -Wno-error=incompatible-function-pointer-types\" && make -j{jobs} && make install"
+                ]
+              }
+            }
           },
           "resolved_commit": "eae1e8b9d12468059bdd7dee893508e470fa83d8",
           "stamp_hash": "7c811fc50f404dbb69b1aa391bed02ef38eb346305ae34daf529843227c8db63"
@@ -2780,7 +3019,7 @@
             "match_names": [
               "opencl-headers"
             ],
-            "pc": "opencl-headers",
+            "pc": "OpenCL-Headers",
             "source": {
               "type": "tar",
               "url": "https://github.com/KhronosGroup/OpenCL-Headers/archive/refs/tags/v2024.05.08.tar.gz"
@@ -2788,11 +3027,11 @@
             "steps": [
               "mkdir -p {prefix}/include {prefix}/lib/pkgconfig",
               "cp -r {src}/CL {prefix}/include/",
-              "printf 'prefix=%s\\nincludedir=${{prefix}}/include\\n\\nName: opencl-headers\\nDescription: OpenCL API headers\\nVersion: 2024.05.08\\nCflags: -I${{includedir}}\\n' \"{prefix}\" > {prefix}/lib/pkgconfig/opencl-headers.pc"
+              "printf 'prefix=%s\\nincludedir=${{prefix}}/include\\n\\nName: OpenCL-Headers\\nDescription: OpenCL API headers\\nVersion: 2024.05.08\\nCflags: -I${{includedir}}\\n' \"{prefix}\" > {prefix}/lib/pkgconfig/OpenCL-Headers.pc"
             ],
             "system": "custom"
           },
-          "stamp_hash": "14506f98068a7733596b8186a7db4f997805472efdb990c28722729443c861be"
+          "stamp_hash": "fa7bd875e884cd0b8fe774856f21883ccd67caef382e40c43f56cda7b540bed7"
         },
         "opengl": {
           "recipe": {
@@ -6230,7 +6469,17 @@
           "--enable-libfdk-aac",
           "--enable-libcdio",
           "--enable-opencl",
-          "--enable-libvpl"
+          "--enable-libvpl",
+          "--enable-libdavs2",
+          "--enable-libxavs2",
+          "--enable-libopenh264",
+          "--enable-libgsm",
+          "--enable-libquirc",
+          "--enable-libklvanc",
+          "--enable-liblcevc-dec",
+          "--enable-avisynth",
+          "--enable-cuda-nvcc",
+          "--enable-librav1e"
         ],
         "resolved_rev": null,
         "url": null
@@ -6255,6 +6504,29 @@
             "system": "custom"
           },
           "stamp_hash": "8d5f55c9cfe2c084d3f3e4091c12b185bab996aeecd82c928648da9d5bd6de9c"
+        },
+        "avisynth": {
+          "recipe": {
+            "cmake_args": [
+              "-DENABLE_PLUGINS=OFF",
+              "-DENABLE_CORE_TOOLS=OFF",
+              "-DENABLE_TESTS=OFF"
+            ],
+            "match_names": [
+              "avisynth"
+            ],
+            "source": {
+              "type": "tar",
+              "url": "https://github.com/AviSynth/AviSynthPlus/archive/refs/tags/v3.7.3.tar.gz"
+            },
+            "system": "cmake",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "prefixup": "sed -i 's/#ifndef MSVC/#if 0/' {src}/avs_core/filters/AviSource/avi_source.cpp"
+              }
+            }
+          },
+          "stamp_hash": "51ac0dd90a4bbd740256027f91e1f7c8e1ceb02907385dfbea410556e5f78e31"
         },
         "cairo": {
           "recipe": {
@@ -6390,11 +6662,18 @@
         },
         "flite": {
           "recipe": {
+            "fixups": [
+              "simple_pc"
+            ],
             "match_names": [
               "flite",
               "libflite"
             ],
             "pc": "flite",
+            "pc_libs": [
+              "-lflite",
+              "-lm"
+            ],
             "platforms": [
               "linux"
             ],
@@ -6408,7 +6687,16 @@
               "cd {src} && make -j{jobs}",
               "cd {src} && make install"
             ],
-            "system": "custom"
+            "system": "custom",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "steps": [
+                  "cd {src} && ./configure --host=x86_64-w64-mingw32 --prefix={prefix} --with-audio=none --enable-shared",
+                  "cd {src} && make -j{jobs}",
+                  "cd {src} && make install"
+                ]
+              }
+            }
           },
           "stamp_hash": null
         },
@@ -6491,7 +6779,7 @@
             ],
             "system": "custom"
           },
-          "stamp_hash": null
+          "stamp_hash": "513d28d9aafbdbbff08c5f7cd828c8aa94e23e5bda32bf6ee6800a5726fad37a"
         },
         "lcms2": {
           "recipe": {
@@ -6512,6 +6800,32 @@
             "system": "makefile"
           },
           "stamp_hash": "116050d09f68e6c9be142138d08a12dacd74b63a48b0a25568aebe5fdf20ea7f"
+        },
+        "lensfun": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_TESTS=OFF",
+              "-DBUILD_LENSFUN_ADDITIONAL=OFF"
+            ],
+            "fixups": [
+              "simple_pc"
+            ],
+            "match_names": [
+              "lensfun",
+              "liblensfun"
+            ],
+            "pc": "lensfun",
+            "pc_libs": [
+              "-llensfun",
+              "-lm"
+            ],
+            "source": {
+              "type": "tar",
+              "url": "https://github.com/lensfun/lensfun/archive/refs/tags/v0.3.4.tar.gz"
+            },
+            "system": "cmake"
+          },
+          "stamp_hash": null
         },
         "leptonica": {
           "recipe": {
@@ -6790,6 +7104,9 @@
               "--disable-example-progs",
               "--disable-tests"
             ],
+            "fixups": [
+              "mingw_bin_dlls"
+            ],
             "match_names": [
               "libcdio",
               "cdio"
@@ -6814,10 +7131,13 @@
               }
             }
           },
-          "stamp_hash": "286d114f671d8e5fbe0464b24e07587de8f0b672736939a28c9604d77d4da2e3"
+          "stamp_hash": "45de2d2172c8247852d3a0bdc4584eb02165db58a47a07fffa19c5b8c42b59e2"
         },
         "libcdio-paranoia": {
           "recipe": {
+            "fixups": [
+              "mingw_bin_dlls"
+            ],
             "match_names": [
               "libcdio_paranoia",
               "libcdio-paranoia"
@@ -6840,7 +7160,7 @@
               }
             }
           },
-          "stamp_hash": "d89b95ed949aec332fabbff40d6212692cffe7c3cc8fc6d9b13792879b91bf02"
+          "stamp_hash": "0ead38fbfb18054bc746d7d26e8b2f925c15caa7ec7683a7174c02e445dea7cf"
         },
         "libcodec2": {
           "recipe": {
@@ -6879,10 +7199,17 @@
             "steps": [
               "cd {src}/build/linux && ./configure --prefix={prefix} --extra-cflags=-fPIC --extra-asflags=-DPIC && make -j{jobs} && make install"
             ],
-            "system": "custom"
+            "system": "custom",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "steps": [
+                  "cd {src}/build/linux && CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ ./configure --host=x86_64-w64-mingw32 --prefix={prefix} --extra-cflags=-fPIC && make -j{jobs} && make install"
+                ]
+              }
+            }
           },
           "resolved_commit": "b06d7585620f4e90a6d19a2926bb4e59793b8942",
-          "stamp_hash": null
+          "stamp_hash": "c87d448ab63731ee08eb347189c2601c654304bfd9e3e6d9633c15b307a1599a"
         },
         "libdc1394": {
           "recipe": {
@@ -7040,10 +7367,16 @@
         },
         "libgsm": {
           "recipe": {
+            "fixups": [
+              "simple_pc"
+            ],
             "match_names": [
               "libgsm"
             ],
             "pc": "gsm",
+            "pc_libs": [
+              "-lgsm"
+            ],
             "source": {
               "sha256": "f0072e91f6bb85a878b2f6dbf4a0b7c850c4deb8049d554c65340b3bf69df0ac",
               "type": "tar",
@@ -7054,9 +7387,18 @@
               "make -C {src} install GSM_INSTALL_ROOT={prefix} GSM_INSTALL_INC={prefix}/include GSM_INSTALL_LIB={prefix}/lib",
               "mkdir -p {prefix}/lib/pkgconfig && printf 'prefix={prefix}\\nlibdir={prefix}/lib\\nincludedir={prefix}/include\\n\\nName: gsm\\nDescription: GSM 06.10 lossy speech compression\\nVersion: 1.0.22\\nLibs: -L{prefix}/lib -lgsm\\nCflags: -I{prefix}/include\\n' > {prefix}/lib/pkgconfig/gsm.pc"
             ],
-            "system": "custom"
+            "system": "custom",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "steps": [
+                  "make -C {src} -j{jobs} TOAST= TCAT= UNTOAST= CC=x86_64-w64-mingw32-gcc AR=x86_64-w64-mingw32-ar ARFLAGS=cr RANLIB=x86_64-w64-mingw32-ranlib LIBTOOL=install INSTALL=install",
+                  "make -C {src} install TOAST= TCAT= UNTOAST= TOAST= GSM_INSTALL_ROOT={prefix} GSM_INSTALL_INC={prefix}/include GSM_INSTALL_LIB={prefix}/lib",
+                  "mkdir -p {prefix}/lib/pkgconfig && printf 'prefix={prefix}\\nlibdir={prefix}/lib\\nincludedir={prefix}/include\\n\\nName: gsm\\nDescription: GSM 06.10 lossy speech compression\\nVersion: 1.0.22\\nLibs: -L{prefix}/lib -lgsm\\nCflags: -I{prefix}/include\\n' > {prefix}/lib/pkgconfig/gsm.pc"
+                ]
+              }
+            }
           },
-          "stamp_hash": null
+          "stamp_hash": "9590bebc113b0047f392fd818266d9c65913cb260d06b0ee089b054cdc9ab181"
         },
         "libharfbuzz": {
           "recipe": {
@@ -7228,24 +7570,39 @@
               "--disable-static",
               "--enable-shared"
             ],
+            "fixups": [
+              "simple_pc"
+            ],
             "match_names": [
               "libklvanc",
               "klvanc",
               "libklvanc/vanc.h"
             ],
             "pc": "libklvanc",
+            "pc_libs": [
+              "-lklvanc"
+            ],
             "platforms": [
-              "linux"
+              "linux",
+              "mingw-x86_64-llvm"
             ],
             "source": {
               "rev": "d2bec177f68fe807a8c12d3b8d18ee8208bbdc32",
               "type": "git",
               "url": "https://github.com/stoth68000/libklvanc.git"
             },
-            "system": "makefile"
+            "system": "makefile",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "make_args": [
+                  "LDFLAGS=-no-undefined -L{alias}/lib -lwinpthread"
+                ],
+                "prefixup": "grep -rl '<sys/errno.h>' {src}/src 2>/dev/null | xargs -r sed -i 's|<sys/errno.h>|<errno.h>|g' && sed -i 's/ tools//' {src}/Makefile.am"
+              }
+            }
           },
           "resolved_commit": "d2bec177f68fe807a8c12d3b8d18ee8208bbdc32",
-          "stamp_hash": null
+          "stamp_hash": "9bcf40a1c0fe63562298b95a35625aba9be03e49b74b44a29bd6027cc9d20179"
         },
         "libkvazaar": {
           "recipe": {
@@ -7290,19 +7647,33 @@
               "-DBUILD_SHARED_LIBS=ON",
               "-DVN_SDK_SYSTEM_INSTALL=OFF"
             ],
+            "fixups": [
+              "simple_pc"
+            ],
             "match_names": [
               "lcevc_dec",
               "liblcevc_dec"
             ],
             "pc": "lcevc_dec",
+            "pc_libs": [
+              "-llcevc_dec"
+            ],
             "source": {
               "sha256": "997e69cfc539f5800a20d92d3f07c3bc4ec0e5b710a3b364b07bcb39a69b8898",
               "type": "tar",
               "url": "https://github.com/v-novaltd/LCEVCdec/archive/refs/tags/4.2.1.tar.gz"
             },
-            "system": "cmake"
+            "system": "cmake",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "cmake_args": [
+                  "-DCMAKE_CXX_FLAGS=-include errno.h",
+                  "-DCMAKE_C_FLAGS=-include errno.h"
+                ]
+              }
+            }
           },
-          "stamp_hash": null
+          "stamp_hash": "a5e278897cb55a59efd5167291c1f32c9d0789f9350deeb848fbd086c5713561"
         },
         "libmodplug": {
           "recipe": {
@@ -7425,13 +7796,17 @@
         },
         "libopenh264": {
           "recipe": {
+            "fixups": [
+              "openh264_pc"
+            ],
             "match_names": [
               "libopenh264",
               "openh264"
             ],
             "pc": "openh264",
             "platforms": [
-              "linux"
+              "linux",
+              "mingw-x86_64-llvm"
             ],
             "source": {
               "rev": "v2.4.1",
@@ -7442,10 +7817,19 @@
               "make -C {src} -j{jobs} AR=x86_64-linux-gnu-ar",
               "make -C {src} PREFIX={prefix} install"
             ],
-            "system": "custom"
+            "system": "custom",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "prefixup": "grep -rl 'soname' {src}/Makefile {src}/build/*.mk 2>/dev/null | xargs -r sed -i -e 's/-Xlinker -soname -Xlinker [^ ]*//g' -e 's/-Wl,-soname,[^ ]*//g' && sed -i 's/-f elf64/-f win64/g; s/-f elf\b/-f win64/g; s/-f elf$/-f win64/g' {src}/build/platform-gnu-chain.mk",
+                "steps": [
+                  "make -C {src} -j{jobs} CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ AR=x86_64-w64-mingw32-ar",
+                  "make -C {src} PREFIX={prefix} install"
+                ]
+              }
+            }
           },
           "resolved_commit": "c59550a2147c255cc8e09451f6deb96de2526b6d",
-          "stamp_hash": null
+          "stamp_hash": "906c5a8b99c00dc1692a9e6c792d48d2db763340f404bee59a3c82e4fde76219"
         },
         "libopenjpeg": {
           "recipe": {
@@ -7593,11 +7977,18 @@
         },
         "libquirc": {
           "recipe": {
+            "fixups": [
+              "simple_pc"
+            ],
             "match_names": [
               "libquirc",
               "quirc"
             ],
             "pc": "quirc",
+            "pc_libs": [
+              "-lquirc",
+              "-lm"
+            ],
             "prefixup": "sed -i 's/^SDL_CFLAGS := .*/SDL_CFLAGS :=/; s/^OPENCV_CFLAGS := .*/OPENCV_CFLAGS :=/' Makefile",
             "source": {
               "rev": "v1.2",
@@ -7610,10 +8001,20 @@
               "cp -L {src}/libquirc.so.1.2 {prefix}/lib/libquirc.so.1.2 && ln -sf libquirc.so.1.2 {prefix}/lib/libquirc.so.1 && ln -sf libquirc.so.1 {prefix}/lib/libquirc.so",
               "mkdir -p {prefix}/lib/pkgconfig && printf 'prefix={prefix}\\nlibdir={prefix}/lib\\nincludedir={prefix}/include\\n\\nName: quirc\\nDescription: QR decoder library\\nVersion: 1.2\\nLibs: -L{prefix}/lib -lquirc\\nCflags: -I{prefix}/include\\n' > {prefix}/lib/pkgconfig/quirc.pc"
             ],
-            "system": "custom"
+            "system": "custom",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "steps": [
+                  "make -C {src} libquirc.a CC=x86_64-w64-mingw32-gcc",
+                  "mkdir -p {prefix}/lib {prefix}/include",
+                  "cp {src}/libquirc.a {prefix}/lib/",
+                  "cp {src}/lib/*.h {prefix}/include/"
+                ]
+              }
+            }
           },
           "resolved_commit": "542848dd6b9b0eaa9587bbf25b9bc67bd8a71fca",
-          "stamp_hash": null
+          "stamp_hash": "c2995ee8575a5f7a37fb6b5c100325cd86b42b7fe0e5c26bb5c3a5dad3931890"
         },
         "librabbitmq": {
           "recipe": {
@@ -7651,7 +8052,8 @@
             ],
             "pc": "rav1e",
             "platforms": [
-              "linux"
+              "linux",
+              "mingw-x86_64-llvm"
             ],
             "source": {
               "rev": "1fe82de02510767539e89b2ee6fa846920ae2686",
@@ -7666,10 +8068,24 @@
               "cp -a {src}/target/release/librav1e.so* {src}/target/release/librav1e.a {prefix}/lib/",
               "printf 'prefix=%s\\nexec_prefix=${{prefix}}\\nlibdir=${{prefix}}/lib\\nincludedir=${{prefix}}/include\\n\\nName: rav1e\\nDescription: The fastest and safest AV1 encoder\\nVersion: 0.8.1\\nLibs: -L${{libdir}} -lrav1e\\nLibs.private: -lm -lpthread -ldl\\nCflags: -I${{includedir}}/rav1e\\n' \"{prefix}\" > {prefix}/lib/pkgconfig/rav1e.pc"
             ],
-            "system": "custom"
+            "system": "custom",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "steps": [
+                  "cd {src} && PATH=$HOME/.cargo/bin:$PATH CARGO_TARGET_X86_64_PC_WINDOWS_GNU_LINKER=x86_64-w64-mingw32-gcc $HOME/.cargo/bin/cargo rustc --lib --release --features capi --crate-type cdylib --target x86_64-pc-windows-gnu --quiet",
+                  "cd {src} && PATH=$HOME/.cargo/bin:$PATH $HOME/.cargo/bin/cbindgen --crate rav1e --output include/rav1e/rav1e.h",
+                  "mkdir -p {prefix}/include/rav1e {prefix}/lib/pkgconfig {prefix}/bin",
+                  "cp -a {src}/include/rav1e {prefix}/include/",
+                  "cp {src}/include/rav1e/rav1e.h {prefix}/include/rav1e.h",
+                  "cp -a {src}/target/x86_64-pc-windows-gnu/release/rav1e.dll {prefix}/bin/",
+                  "cp -a {src}/target/x86_64-pc-windows-gnu/release/librav1e.dll.a {prefix}/lib/",
+                  "printf 'prefix=%s\\nexec_prefix=${{prefix}}\\nlibdir=${{prefix}}/lib\\nincludedir=${{prefix}}/include/rav1e\\n\\nName: rav1e\\nDescription: The fastest and safest AV1 encoder\\nVersion: 0.8.1\\nLibs: -L${{libdir}} -lrav1e\\n' \"{prefix}\" > {prefix}/lib/pkgconfig/rav1e.pc"
+                ]
+              }
+            }
           },
           "resolved_commit": "1fe82de02510767539e89b2ee6fa846920ae2686",
-          "stamp_hash": null
+          "stamp_hash": "a5b996116ab7a91fbd124e1584eff53593e5721dabcbf8baa7f6b51a64d8f9e5"
         },
         "libraw1394": {
           "recipe": {
@@ -8390,10 +8806,17 @@
             "steps": [
               "cd {src}/build/linux && AS=/usr/bin/nasm ./configure --prefix={prefix} --extra-cflags=-fPIC --extra-asflags=-DPIC && make -j{jobs} && make install"
             ],
-            "system": "custom"
+            "system": "custom",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "steps": [
+                  "cd {src}/build/linux && AS=/usr/bin/nasm CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ ./configure --host=x86_64-w64-mingw32 --prefix={prefix} --extra-cflags=\"-fPIC -Wno-error=incompatible-function-pointer-types\" && make -j{jobs} && make install"
+                ]
+              }
+            }
           },
           "resolved_commit": "eae1e8b9d12468059bdd7dee893508e470fa83d8",
-          "stamp_hash": null
+          "stamp_hash": "d1c60317e4a72c79c536ea6ff870a446176460a1a6a864ca2a397469433f73bd"
         },
         "libxcb": {
           "recipe": {

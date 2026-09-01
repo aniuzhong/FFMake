@@ -749,7 +749,22 @@
         "make -C {src} -j{jobs}",
         "make -C {src} install GSM_INSTALL_ROOT={prefix} GSM_INSTALL_INC={prefix}/include GSM_INSTALL_LIB={prefix}/lib",
         "mkdir -p {prefix}/lib/pkgconfig && printf 'prefix={prefix}\\nlibdir={prefix}/lib\\nincludedir={prefix}/include\\n\\nName: gsm\\nDescription: GSM 06.10 lossy speech compression\\nVersion: 1.0.22\\nLibs: -L{prefix}/lib -lgsm\\nCflags: -I{prefix}/include\\n' > {prefix}/lib/pkgconfig/gsm.pc"
-      ]
+      ],
+      "fixups": [
+        "simple_pc"
+      ],
+      "pc_libs": [
+        "-lgsm"
+      ],
+      "triplet_overrides": {
+        "mingw-x86_64-llvm": {
+          "steps": [
+            "make -C {src} -j{jobs} TOAST= TCAT= UNTOAST= CC=x86_64-w64-mingw32-gcc AR=x86_64-w64-mingw32-ar ARFLAGS=cr RANLIB=x86_64-w64-mingw32-ranlib LIBTOOL=install INSTALL=install",
+            "make -C {src} install TOAST= TCAT= UNTOAST= TOAST= GSM_INSTALL_ROOT={prefix} GSM_INSTALL_INC={prefix}/include GSM_INSTALL_LIB={prefix}/lib",
+            "mkdir -p {prefix}/lib/pkgconfig && printf 'prefix={prefix}\\nlibdir={prefix}/lib\\nincludedir={prefix}/include\\n\\nName: gsm\\nDescription: GSM 06.10 lossy speech compression\\nVersion: 1.0.22\\nLibs: -L{prefix}/lib -lgsm\\nCflags: -I{prefix}/include\\n' > {prefix}/lib/pkgconfig/gsm.pc"
+          ]
+        }
+      }
     },
     "libopencore-amr": {
       "match_names": [
@@ -811,7 +826,8 @@
     },
     "libopenh264": {
       "platforms": [
-        "linux"
+        "linux",
+        "mingw-x86_64-llvm"
       ],
       "match_names": [
         "libopenh264",
@@ -827,6 +843,18 @@
       "steps": [
         "make -C {src} -j{jobs} AR=x86_64-linux-gnu-ar",
         "make -C {src} PREFIX={prefix} install"
+      ],
+      "triplet_overrides": {
+        "mingw-x86_64-llvm": {
+          "steps": [
+            "make -C {src} -j{jobs} CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ AR=x86_64-w64-mingw32-ar",
+            "make -C {src} PREFIX={prefix} install"
+          ],
+          "prefixup": "grep -rl 'soname' {src}/Makefile {src}/build/*.mk 2>/dev/null | xargs -r sed -i -e 's/-Xlinker -soname -Xlinker [^ ]*//g' -e 's/-Wl,-soname,[^ ]*//g' && sed -i 's/-f elf64/-f win64/g; s/-f elf\b/-f win64/g; s/-f elf$/-f win64/g' {src}/build/platform-gnu-chain.mk"
+        }
+      },
+      "fixups": [
+        "openh264_pc"
       ]
     },
     "libsnappy": {
@@ -909,7 +937,24 @@
         "cp {src}/lib/quirc.h {prefix}/include/",
         "cp -L {src}/libquirc.so.1.2 {prefix}/lib/libquirc.so.1.2 && ln -sf libquirc.so.1.2 {prefix}/lib/libquirc.so.1 && ln -sf libquirc.so.1 {prefix}/lib/libquirc.so",
         "mkdir -p {prefix}/lib/pkgconfig && printf 'prefix={prefix}\\nlibdir={prefix}/lib\\nincludedir={prefix}/include\\n\\nName: quirc\\nDescription: QR decoder library\\nVersion: 1.2\\nLibs: -L{prefix}/lib -lquirc\\nCflags: -I{prefix}/include\\n' > {prefix}/lib/pkgconfig/quirc.pc"
-      ]
+      ],
+      "fixups": [
+        "simple_pc"
+      ],
+      "pc_libs": [
+        "-lquirc",
+        "-lm"
+      ],
+      "triplet_overrides": {
+        "mingw-x86_64-llvm": {
+          "steps": [
+            "make -C {src} libquirc.a CC=x86_64-w64-mingw32-gcc",
+            "mkdir -p {prefix}/lib {prefix}/include",
+            "cp {src}/libquirc.a {prefix}/lib/",
+            "cp {src}/lib/*.h {prefix}/include/"
+          ]
+        }
+      }
     },
     "libqrencode": {
       "match_names": [
@@ -1244,7 +1289,14 @@
       "prefixup": "sed -i 's/CPU amdnop//' source/common/x86/x86inc.asm",
       "steps": [
         "cd {src}/build/linux && AS=/usr/bin/nasm ./configure --prefix={prefix} --extra-cflags=-fPIC --extra-asflags=-DPIC && make -j{jobs} && make install"
-      ]
+      ],
+      "triplet_overrides": {
+        "mingw-x86_64-llvm": {
+          "steps": [
+            "cd {src}/build/linux && AS=/usr/bin/nasm CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ ./configure --host=x86_64-w64-mingw32 --prefix={prefix} --extra-cflags=\"-fPIC -Wno-error=incompatible-function-pointer-types\" && make -j{jobs} && make install"
+          ]
+        }
+      }
     },
     "libdavs2": {
       "match_names": [
@@ -1260,7 +1312,14 @@
       },
       "steps": [
         "cd {src}/build/linux && ./configure --prefix={prefix} --extra-cflags=-fPIC --extra-asflags=-DPIC && make -j{jobs} && make install"
-      ]
+      ],
+      "triplet_overrides": {
+        "mingw-x86_64-llvm": {
+          "steps": [
+            "cd {src}/build/linux && CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ ./configure --host=x86_64-w64-mingw32 --prefix={prefix} --extra-cflags=-fPIC && make -j{jobs} && make install"
+          ]
+        }
+      }
     },
     "libxml2": {
       "match_names": [
@@ -1677,7 +1736,23 @@
         "cd {src} && ./configure --prefix={prefix} --with-audio=alsa --enable-shared",
         "cd {src} && make -j{jobs}",
         "cd {src} && make install"
-      ]
+      ],
+      "fixups": [
+        "simple_pc"
+      ],
+      "pc_libs": [
+        "-lflite",
+        "-lm"
+      ],
+      "triplet_overrides": {
+        "mingw-x86_64-llvm": {
+          "steps": [
+            "cd {src} && ./configure --host=x86_64-w64-mingw32 --prefix={prefix} --with-audio=none --enable-shared",
+            "cd {src} && make -j{jobs}",
+            "cd {src} && make install"
+          ]
+        }
+      }
     },
     "libjpeg-turbo": {
       "match_names": [
@@ -2117,7 +2192,8 @@
     },
     "libklvanc": {
       "platforms": [
-        "linux"
+        "linux",
+        "mingw-x86_64-llvm"
       ],
       "match_names": [
         "libklvanc",
@@ -2135,7 +2211,21 @@
       "configure_args": [
         "--disable-static",
         "--enable-shared"
-      ]
+      ],
+      "fixups": [
+        "simple_pc"
+      ],
+      "pc_libs": [
+        "-lklvanc"
+      ],
+      "triplet_overrides": {
+        "mingw-x86_64-llvm": {
+          "prefixup": "grep -rl '<sys/errno.h>' {src}/src 2>/dev/null | xargs -r sed -i 's|<sys/errno.h>|<errno.h>|g' && sed -i 's/ tools//' {src}/Makefile.am",
+          "make_args": [
+            "LDFLAGS=-no-undefined -L{alias}/lib -lwinpthread"
+          ]
+        }
+      }
     },
     "liblcevc_dec": {
       "match_names": [
@@ -2152,7 +2242,21 @@
       "cmake_args": [
         "-DBUILD_SHARED_LIBS=ON",
         "-DVN_SDK_SYSTEM_INSTALL=OFF"
-      ]
+      ],
+      "fixups": [
+        "simple_pc"
+      ],
+      "pc_libs": [
+        "-llcevc_dec"
+      ],
+      "triplet_overrides": {
+        "mingw-x86_64-llvm": {
+          "cmake_args": [
+            "-DCMAKE_CXX_FLAGS=-include errno.h",
+            "-DCMAKE_C_FLAGS=-include errno.h"
+          ]
+        }
+      }
     },
     "libplacebo": {
       "match_names": [
@@ -2283,7 +2387,8 @@
       "pc": "rav1e",
       "system": "custom",
       "platforms": [
-        "linux"
+        "linux",
+        "mingw-x86_64-llvm"
       ],
       "source": {
         "type": "git",
@@ -2297,7 +2402,21 @@
         "cp -a {src}/include/rav1e {prefix}/include/",
         "cp -a {src}/target/release/librav1e.so* {src}/target/release/librav1e.a {prefix}/lib/",
         "printf 'prefix=%s\\nexec_prefix=${{prefix}}\\nlibdir=${{prefix}}/lib\\nincludedir=${{prefix}}/include\\n\\nName: rav1e\\nDescription: The fastest and safest AV1 encoder\\nVersion: 0.8.1\\nLibs: -L${{libdir}} -lrav1e\\nLibs.private: -lm -lpthread -ldl\\nCflags: -I${{includedir}}/rav1e\\n' \"{prefix}\" > {prefix}/lib/pkgconfig/rav1e.pc"
-      ]
+      ],
+      "triplet_overrides": {
+        "mingw-x86_64-llvm": {
+          "steps": [
+            "cd {src} && PATH=$HOME/.cargo/bin:$PATH CARGO_TARGET_X86_64_PC_WINDOWS_GNU_LINKER=x86_64-w64-mingw32-gcc $HOME/.cargo/bin/cargo rustc --lib --release --features capi --crate-type cdylib --target x86_64-pc-windows-gnu --quiet",
+            "cd {src} && PATH=$HOME/.cargo/bin:$PATH $HOME/.cargo/bin/cbindgen --crate rav1e --output include/rav1e/rav1e.h",
+            "mkdir -p {prefix}/include/rav1e {prefix}/lib/pkgconfig {prefix}/bin",
+            "cp -a {src}/include/rav1e {prefix}/include/",
+            "cp {src}/include/rav1e/rav1e.h {prefix}/include/rav1e.h",
+            "cp -a {src}/target/x86_64-pc-windows-gnu/release/rav1e.dll {prefix}/bin/",
+            "cp -a {src}/target/x86_64-pc-windows-gnu/release/librav1e.dll.a {prefix}/lib/",
+            "printf 'prefix=%s\\nexec_prefix=${{prefix}}\\nlibdir=${{prefix}}/lib\\nincludedir=${{prefix}}/include/rav1e\\n\\nName: rav1e\\nDescription: The fastest and safest AV1 encoder\\nVersion: 0.8.1\\nLibs: -L${{libdir}} -lrav1e\\n' \"{prefix}\" > {prefix}/lib/pkgconfig/rav1e.pc"
+          ]
+        }
+      }
     },
     "pocketsphinx": {
       "match_names": [
@@ -2758,6 +2877,84 @@
         "-DBUILD_EXAMPLES=OFF",
         "-DBUILD_TESTS=OFF",
         "-DBUILD_TOOLS=OFF"
+      ]
+    },
+    "avisynth": {
+      "match_names": [
+        "avisynth"
+      ],
+      "system": "cmake",
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/AviSynth/AviSynthPlus/archive/refs/tags/v3.7.3.tar.gz"
+      },
+      "cmake_args": [
+        "-DENABLE_PLUGINS=OFF",
+        "-DENABLE_CORE_TOOLS=OFF",
+        "-DENABLE_TESTS=OFF"
+      ],
+      "triplet_overrides": {
+        "mingw-x86_64-llvm": {
+          "prefixup": "sed -i 's/#ifndef MSVC/#if 0/' {src}/avs_core/filters/AviSource/avi_source.cpp"
+        }
+      }
+    },
+    "lensfun": {
+      "match_names": [
+        "lensfun",
+        "liblensfun"
+      ],
+      "pc": "lensfun",
+      "system": "cmake",
+      "fixups": [
+        "simple_pc"
+      ],
+      "pc_libs": [
+        "-llensfun",
+        "-lm"
+      ],
+      "platforms": [
+        "linux-x86_64"
+      ],
+      "source": {
+        "type": "git",
+        "url": "https://github.com/lensfun/lensfun.git",
+        "rev": "23e8cb8050d680c7a293edb3d48b600754665f05"
+      },
+      "cmake_args": [
+        "-DBUILD_TESTS=OFF",
+        "-DBUILD_LENSFUN_ADDITIONAL=OFF",
+        "-DGLIB2_INCLUDE_DIRS=/usr/include/glib-2.0;/usr/lib/x86_64-linux-gnu/glib-2.0/include",
+        "-DGLIB2_LIBRARIES=/usr/lib/x86_64-linux-gnu/libglib-2.0.so"
+      ],
+      "prefixup": "sed -i 's|^ADD_SUBDIRECTORY(apps)|# apps disabled (lenstool/python not needed)|' {src}/CMakeLists.txt"
+    },
+    "libsmbclient": {
+      "match_names": [
+        "libsmbclient",
+        "smbclient"
+      ],
+      "pc": "smbclient",
+      "system": "system-pc",
+      "platforms": [
+        "linux-x86_64"
+      ],
+      "pcs": [
+        "smbclient"
+      ]
+    },
+    "libopencv": {
+      "match_names": [
+        "libopencv",
+        "opencv4"
+      ],
+      "pc": "opencv4",
+      "system": "system-pc",
+      "platforms": [
+        "linux-x86_64"
+      ],
+      "pcs": [
+        "opencv4"
       ]
     }
   }

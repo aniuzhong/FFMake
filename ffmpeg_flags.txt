@@ -120,3 +120,5 @@
 --enable-libcdio
 --enable-opencl
 --enable-libvpl
+--enable-libsmbclient
+--enable-liblensfun
