@@ -70,11 +70,12 @@ RUN apt-get update -qq \
 # ── Build helper tools (cold-build first-exposure; never hit on hot reuse paths)
 # gmp's configure strictly requires m4; gettext supplies the gettext/iconv m4
 # macros zvbi's autoreconf needs; python3-dev supplies python-3.12-embed for
-# vapoursynth; patchelf relocates ELF rpaths at dist time. Kept in one small
-# layer to protect the feed-layer cache above.
+# vapoursynth; libssl-dev is required by cmake's own bootstrap (its bundled
+# cmcurl wants OpenSSL or it aborts); patchelf relocates ELF rpaths at dist
+# time. Kept in one small layer to protect the feed-layer cache above.
 RUN apt-get update -qq \
  && apt-get install -y -qq --no-install-recommends m4 bison flex gettext \
-      python3-dev patchelf \
+      python3-dev libssl-dev patchelf \
  && rm -rf /var/lib/apt/lists/*
 
 # ── pkg-config implementation alignment (vanilla 0.29.x, multiarch pc_path)

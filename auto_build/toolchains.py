@@ -48,6 +48,7 @@ def _curl(url, dst, workdir):
     """Download with the engine's network policy: direct first, one retry
     through the fallback proxy (same as runners' _run_net). Output lands in
     a log file whose tail is printed on failure."""
+    os.makedirs(workdir, exist_ok=True)
     log = os.path.join(workdir, "toolchain_download.log")
     cmd = ["curl", "-fL", "--retry", "3", "-o", dst, url]
 
