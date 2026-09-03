@@ -21,6 +21,7 @@ import os
 import shutil
 import subprocess
 import tarfile
+import urllib.parse
 
 from .. import env as env_mod
 from .. import paths
@@ -35,6 +36,20 @@ FALLBACK_PROXY = "http://127.0.0.1:10808"
 
 class BuildError(Exception):
     pass
+
+
+def _proxy_reachable(proxy_url, timeout=1.5):
+    """True if the fallback proxy actually listens — prevents pointless
+    proxy retries in proxy-free environments (GH runners), where the
+    unconditional retry used to just duplicate the failure."""
+    import socket
+    try:
+        parsed = urllib.parse.urlparse(proxy_url)
+        with socket.create_connection(
+                (parsed.hostname, parsed.port or 80), timeout=timeout):
+            return True
+    except OSError:
+        return False
 
 
 def _log_tail(path, lines=40, window=16384):
@@ -229,9 +244,14 @@ class Runner(object):
             self.run(cmd, cwd, log_path, env=self.env(strict=False))
         except BuildError:
             proxy = os.environ.get("FFMAKE_PROXY") or FALLBACK_PROXY
+            if not _proxy_reachable(proxy):
+                print("network step failed; no proxy reachable at {} "
+                      "(direct-only environment) -- not retrying".format(
+                          proxy))
+                raise
+            print("network step failed; retrying via proxy {}".format(proxy))
             env = self.env(strict=False, extra={
                 "https_proxy": proxy, "http_proxy": proxy})
-            print("network step failed; retrying via proxy {}".format(proxy))
             self.run(cmd, cwd, log_path, env=env)
 
     def fetch_to(self, dst, source, key):

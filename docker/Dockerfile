@@ -75,7 +75,7 @@ RUN apt-get update -qq \
 # time. Kept in one small layer to protect the feed-layer cache above.
 RUN apt-get update -qq \
  && apt-get install -y -qq --no-install-recommends m4 bison flex gettext \
-      python3-dev libssl-dev patchelf \
+      python3-dev python3-pip libssl-dev patchelf \
  && rm -rf /var/lib/apt/lists/*
 
 # ── pkg-config implementation alignment (vanilla 0.29.x, multiarch pc_path)
