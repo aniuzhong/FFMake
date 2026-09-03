@@ -12,4 +12,8 @@ cd "$(dirname "$0")/.."
 docker build --network host \
   --build-arg XRAY_PROXY="$PROXY" \
   -f docker/Dockerfile -t "$TAG" docker
-echo "built $TAG"
+
+# build.yml's container: references the ghcr name; a local alias with the
+# same tag lets act (--pull=false) run it without a registry round-trip.
+docker tag "$TAG" "ghcr.io/aniuzhong/ffmake-ci:24.04"
+echo "built $TAG (+ ghcr.io/aniuzhong/ffmake-ci:24.04 local alias)"

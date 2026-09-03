@@ -1,0 +1,7 @@
+{
+  "llvm-mingw": {
+    "url": "https://github.com/mstorsjo/llvm-mingw/releases/download/20250402/llvm-mingw-20250402-ucrt-ubuntu-20.04-x86_64.tar.xz",
+    "sha256": "a23248baa1447df94ed14dce07997ab01da45bda74ac5370bbd098ed1c56a362",
+    "check": "bin/x86_64-w64-mingw32-clang"
+  }
+}

@@ -1,13 +1,11 @@
 name: release
 
-# Tag-triggered release pipeline: full build → ffmake dist → GitHub Release.
-# The release ref is immutable; artifacts carry MANIFEST.md + SHA256SUMS
-# produced by `ffmake dist`. Heavy builds execute under act locally
-# (scripts/act-run.sh); `publish` uploads once both triplets are green.
+# Deliberately manual while the build pipeline stabilizes. To cut a release
+# later, either restore the tag trigger below (push tags: ['v*']) or dispatch
+# with the intended tag ref.
 
 on:
-  push:
-    tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: write

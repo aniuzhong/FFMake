@@ -1,8 +1,12 @@
 name: build
 
-# Full per-triplet build (hours, cold). Manual dispatch; run it locally via
-# act (scripts/act-run.sh) — GH-hosted runners cannot host these workloads
-# (proxy, bind-mounted workspace, CUDA feed layer).
+# Full per-triplet build. GH-hosted runs execute inside the published CI
+# image (docker.yml keeps ghcr up to date); local runs use act with the
+# same image (scripts/act-run.sh). Cross toolchains provision on demand
+# from toolchains.json.
+#
+# Note: the triplet filter lives on every step, not on the job — act's
+# schema rejects `matrix` context in job-level `if`.
 
 on:
   workflow_dispatch:
@@ -18,23 +22,32 @@ on:
 
 jobs:
   build:
-    if: ${{ inputs.triplets == 'all' || inputs.triplets == matrix.triplet }}
     strategy:
       fail-fast: false
       matrix:
         triplet: [linux-x86_64, mingw-x86_64-llvm]
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/ffmake-ci:24.04
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    env:
+      SELECTED: ${{ inputs.triplets == 'all' || inputs.triplets == matrix.triplet }}
     steps:
       - uses: actions/checkout@v4
+        if: env.SELECTED == 'true'
 
       - name: build + install + smoke test
+        if: env.SELECTED == 'true'
         run: python3 -m auto_build all --triplet ${{ matrix.triplet }}
 
       - name: assemble redistributable package
+        if: env.SELECTED == 'true'
         run: python3 ffmake.py dist --triplet ${{ matrix.triplet }}
 
       - uses: actions/upload-artifact@v4
-        if: ${{ !env.ACT }}
+        if: env.SELECTED == 'true' && !env.ACT
         with:
           name: ffmpeg-${{ matrix.triplet }}
           path: release/ffmpeg-*-${{ matrix.triplet }}*

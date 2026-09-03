@@ -26,6 +26,7 @@ from . import env as env_mod
 from . import loop
 from . import paths
 from . import smoke
+from . import toolchains
 from . import triplets as triplets_mod
 from . import validate
 
@@ -40,6 +41,9 @@ def _ctx(args):
     # ASCII alias symlinks + pkg-config wrapper (non-ASCII repo path guard)
     paths.ensure_ascii_alias(root, args.triplet)
     triplet_cfg = triplets_mod.get(args.triplet)
+    # host toolchains (llvm-mingw ...) provision on demand, pinned by
+    # toolchains.json — before any verb touches the triplet
+    toolchains.ensure(root, triplet_cfg)
     frozen = triplet_cfg.get("frozen")
     if frozen and not os.environ.get("FFMAKE_ALLOW_FROZEN"):
         _die("triplet '{}' is frozen since {} (superseded; see triplets.py "
@@ -558,6 +562,28 @@ def cmd_probe(_args):
     print("PKG_CONFIG_PATH   = {}".format(e["PKG_CONFIG_PATH"]))
     print("PKG_CONFIG_LIBDIR = {}".format(
         e.get("PKG_CONFIG_LIBDIR", "(unset)")))
+
+    # 4) Declared host toolchains (provisioned on demand by build verbs).
+    toolchains.report(paths.repo_root())
+
+    # 5) Host tool expectations that recipes assume implicitly; missing
+    #    entries warn (provisioning differs per environment) instead of
+    #    failing — the build verbs surface hard errors with context.
+    cargo_bin = os.path.join(os.path.expanduser("~"), ".cargo", "bin")
+    expectations = [
+        ("cargo", os.path.join(cargo_bin, "cargo"),
+         "librav1e build"),
+        ("cbindgen", os.path.join(cargo_bin, "cbindgen"),
+         "librav1e headers"),
+        ("patchelf", None, "dist rpath relocation"),
+        ("wine", None, "mingw smoke tests + cmake try_run"),
+        ("nvcc", None, "CUDA_HOME (linux --enable-cuda-nvcc)"),
+    ]
+    for tool, path_hint, why in expectations:
+        path = path_hint or shutil.which(tool)
+        ok = bool(path) and os.path.exists(path)
+        print("host tool {:<10} {:<7} {}".format(
+            tool, "ok" if ok else "MISSING", why))
 
 
 def cmd_init(_args):

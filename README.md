@@ -16,7 +16,7 @@
     - Main branch tracks **Kylin V10**.
     - CI release validation uses **Ubuntu Latest** image.
 - Other Linux distributions are not considered for now.
-- Windows builds are not considered.
+- Building on Windows are not considered.
 
 ## Toolchain
 
@@ -34,5 +34,5 @@
 
 For heavyweight third‑party libraries such as OpenCV, ONNX Runtime, and TensorFlow, we do not actively take on their builds:
 
-1. Reuse the binary packages maintained officially by Debian/Ubuntu;
-2. Evaluate the availability of official pre‑compiled binaries.
+1. Evaluate the availability of official pre‑compiled binaries.
+2. Reuse the binary packages maintained officially by Debian/Ubuntu;

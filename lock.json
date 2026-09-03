@@ -255,11 +255,7 @@
         "resolved_rev": "b1f564bda248dbe8ac37cb743966fdd7ee4b490c",
         "url": "https://git.ffmpeg.org/ffmpeg.git"
       },
-      "last_built": [
-        "amf",
-        "libdrm",
-        "sdl2"
-      ],
+      "last_built": [],
       "ports": {
         "amf": {
           "recipe": {
@@ -2253,6 +2249,9 @@
           "recipe": {
             "cmake_args": [
               "-DBUILD_TESTS=OFF"
+            ],
+            "fixups": [
+              "simple_pc"
             ],
             "match_names": [
               "libsoxr",
