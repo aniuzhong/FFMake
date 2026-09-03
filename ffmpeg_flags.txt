@@ -1,7 +1,3 @@
-# Flags passed through to the FFmpeg configure script (read by
-# `configure`/`all`). One flag per line or space-separated;
-# lines starting with '#' are comments.
-# Full baseline: mirrors the proven 55-lib build (old prefix oracle).
 --enable-gpl
 --enable-nonfree
 --enable-version3
@@ -68,11 +64,6 @@
 --enable-libxcb-xfixes
 --enable-libxcb-shape
 --enable-sdl2
-# ---- phase 6: extreme closure (upstream EXTERNAL_LIBRARY_LIST minus
-# platform-only (jni/mediacodec/ohcodec/audiotoolbox/videotoolbox/d3d*va/
-# dxva2), giants (tensorflow/torch/onnxruntime/openvino/opencv/opencolorio/
-# smbclient/rsvg), and duplicate backends (gnutls/gcrypt/libtls/
-# vulkan_static/cuda_llvm/libglslang — same feature already covered)) ----
 --enable-amf
 --enable-cairo
 --enable-chromaprint

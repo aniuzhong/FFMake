@@ -236,6 +236,9 @@
       ],
       "pc": "mp3lame",
       "system": "makefile",
+      "fixups": [
+        "mp3lame_pc"
+      ],
       "source": {
         "type": "tar",
         "url": "https://sourceforge.net/projects/lame/files/lame/3.100/lame-3.100.tar.gz"
@@ -374,6 +377,11 @@
       ],
       "pc": "freetype2",
       "system": "cmake",
+      "needs": [
+        "zlib",
+        "libpng",
+        "brotli"
+      ],
       "source": {
         "type": "git",
         "url": "https://github.com/freetype/freetype.git",
@@ -382,6 +390,41 @@
       "cmake_args": [
         "-DBUILD_SHARED_LIBS=ON",
         "-DFT_DISABLE_BZIP2=ON"
+      ]
+    },
+    "brotli": {
+      "match_names": [
+        "brotli",
+        "libbrotlidec",
+        "libbrotlienc",
+        "libbrotlicommon"
+      ],
+      "pc": "libbrotlidec",
+      "system": "cmake",
+      "cmake_args": [
+        "-DBUILD_SHARED_LIBS=ON"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz",
+        "sha256": "e720a6ca29428b803f4ad165371771f5398faba397edf6778837a18599ea13ff"
+      }
+    },
+    "glib": {
+      "match_names": [
+        "glib-2.0",
+        "glib"
+      ],
+      "pc": "glib-2.0",
+      "system": "system-pc",
+      "fixups": [
+        "glib_pc"
+      ],
+      "pcs": [
+        "glib-2.0"
+      ],
+      "platforms": [
+        "linux"
       ]
     },
     "libfribidi": {
@@ -423,7 +466,7 @@
         "ass",
         "libass"
       ],
-      "pc": "ass",
+      "pc": "libass",
       "system": "meson",
       "needs": [
         "libfreetype",
@@ -455,6 +498,9 @@
       },
       "cmake_args": [
         "-DBUILD_TESTS=OFF"
+      ],
+      "fixups": [
+        "simple_pc"
       ]
     },
     "libaom": {
@@ -863,6 +909,9 @@
         "snappy"
       ],
       "pc": "snappy",
+      "fixups": [
+        "simple_pc"
+      ],
       "system": "cmake",
       "source": {
         "type": "git",
@@ -985,7 +1034,7 @@
         "url": "http://deb.debian.org/debian/pool/main/z/zvbi/zvbi_0.2.44.orig.tar.gz",
         "sha256": "bca620ab670328ad732d161e4ce8d9d9fc832533cb7440e98c50e112b805ac5e"
       },
-      "autogen": "AUTOPOINT=true autoreconf -fi",
+      "autogen": "ACLOCAL_PATH=/usr/share/aclocal AUTOPOINT=true autoreconf -fi",
       "configure_args": [
         "--disable-nls"
       ],
@@ -1076,6 +1125,33 @@
         "share_pc"
       ]
     },
+    "libxau": {
+      "match_names": [
+        "xau"
+      ],
+      "pc": "xau",
+      "system": "system-pc",
+      "pcs": [
+        "xau",
+        "xproto"
+      ],
+      "platforms": [
+        "linux"
+      ]
+    },
+    "libxdmcp": {
+      "match_names": [
+        "xdmcp"
+      ],
+      "pc": "xdmcp",
+      "system": "system-pc",
+      "pcs": [
+        "xdmcp"
+      ],
+      "platforms": [
+        "linux"
+      ]
+    },
     "libxcb": {
       "match_names": [
         "libxcb",
@@ -1088,7 +1164,9 @@
       "system": "makefile",
       "strict_pkgconfig": false,
       "needs": [
-        "xcb-proto"
+        "xcb-proto",
+        "libxau",
+        "libxdmcp"
       ],
       "source": {
         "type": "tar",
@@ -1288,12 +1366,12 @@
       },
       "prefixup": "sed -i 's/CPU amdnop//' source/common/x86/x86inc.asm",
       "steps": [
-        "cd {src}/build/linux && AS=/usr/bin/nasm ./configure --prefix={prefix} --extra-cflags=-fPIC --extra-asflags=-DPIC && make -j{jobs} && make install"
+        "cd {src}/build/linux && AS={tools}/bin/nasm ./configure --prefix={prefix} --extra-cflags=-fPIC --extra-asflags=-DPIC && make -j{jobs} && make install"
       ],
       "triplet_overrides": {
         "mingw-x86_64-llvm": {
           "steps": [
-            "cd {src}/build/linux && AS=/usr/bin/nasm CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ ./configure --host=x86_64-w64-mingw32 --prefix={prefix} --extra-cflags=\"-fPIC -Wno-error=incompatible-function-pointer-types\" && make -j{jobs} && make install"
+            "cd {src}/build/linux && AS={tools}/bin/nasm CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ ./configure --host=x86_64-w64-mingw32 --prefix={prefix} --extra-cflags=\"-fPIC -Wno-error=incompatible-function-pointer-types\" && make -j{jobs} && make install"
           ]
         }
       }
@@ -1348,7 +1426,7 @@
         "libvmaf",
         "vmaf"
       ],
-      "pc": "vmaf",
+      "pc": "libvmaf",
       "system": "meson",
       "source": {
         "type": "git",
@@ -1771,6 +1849,43 @@
         "-DWITH_TURBOJPEG=OFF"
       ]
     },
+    "libdeflate": {
+      "match_names": [
+        "libdeflate"
+      ],
+      "pc": "libdeflate",
+      "system": "cmake",
+      "platforms": [
+        "linux"
+      ],
+      "source": {
+        "type": "git",
+        "url": "https://github.com/ebiggers/libdeflate.git",
+        "rev": "v1.23"
+      },
+      "cmake_args": [
+        "-DBUILD_SHARED_LIBS=ON",
+        "-DLIBDEFLATE_BUILD_TESTS=OFF"
+      ]
+    },
+    "liblerc": {
+      "match_names": [
+        "Lerc"
+      ],
+      "pc": "Lerc",
+      "system": "cmake",
+      "platforms": [
+        "linux"
+      ],
+      "source": {
+        "type": "git",
+        "url": "https://github.com/Esri/lerc.git",
+        "rev": "v4.0.0"
+      },
+      "cmake_args": [
+        "-DBUILD_SHARED_LIBS=ON"
+      ]
+    },
     "libtiff": {
       "match_names": [
         "libtiff-4",
@@ -1781,7 +1896,9 @@
       "system": "makefile",
       "needs": [
         "zlib",
-        "libjpeg-turbo"
+        "libjpeg-turbo",
+        "libdeflate",
+        "liblerc"
       ],
       "source": {
         "type": "tar",
@@ -1847,7 +1964,8 @@
         }
       },
       "fixups": [
-        "lept_pc"
+        "lept_pc",
+        "leptonica_config"
       ]
     },
     "libtesseract": {
@@ -2477,7 +2595,7 @@
         "liblc3",
         "lc3"
       ],
-      "pc": "liblc3",
+      "pc": "lc3",
       "system": "meson",
       "source": {
         "type": "tar",
@@ -2639,7 +2757,7 @@
         "sha256": "1e42b9fc4ad7db7befd414d45ab2f8a159c0b30fcd6eee452be662298766a849"
       },
       "steps": [
-        "sed -i \"s/latin-1/utf-8/g\" {src}/waflib/*.py && cd {src} && python3 waf configure --prefix={prefix} --autostart=none && python3 waf build -j{jobs} && python3 waf install"
+        "sed -i \"s/latin-1/utf-8/g\" {src}/waflib/*.py && sed -i -e \"s/^import os, re, imp, sys/import os, re, sys, types/\" -e \"s/imp\\\\.new_module/types.ModuleType/\" {src}/waflib/Context.py && cd {src} && python3 waf configure --prefix={prefix} --autostart=none && python3 waf build -j{jobs} && python3 waf install"
       ]
     },
     "vapoursynth": {
@@ -2842,7 +2960,8 @@
     "libcdio-paranoia": {
       "match_names": [
         "libcdio_paranoia",
-        "libcdio-paranoia"
+        "libcdio-paranoia",
+        "cdparanoia"
       ],
       "pc": "libcdio_paranoia",
       "system": "makefile",
@@ -2950,6 +3069,9 @@
       "system": "cmake",
       "fixups": [
         "simple_pc"
+      ],
+      "needs": [
+        "glib"
       ],
       "pc_libs": [
         "-llensfun",

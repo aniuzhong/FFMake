@@ -35,6 +35,10 @@ _ERROR_MUST_INSTALL = re.compile(
 # multi-check libs (libvpx) die with "X enabled but no supported ... found"
 _ERROR_ENABLED_BUT = re.compile(
     r"^(\S+) enabled but", re.MULTILINE)
+# multi-lib check (libcdio) words it as "No usable a/b found" — the spec
+# is a slash-joined list of knowledge names
+_ERROR_NO_USABLE = re.compile(
+    r"ERROR: No usable (.+?) found")
 # feature probes report unsatisfied deps as
 # "X requested, but not all dependencies are satisfied: a, b"
 _DEPS_UNSAT = re.compile(
@@ -260,6 +264,11 @@ def configure_loop(ctx):
                    for spec in _ERROR_NOT_FOUND.findall(text)]
         missing += [name for name in _ERROR_MUST_INSTALL.findall(text)]
         missing += [name for name in _ERROR_ENABLED_BUT.findall(text)]
+        for spec in _ERROR_NO_USABLE.findall(text):
+            for name in spec.split("/"):
+                name = name.strip()
+                if name:
+                    missing.append(name)
         for spec in _DEPS_UNSAT.findall(text):
             for name in spec.split(","):
                 name = name.strip()
@@ -277,10 +286,19 @@ def configure_loop(ctx):
                 _die("dependency '{}' is not in deps.json; "
                      "add a knowledge entry for it".format(name))
             plat = deps[key].get("platforms")
-            if plat and ctx["triplet"] not in plat:
-                _die("port '{}' covers {} only, but triplet '{}' requested "
-                     "it; trim the requesting flag from this triplet's "
-                     "flags file".format(key, "/".join(plat), ctx["triplet"]))
+            if plat:
+                # platforms supports two syntaxes: exact triples (e.g., 'linux-x86_64') or
+                # family labels (e.g., 'linux'). A full-string comparison would prevent family
+                # labels from ever matching
+                # —— during cold builds, all family-label ports without stamp info were
+                # incorrectly blocked (lesson: the error message itself says "covers linux only",
+                # but the implementation did a literal string comparison)
+                fam = ctx["triplet"].split("-")[0]
+                if ctx["triplet"] not in plat and fam not in plat:
+                    _die("port '{}' covers {} only, but triplet '{}' "
+                         "requested it; trim the requesting flag from this "
+                         "triplet's flags file".format(
+                             key, "/".join(plat), ctx["triplet"]))
             if key not in built:
                 print("configure: missing '{}' -> building dep '{}'".format(
                     name, key))

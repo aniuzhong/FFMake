@@ -256,7 +256,9 @@
         "url": "https://git.ffmpeg.org/ffmpeg.git"
       },
       "last_built": [
-        "flite"
+        "amf",
+        "libdrm",
+        "sdl2"
       ],
       "ports": {
         "amf": {
@@ -301,6 +303,27 @@
             }
           },
           "stamp_hash": "ec2ebc4231ca81a1e61e4dfe43e1f8ae3075402479e4939c66464c45015fcec5"
+        },
+        "brotli": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_SHARED_LIBS=ON"
+            ],
+            "match_names": [
+              "brotli",
+              "libbrotlidec",
+              "libbrotlienc",
+              "libbrotlicommon"
+            ],
+            "pc": "libbrotlidec",
+            "source": {
+              "sha256": "e720a6ca29428b803f4ad165371771f5398faba397edf6778837a18599ea13ff",
+              "type": "tar",
+              "url": "https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz"
+            },
+            "system": "cmake"
+          },
+          "stamp_hash": "5272b5fd39af2dab2a022cbe42c661982cbe15e27a256ab64ae3bca31b4ea4b5"
         },
         "cairo": {
           "recipe": {
@@ -354,7 +377,7 @@
             },
             "system": "cmake"
           },
-          "stamp_hash": "ffd9c922a8e43ed742658441256efc5b0e176f7493d1e419d01b78eb4ecb1286"
+          "stamp_hash": "9e507eb0ee405291830a5539c4ad4edbe3061350976e4f259ef1c17604fa7396"
         },
         "dav1d": {
           "recipe": {
@@ -375,7 +398,7 @@
             "system": "meson"
           },
           "resolved_commit": "54706fc6bc0cdecab7e9593974a4039cc038fca7",
-          "stamp_hash": "60a1be05cf2c997403edbce56617f2274917956ec6118047c418287383b77943"
+          "stamp_hash": "70a19731e63f428e04a28d76edafa8e257c43cd666aa5c3de732048304db4eb2"
         },
         "expat": {
           "recipe": {
@@ -395,7 +418,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "f808ce8303278569f4005cf3682ec448cae62c0aeba2c99d5feb75f4f9f2bc5c"
+          "stamp_hash": "143c94ebeaee1387b14357c0e029c4bc96c2a9917c589f7ca4fb49b400a1c071"
         },
         "fdk-aac": {
           "recipe": {
@@ -430,7 +453,7 @@
             "system": "custom"
           },
           "resolved_commit": "c69278340ab1d5559c7d7bf0edf615dc33ddbba7",
-          "stamp_hash": "786d21a657faeb1a714b752cd42fc17169ca60ed42fa06b684b6f3348b3bc206"
+          "stamp_hash": "dbbcaa9857de3cfdb6c860e830171d8e9052c4f8cebb12ccbc4591cd6c1c9d1b"
         },
         "fftw3": {
           "recipe": {
@@ -454,7 +477,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": null
+          "stamp_hash": "3ea87f098e300c6de14e4ca817955a3a94cc94b5aca72de635717de71efa0bb5"
         },
         "flite": {
           "recipe": {
@@ -538,6 +561,26 @@
           },
           "stamp_hash": "5326e88afc681f73425288d32a88e1c1c7eed458260c5caddc15fec3a780210a"
         },
+        "glib": {
+          "recipe": {
+            "fixups": [
+              "glib_pc"
+            ],
+            "match_names": [
+              "glib-2.0",
+              "glib"
+            ],
+            "pc": "glib-2.0",
+            "pcs": [
+              "glib-2.0"
+            ],
+            "platforms": [
+              "linux"
+            ],
+            "system": "system-pc"
+          },
+          "stamp_hash": "93f04ed586b7c47c5b6e2efde165948609ce8a26b5ecfece07f34cc7c07c151c"
+        },
         "gmp": {
           "recipe": {
             "configure_args": [
@@ -593,7 +636,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "52beae11631744eb8f7479371c8c60b8b3162dcec58014323538ff94c2c6872d"
+          "stamp_hash": "116050d09f68e6c9be142138d08a12dacd74b63a48b0a25568aebe5fdf20ea7f"
         },
         "lensfun": {
           "recipe": {
@@ -609,6 +652,9 @@
             "match_names": [
               "lensfun",
               "liblensfun"
+            ],
+            "needs": [
+              "glib"
             ],
             "pc": "lensfun",
             "pc_libs": [
@@ -627,7 +673,7 @@
             "system": "cmake"
           },
           "resolved_commit": "23e8cb8050d680c7a293edb3d48b600754665f05",
-          "stamp_hash": "368a1ce51174c074a202d25d4f2f4a7b1914988ce136cd1b131d0fcd06bd0938"
+          "stamp_hash": "b3aa74f02fe2808f35fcb3cc91e32182d7fe0996a1151cccf8d9b396bc44c537"
         },
         "leptonica": {
           "recipe": {
@@ -638,7 +684,8 @@
               "-DSW_BUILD=OFF"
             ],
             "fixups": [
-              "lept_pc"
+              "lept_pc",
+              "leptonica_config"
             ],
             "match_names": [
               "leptonica",
@@ -680,7 +727,7 @@
               }
             }
           },
-          "stamp_hash": "8519c7d7cd3a476ce97ebe6468f83edd4f534e8d701cf96829851656b76a5499"
+          "stamp_hash": "99411cbfd748915169c4709e3fd9db08e963ef97a8023b08047c379bccde8bd3"
         },
         "libaom": {
           "recipe": {
@@ -704,7 +751,7 @@
             "system": "cmake"
           },
           "resolved_commit": "8ad484f8a18ed1853c094e7d3a4e023b2a92df28",
-          "stamp_hash": "bdf2b0fbaa08b55c49a115bd8644bb6623a6e58e5030e1493693b1327d44aa04"
+          "stamp_hash": "a36ff8dd4af5239f67437a825251e6bcc40835defd366d89f6fc7573108e7ecf"
         },
         "libaribb24": {
           "recipe": {
@@ -729,7 +776,7 @@
             "system": "makefile"
           },
           "resolved_commit": "bc45f1406899603033218c2cc6d611ddcc5b3720",
-          "stamp_hash": "75ea967b7f04764c00f553a4d2dfd6f9161e4040e229fc695dde935c04149c15"
+          "stamp_hash": "6c8c93f5f08a8e1167b6b1e67977d9219ba208d19cabfc0ea24876fefdd423a1"
         },
         "libaribcaption": {
           "recipe": {
@@ -750,7 +797,7 @@
             },
             "system": "cmake"
           },
-          "stamp_hash": "907ad4fcfb4428590d9b421780b2fb64810ee160585b0edb134bcbafaaf4d30c"
+          "stamp_hash": "794f99972ee079fcfff8a8f5e4ca51c605db893006be2e35cf3349efa2a32a45"
         },
         "libass": {
           "recipe": {
@@ -768,7 +815,7 @@
               "libfribidi",
               "libharfbuzz"
             ],
-            "pc": "ass",
+            "pc": "libass",
             "source": {
               "rev": "0.17.3",
               "type": "git",
@@ -777,7 +824,7 @@
             "system": "meson"
           },
           "resolved_commit": "e46aedea0a0d17da4c4ef49d84b94a7994664ab5",
-          "stamp_hash": "cade1f012273801d55088cfaad691aabc65f6dcbe1bb3e502ed75fe06a56c5f9"
+          "stamp_hash": "a24580bd606e50a16cd9d688089c075a5fa5906ebd896ef83e940741d54e945f"
         },
         "libavc1394": {
           "recipe": {
@@ -800,7 +847,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "c3c3cd6b95effc3679ad81409f98840cbe6e9741b79990f2f6496ebc5a42a449"
+          "stamp_hash": "43b95d5f6d187b68746aa4caa26d487016416cfbc40845fb0454408a4a9bddab"
         },
         "libbluray": {
           "recipe": {
@@ -829,7 +876,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "4b56bda2924432bb6436058d5d4005fe3713a927462da9f0e1d51d0374d0d8ff"
+          "stamp_hash": "60e69d757586b13e209dd971872089b3383cf2a8722484df68a08cb4e5e2874b"
         },
         "libbs2b": {
           "recipe": {
@@ -861,7 +908,7 @@
               }
             }
           },
-          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+          "stamp_hash": "6130257c3e1b13b8f59db3fffb32de47181b1a0faaf7a15d042d4094adcc0bb7"
         },
         "libcaca": {
           "recipe": {
@@ -898,7 +945,7 @@
             }
           },
           "resolved_commit": "373c88b9890e67bde91e6acb8f1c442e847d1203",
-          "stamp_hash": null
+          "stamp_hash": "4a259ef70fca25f8d510072ae623e163384fcb48cf48c52f3d0538a923326da0"
         },
         "libcdio": {
           "recipe": {
@@ -933,7 +980,7 @@
               }
             }
           },
-          "stamp_hash": "4f349c1ec59918660c7aaae81638c7f57391c8d1b6494ef72e5adba62bb4b47b"
+          "stamp_hash": "6aff66cde610b6ca4d4a3b71a0f2edd64d162b0eb45630efb4bdd0aaaea35819"
         },
         "libcdio-paranoia": {
           "recipe": {
@@ -942,7 +989,8 @@
             ],
             "match_names": [
               "libcdio_paranoia",
-              "libcdio-paranoia"
+              "libcdio-paranoia",
+              "cdparanoia"
             ],
             "needs": [
               "libcdio"
@@ -962,7 +1010,7 @@
               }
             }
           },
-          "stamp_hash": "dc141abd64ce59cc81bb229df56ca6340137ff910ae00ab82d975cdaec78a998"
+          "stamp_hash": "3d08d01660bbbfbfa550fe32b9357634a367e03a2bfed0dc6eba6e25b63e7479"
         },
         "libcodec2": {
           "recipe": {
@@ -984,7 +1032,7 @@
             "system": "cmake"
           },
           "resolved_commit": "06d4c11e699b0351765f10398abb4f663a984f36",
-          "stamp_hash": "94eadc3ae1ccac9703f3e6df1c6c7e34dc313fac4f663ff2e753b76a99d5fbef"
+          "stamp_hash": "4e234d288bf5dd72844547364dd89db2fb65e100500a3aecfb204583509b45dd"
         },
         "libdavs2": {
           "recipe": {
@@ -1011,7 +1059,7 @@
             }
           },
           "resolved_commit": "b06d7585620f4e90a6d19a2926bb4e59793b8942",
-          "stamp_hash": "a074b491608a4fcf1c6727b3066f8ded2149d4c00d1ca169d0ce59a390ff80df"
+          "stamp_hash": "90e122d65d8e77811bdcf455f60e0cfd71c76dc3dfbc9175c27bda6b7c00a40e"
         },
         "libdc1394": {
           "recipe": {
@@ -1036,7 +1084,30 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "841492b30082fda0f2778663e614c2ba14836726a8545fe997dcdd713ad5d33f"
+          "stamp_hash": null
+        },
+        "libdeflate": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_SHARED_LIBS=ON",
+              "-DLIBDEFLATE_BUILD_TESTS=OFF"
+            ],
+            "match_names": [
+              "libdeflate"
+            ],
+            "pc": "libdeflate",
+            "platforms": [
+              "linux"
+            ],
+            "source": {
+              "rev": "v1.23",
+              "type": "git",
+              "url": "https://github.com/ebiggers/libdeflate.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "78051988f96dc8d8916310d8b24021f01bd9e102",
+          "stamp_hash": "cab8ebc5e2cda35047151b9e3e610b577868aa967bf800163da00c30f0ce8ffd"
         },
         "libdrm": {
           "recipe": {
@@ -1059,7 +1130,7 @@
             },
             "system": "meson"
           },
-          "stamp_hash": "62c2cf26f3f249186e0448dd777dd5f2785e58efb3278c8d13be992fda628929"
+          "stamp_hash": "53b195ec0c608f09b7e75b613159023f6959e8066d599f10b499384e083df4fd"
         },
         "libdvdnav": {
           "recipe": {
@@ -1082,7 +1153,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+          "stamp_hash": "8550a7ad68d655a5caaa20151e999bd9ebc2bc34c9572fcaac4ec443759b0ddf"
         },
         "libdvdread": {
           "recipe": {
@@ -1102,7 +1173,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+          "stamp_hash": "e8a26bdd9355e1be6356a5f1cc96165bcb8496471bc5c0653f2e5b99be61c03f"
         },
         "libfreetype": {
           "recipe": {
@@ -1114,6 +1185,11 @@
               "freetype2",
               "libfreetype"
             ],
+            "needs": [
+              "zlib",
+              "libpng",
+              "brotli"
+            ],
             "pc": "freetype2",
             "source": {
               "rev": "VER-2-13-2",
@@ -1123,7 +1199,7 @@
             "system": "cmake"
           },
           "resolved_commit": "920c5502cc3ddda88f6c7d85ee834ac611bb11cc",
-          "stamp_hash": "1b6b9b5535e356f1285b442f0398c2b636ab15ec5afe05acb0b2d85a34288b0a"
+          "stamp_hash": "98cf54a32d3d28b2e54921d41b9c002050da5893d380484b683c0a1d143f3643"
         },
         "libfribidi": {
           "recipe": {
@@ -1144,7 +1220,7 @@
             "system": "meson"
           },
           "resolved_commit": "68162babff4f39c4e2dc164a5e825af93bda9983",
-          "stamp_hash": "fa79a17c17907edda24c6fc1b85777f61f7281894032a68a7110463cedb86816"
+          "stamp_hash": "987437caa95a2ba13e71768db62d53b824d08744b14fa26579302caf0d7a22cc"
         },
         "libgme": {
           "recipe": {
@@ -1165,7 +1241,7 @@
             },
             "system": "cmake"
           },
-          "stamp_hash": "a6645115ca164e550fde49b0f02e0141a8cd4383b7f0d02a44f49280be17083c"
+          "stamp_hash": "865cdabd3eb82e4af5a148318714ca78f842e34e8dd9dc4ca132f9fdb9286537"
         },
         "libgsm": {
           "recipe": {
@@ -1200,7 +1276,7 @@
               }
             }
           },
-          "stamp_hash": "f3efd1e02558499a3ed8ce1511391e76b904e8754ecd06176d96e5da691f0731"
+          "stamp_hash": "47cf1b46e9ef8d8a7e99686279582168e4b6aaddbe4622462e690f2c4a8b5c93"
         },
         "libharfbuzz": {
           "recipe": {
@@ -1221,7 +1297,7 @@
             "system": "meson"
           },
           "resolved_commit": "63973005bc07aba599b47fdd4cf788647b601ccd",
-          "stamp_hash": "b82beb3a9727f53f4489a436c0e2ad8652a1daac40c24d287ebebd82aafe5a41"
+          "stamp_hash": "e9a347246e5dc4e6cd6964351fbdcb6b58a39e1c5846b16f1318d5dcb12c8885"
         },
         "libiconv": {
           "recipe": {
@@ -1274,7 +1350,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "00d8d194a53613944c60dc43e69de90cd436601b79769c706b7ee079cfc14656"
+          "stamp_hash": "cf69b50c68fa230e63acf095b0bbc9ab87327071cd3fde8cf7a683570bf6c4a5"
         },
         "libilbc": {
           "recipe": {
@@ -1309,11 +1385,11 @@
               "url": "https://github.com/jackaudio/jack2/archive/refs/tags/v1.9.22.tar.gz"
             },
             "steps": [
-              "sed -i \"s/latin-1/utf-8/g\" {src}/waflib/*.py && cd {src} && python3 waf configure --prefix={prefix} --autostart=none && python3 waf build -j{jobs} && python3 waf install"
+              "sed -i \"s/latin-1/utf-8/g\" {src}/waflib/*.py && sed -i -e \"s/^import os, re, imp, sys/import os, re, sys, types/\" -e \"s/imp\\\\.new_module/types.ModuleType/\" {src}/waflib/Context.py && cd {src} && python3 waf configure --prefix={prefix} --autostart=none && python3 waf build -j{jobs} && python3 waf install"
             ],
             "system": "custom"
           },
-          "stamp_hash": "a51c85c06554762a0a1450060252c46bde34d18c6015db5ce2e34f08b25229de"
+          "stamp_hash": "ee37dc96ffa686266d6c4c540f9d9f9209c71f77d9042fcc8d9ab8ad1f94c866"
         },
         "libjpeg-turbo": {
           "recipe": {
@@ -1363,7 +1439,7 @@
             "system": "cmake"
           },
           "resolved_commit": "4a3b22d2600f92d8706fb72d85d52bfee2acbd54",
-          "stamp_hash": "3010bf2d5dc9cb6d67d88397741673192d20ba6d8722edc64cf02338f1d39276"
+          "stamp_hash": "d730341b6cec044697e850dbfab36ee71441306ad8159144bc5d3cb1dca772cf"
         },
         "libklvanc": {
           "recipe": {
@@ -1404,7 +1480,7 @@
             }
           },
           "resolved_commit": "d2bec177f68fe807a8c12d3b8d18ee8208bbdc32",
-          "stamp_hash": "0fa67e910e07bd3b150a3d4e723ccc1f7003c404efd41c9e1843e21e10696a40"
+          "stamp_hash": "7dd5aa54a148e39aec981c4fed363c9cf5b35292c11cb79f5a7314be948b5b3e"
         },
         "libkvazaar": {
           "recipe": {
@@ -1424,7 +1500,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+          "stamp_hash": "a5937df9a64fb95057f5305714da6e6406fd2e81d28f8c81a297ab5f56ceb89c"
         },
         "liblc3": {
           "recipe": {
@@ -1433,7 +1509,7 @@
               "lc3"
             ],
             "meson_args": [],
-            "pc": "liblc3",
+            "pc": "lc3",
             "source": {
               "sha256": "b65e38943708529efd04a87dd1a9f16a9856ed6199d082b18e7d42fb5c59486e",
               "type": "tar",
@@ -1475,7 +1551,29 @@
               }
             }
           },
-          "stamp_hash": "eee1efef1ce8460171db50f1c8a30689868f9ba3e79a2c83fcebbc44f43eee0f"
+          "stamp_hash": "1d52685cb0e1dfbce6a631d09cc88a3b4a0a1206b17047feadd87f8c718c12ea"
+        },
+        "liblerc": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_SHARED_LIBS=ON"
+            ],
+            "match_names": [
+              "Lerc"
+            ],
+            "pc": "Lerc",
+            "platforms": [
+              "linux"
+            ],
+            "source": {
+              "rev": "v4.0.0",
+              "type": "git",
+              "url": "https://github.com/Esri/lerc.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "fbeb481120b79d05163f8544c645e9975920526f",
+          "stamp_hash": "bd0310e5cc91c455b9b9cb6fd9ce87c4ed5c8d731998c9fb3eca4e4c36f00140"
         },
         "libmodplug": {
           "recipe": {
@@ -1500,12 +1598,15 @@
               }
             }
           },
-          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+          "stamp_hash": "1b3cfafd64c65a43bd91681937ae2e7feeb36f98b77d438f33ed966f1d1db896"
         },
         "libmp3lame": {
           "recipe": {
             "configure_args": [
               "--disable-frontend"
+            ],
+            "fixups": [
+              "mp3lame_pc"
             ],
             "make_args": [
               "LDFLAGS=-no-undefined"
@@ -1522,7 +1623,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "ede2129516ca6845624b88161e117e6fcf7745c8e009e36eca187388d80a1806"
+          "stamp_hash": "22a30474c0e0ba3e61ad542a238c9fb432f174d3a9176722e300782d62817b62"
         },
         "libmysofa": {
           "recipe": {
@@ -1554,7 +1655,7 @@
             }
           },
           "resolved_commit": "33974839677da7044ef5a70be7ad5550735aae6e",
-          "stamp_hash": "ea447e47d47fa1732e4af17829df3f03634f27e7c3a97eb5a15685a2ec269f3e"
+          "stamp_hash": "af94426e8f7ddeab251f7a07a5ebe226fd99a943e306a202294221ced9a4f378"
         },
         "libogg": {
           "recipe": {
@@ -1573,7 +1674,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+          "stamp_hash": "abb811c546341b87c9d757672499fdbca6206df7166c6241106756646bf4ff29"
         },
         "libopencore-amr": {
           "recipe": {
@@ -1594,7 +1695,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+          "stamp_hash": "475fa2baa8119c3a4c0496229d837f4cace90636c1aeffcc7c91e0101af91b51"
         },
         "libopencv": {
           "recipe": {
@@ -1611,7 +1712,7 @@
             ],
             "system": "system-pc"
           },
-          "stamp_hash": "643a6fd6f46b69eb40b77690110087f8961f0257185295ed46dedd68b22df8db"
+          "stamp_hash": null
         },
         "libopenh264": {
           "recipe": {
@@ -1648,7 +1749,7 @@
             }
           },
           "resolved_commit": "c59550a2147c255cc8e09451f6deb96de2526b6d",
-          "stamp_hash": "ce50140a9e49075d158033219bc7efb5b633aec3aab56ebce0695a2153d09c45"
+          "stamp_hash": "61dee364816fefaef6828b50da2846dc847690d6d4fb4dbafce332cfea18ebff"
         },
         "libopenjpeg": {
           "recipe": {
@@ -1699,7 +1800,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "cfcd411635f8f8824fda1c8c0b2d830d46117f56e09557b6fe34bc94069326c4"
+          "stamp_hash": "d6e6a0bcb0a1f9d3c5ffa5dac6f781d185f50900a229ffaa02433afe093209e6"
         },
         "libopenvino": {
           "recipe": {
@@ -1715,9 +1816,6 @@
               "-lopenvino",
               "-lopenvino_c"
             ],
-            "platforms": [
-              "linux-x86_64"
-            ],
             "source": {
               "type": "tar",
               "url": "https://storage.openvinotoolkit.org/repositories/openvino/packages/2024.6/linux/l_openvino_toolkit_ubuntu20_2024.6.0.17404.4c0f47d2335_x86_64.tgz"
@@ -1728,9 +1826,29 @@
               "cp -a {src}/runtime/lib/intel64/* {prefix}/lib/ && cp -a {src}/runtime/3rdparty/tbb/lib/libtbb* {prefix}/lib/",
               "printf 'prefix=%s\\nlibdir=%s\\n\\nName: openvino\\nDescription: OpenVINO toolkit\\nVersion: 2024.6\\nLibs: -L%s/lib -lopenvino_c -lopenvino\\nCflags: -I%s/include\\n' \"{prefix}\" \"{prefix}\" \"{prefix}\" > {prefix}/lib/pkgconfig/openvino.pc"
             ],
-            "system": "custom"
+            "system": "custom",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "pc_libs": [
+                  "-lopenvino_c"
+                ],
+                "source": {
+                  "type": "tar",
+                  "url": "https://storage.openvinotoolkit.org/repositories/openvino/packages/2024.6/windows/w_openvino_toolkit_windows_2024.6.0.17404.4c0f47d2335_x86_64.zip"
+                },
+                "steps": [
+                  "mkdir -p {prefix}/include {prefix}/lib {prefix}/bin",
+                  "cp -a {src}/runtime/include/* {prefix}/include/",
+                  "cp -a {src}/runtime/lib/intel64/Release/*.lib {prefix}/lib/",
+                  "cp -a {src}/runtime/bin/intel64/Release/* {prefix}/bin/",
+                  "cp -a {src}/runtime/3rdparty/tbb/bin/* {prefix}/bin/ 2>/dev/null || true",
+                  "cp -a {src}/runtime/bin/intel64/Release/openvino_c.dll {prefix}/lib/",
+                  "printf 'prefix=%s\\nlibdir=%s\\n\\nName: openvino\\nDescription: OpenVINO toolkit\\nVersion: 2024.6\\nLibs: -L%s/lib -lopenvino_c\\nCflags: -I%s/include\\n' \"{prefix}\" \"{prefix}\" \"{prefix}\" > {prefix}/lib/pkgconfig/openvino.pc"
+                ]
+              }
+            }
           },
-          "stamp_hash": "db642aea4ca0a46217a662d0c29bfeeb82fdea06fefd3103ada529b98281e723"
+          "stamp_hash": "c876e8210a4b3741ffe4670fce65ddc5a7a1dafed23c32ff6535c6d00df7b3e4"
         },
         "libopus": {
           "recipe": {
@@ -1750,7 +1868,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+          "stamp_hash": "4d96683d1e9df892879084557b7d27225f6ddcddc7d9136b20137baed9303a3a"
         },
         "libplacebo": {
           "recipe": {
@@ -1782,7 +1900,7 @@
             "system": "meson"
           },
           "resolved_commit": "cee9b076f2c63104ccfd497fa79c39a867293ec4",
-          "stamp_hash": "33025900ebeb20864e9bbd2738b1bd217164cb9d234160e817cc4878d6412bef"
+          "stamp_hash": "a2e30f4711a99d8943e0995c207ac28ed2788f20eb2e3b5d489c839a6e3eccf2"
         },
         "libpng": {
           "recipe": {
@@ -1824,7 +1942,7 @@
             "system": "makefile"
           },
           "resolved_commit": "715e29fd4cd71b6e452ae0f4e36d917b43122ce8",
-          "stamp_hash": "3da8fa675d8b271dc28975f3a3e533f26fac91d20da4b4753010881e9f5b15f0"
+          "stamp_hash": "94d04398271d14dd4e697bad8db3e6dda03cf621f65aab6e4dbde7b46fc94d53"
         },
         "libquirc": {
           "recipe": {
@@ -1865,7 +1983,7 @@
             }
           },
           "resolved_commit": "542848dd6b9b0eaa9587bbf25b9bc67bd8a71fca",
-          "stamp_hash": "cbe1bf386a302cc164d465acb2e670677b5db0ffb43a3473f2f710a06ba3e0f2"
+          "stamp_hash": "6261cbd2a7aed99000005831e2f134489039dcd70e21ca9d5dfcfc63a7a3fe2a"
         },
         "librabbitmq": {
           "recipe": {
@@ -1893,7 +2011,7 @@
             },
             "system": "cmake"
           },
-          "stamp_hash": "8dba7a6f44135b17586f51e4f060ef49ac8629a3fa7888b8c1e62f0ce7ef684d"
+          "stamp_hash": "80ea8065cc6c3476cf3eda2560492a6eab25c2e80ca273b26b0863531a072f4d"
         },
         "librav1e": {
           "recipe": {
@@ -1936,7 +2054,7 @@
             }
           },
           "resolved_commit": "1fe82de02510767539e89b2ee6fa846920ae2686",
-          "stamp_hash": "28833330481fe3ff5260103b3b7e814fdbf2f58217832db36743c2ace3a984ba"
+          "stamp_hash": "3b708e70677b593d62942977d8c72e7a241da7502756014d74ba57e01eefce68"
         },
         "libraw1394": {
           "recipe": {
@@ -1956,7 +2074,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "6c9fe7e72e430941d33498a1e25ae943024358db101ace13773e14dad6657301"
+          "stamp_hash": "8a4b9a32f4ceb862da8ba1de6a37be888b904d059a6a093efcc89f44f03d6ecc"
         },
         "librist": {
           "recipe": {
@@ -2016,7 +2134,7 @@
               }
             }
           },
-          "stamp_hash": "5612537437a4fa72d227cf46823a10002018b87d214d265546e24fbdeb1a23a1"
+          "stamp_hash": "f40c2049e3e23e877f0661fcd5ce45c56b85cb34c703d847776ef113b323cde3"
         },
         "libshaderc": {
           "recipe": {
@@ -2041,7 +2159,7 @@
             "system": "cmake"
           },
           "resolved_commit": "2c8cae778eec0283b44acbe7ed1a386865d78799",
-          "stamp_hash": "b5950f519deb8603422acd3d745439b6b8a22b57d0dec58dbc26151f122918e3"
+          "stamp_hash": "9af29d183adb2d96c1b3d40ab413fb5613771de48f1b6521f12d12dfcb73c526"
         },
         "libshine": {
           "recipe": {
@@ -2064,7 +2182,7 @@
             "system": "makefile"
           },
           "resolved_commit": "97f188efc3dc90315b79a2af1f477c0c18d85e82",
-          "stamp_hash": "4e43d07ab8b9105dd3c8ada12f7af14d2a097948cab9efda6c30eee3c429af3c"
+          "stamp_hash": "152c9da9b82d12dfd1da06225b1a2278fe360a1a22324f88c31249d2c047ae38"
         },
         "libsmbclient": {
           "recipe": {
@@ -2081,7 +2199,7 @@
             ],
             "system": "system-pc"
           },
-          "stamp_hash": "318e61ee75ac260d24a8d24f7ac25274d523d447d7fe7dbea1e4c0ef0898dbde"
+          "stamp_hash": null
         },
         "libsnappy": {
           "recipe": {
@@ -2089,6 +2207,9 @@
               "-DSNAPPY_BUILD_TESTS=OFF",
               "-DSNAPPY_BUILD_BENCHMARKS=OFF",
               "-DBUILD_SHARED_LIBS=ON"
+            ],
+            "fixups": [
+              "simple_pc"
             ],
             "match_names": [
               "libsnappy",
@@ -2103,7 +2224,7 @@
             "system": "cmake"
           },
           "resolved_commit": "2c94e11145f0b7b184b831577c93e5a41c4c0346",
-          "stamp_hash": "b59e6f19277007615e7c6e58be68e1f06ba3afc1b27b5d848ec65bdd63800709"
+          "stamp_hash": "144af380cf723382e9741ccc2827ff91cc189ea0ee19eab6076f6dd1476538ea"
         },
         "libsndfile": {
           "recipe": {
@@ -2126,7 +2247,7 @@
             "system": "cmake"
           },
           "resolved_commit": "72f6af15e8f85157bd622ed45b979025828b7001",
-          "stamp_hash": "500fb1a54cb83d3905ce1cacd9e43b96d42b1eee39654bd84c523b6ee12d7e34"
+          "stamp_hash": "aa79d431a8bbc7001f9d00f742a541c2b68487a8d438fe266673f6a202cbc716"
         },
         "libsoxr": {
           "recipe": {
@@ -2146,7 +2267,7 @@
             "system": "cmake"
           },
           "resolved_commit": "945b592b70470e29f917f4de89b4281fbbd540c0",
-          "stamp_hash": "a686a30bbdf3e7009def976337d762bab48335d7ee8517ac9cce21ce0635063e"
+          "stamp_hash": "672aec9fd65d3fae1f9317fc706a9127da54ffabad6ea45363d235dcafeb4012"
         },
         "libspeex": {
           "recipe": {
@@ -2165,7 +2286,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+          "stamp_hash": "a96f9d58898c04207c0674d7123c45da1750f896d43f4dbb87eb28dec6901c09"
         },
         "libsrt": {
           "recipe": {
@@ -2189,7 +2310,7 @@
             "system": "cmake"
           },
           "resolved_commit": "09f35c0f1743e23f514cb41444504a7faeacf89e",
-          "stamp_hash": "d6db1c047312bebf175507f0c59701a51d9703d76217939f7300e32acbb302e9"
+          "stamp_hash": "d19fc846984228676f8ba08cf7185a5aa13fb420876ba01c8746685c19a2c830"
         },
         "libssh": {
           "recipe": {
@@ -2213,7 +2334,7 @@
             "system": "cmake"
           },
           "resolved_commit": "10e09e273f69e149389b3e0e5d44b8c221c2e7f6",
-          "stamp_hash": "d31b5ef531f3c054dc980f661249913eaac55e2d3f135ad82c2d3f8955aa48a6"
+          "stamp_hash": "46b38a33ffba342cbd9b5cf7bac6b56955d714938f55a18b723fd4b282b9fbef"
         },
         "libsvtav1": {
           "recipe": {
@@ -2234,7 +2355,7 @@
             "system": "cmake"
           },
           "resolved_commit": "55a01def732bb9e7016d23cc512384f7a88d6e86",
-          "stamp_hash": "69896b992ba47f9864fd586154c52804207904f6850ac8f4776e92bf8c718fda"
+          "stamp_hash": "9186905a759caa8a742ce2d5967335d86025d32c159a7fb67746a90910a2bf3f"
         },
         "libsvtjpegxs": {
           "recipe": {
@@ -2283,9 +2404,28 @@
               "ln -sf libtensorflow.so.2 {prefix}/lib/libtensorflow.so",
               "ln -sf libtensorflow_framework.so.2 {prefix}/lib/libtensorflow_framework.so"
             ],
-            "system": "custom"
+            "system": "custom",
+            "triplet_overrides": {
+              "mingw-x86_64-llvm": {
+                "pc_libs": [
+                  "-ltensorflow"
+                ],
+                "source": {
+                  "type": "tar",
+                  "url": "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-windows-x86_64-2.15.0.zip"
+                },
+                "steps": [
+                  "mkdir -p {prefix}/include {prefix}/lib {prefix}/bin {src}/linc",
+                  "cp -a {src}/include/* {prefix}/include/",
+                  "tar -xzf {prefix}/../../distfiles/libtensorflow-cpu-linux-x86_64-2.15.0.tar.gz -C {src}/linc",
+                  "cp -a {src}/linc/include/* {prefix}/include/",
+                  "cp -a {src}/lib/tensorflow.dll {prefix}/bin/",
+                  "cp -a {src}/lib/tensorflow.dll {prefix}/lib/"
+                ]
+              }
+            }
           },
-          "stamp_hash": "c38f188d8d5389667dfc2b00fb753bfa64e29891ed6ba74abb312b9ea0b75202"
+          "stamp_hash": "f00dcc1b1a501bb908cdbaeffa97e724d143e1cd962d5390618ea8067431d713"
         },
         "libtesseract": {
           "recipe": {
@@ -2320,7 +2460,7 @@
               }
             }
           },
-          "stamp_hash": "b3a4e9a3b82e755bf24291eebbffdf63f85b277f87c2a219a5e72d464d3c17ba"
+          "stamp_hash": "4cc3bea11ca1fff5d3cbe846e2ada0796b6a2bd78c9b684c720a41e80e235df1"
         },
         "libtheora": {
           "recipe": {
@@ -2346,7 +2486,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "0088a8a79afb3e00bbe342523207006d0384dd09f63710649816ea76c0024182"
+          "stamp_hash": "2d7932e476f3de2208bd51faf7a69a1827e654c5c612f8c5f8bce87bfb1a24e4"
         },
         "libtiff": {
           "recipe": {
@@ -2368,7 +2508,9 @@
             ],
             "needs": [
               "zlib",
-              "libjpeg-turbo"
+              "libjpeg-turbo",
+              "libdeflate",
+              "liblerc"
             ],
             "pc": "libtiff-4",
             "source": {
@@ -2378,7 +2520,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "17d733e5225b53d4e96d88ac2c76c4d7e5bb5b48fa10763c49d30003921e827d"
+          "stamp_hash": "27d6a31d6693479fe3c7f1bd1f073b4337602acae2b2b5de62d1274e044106ad"
         },
         "libtwolame": {
           "recipe": {
@@ -2398,7 +2540,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+          "stamp_hash": "43f920d61b61f939a9edc797f395a253b5882d8ac91facce1f5af356b506d2fe"
         },
         "libuavs3d": {
           "recipe": {
@@ -2420,7 +2562,7 @@
             "system": "cmake"
           },
           "resolved_commit": "0e20d2c291853f196c68922a264bcd8471d75b68",
-          "stamp_hash": "203e35e4302e79d482f3cecd8a32fcc9e073887bac6eb25cf8454bcbc121c68c"
+          "stamp_hash": "2a949d207f2366e5f9d9b0a04331abd46b53e658807bdbb91e6e5efb2be25a07"
         },
         "libv4l2": {
           "recipe": {
@@ -2449,7 +2591,7 @@
             },
             "system": "meson"
           },
-          "stamp_hash": "da3346d86685f5c3de6ca3ac0bf5675dc0bc6481139815b8645fd3ca658cec76"
+          "stamp_hash": null
         },
         "libva": {
           "recipe": {
@@ -2474,7 +2616,7 @@
             "strict_pkgconfig": false,
             "system": "meson"
           },
-          "stamp_hash": "ff20cd8000bd4b291204914b9531c09c94d701f770ea5d86f5f46876f53eedd6"
+          "stamp_hash": null
         },
         "libvdpau": {
           "recipe": {
@@ -2495,7 +2637,7 @@
             "strict_pkgconfig": false,
             "system": "meson"
           },
-          "stamp_hash": "fdc434f8098cb893fce53989fce407cfb473417db619429327ac7ecef4f7b778"
+          "stamp_hash": null
         },
         "libvidstab": {
           "recipe": {
@@ -2515,7 +2657,7 @@
             "system": "cmake"
           },
           "resolved_commit": "90c76aca2cb06c3ff6f7476a7cd6851b39436656",
-          "stamp_hash": "aa8c1c1f1ea2c212beafe3452f4f8a4db8ff6cc4b0097c7670b9a30fdf8f9dc4"
+          "stamp_hash": "5357c51333c99cd03b71222abe5eb1bc3038389651e31c0dd13bee5697d3d88b"
         },
         "libvmaf": {
           "recipe": {
@@ -2527,7 +2669,7 @@
               "-Denable_tests=false",
               "-Denable_docs=false"
             ],
-            "pc": "vmaf",
+            "pc": "libvmaf",
             "source": {
               "rev": "v3.0.0",
               "type": "git",
@@ -2537,7 +2679,7 @@
             "system": "meson"
           },
           "resolved_commit": "17a67b238ce0539bdeafdc95961abac64fa16ea8",
-          "stamp_hash": "f41a19e1786763c271c1e11e52d6f882cc06dbdb67724c3baa31b4e06f138279"
+          "stamp_hash": "22632c4ba1958f75a8a7d8fb207d7542c09b2c09bdb6a12343a01cbd0beddc58"
         },
         "libvo-amrwbenc": {
           "recipe": {
@@ -2558,7 +2700,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+          "stamp_hash": "5f6ae8c9739288f7bfe1ba1fc4354ed38a38eaec9db65c41c794186c0ebbea7a"
         },
         "libvorbis": {
           "recipe": {
@@ -2580,7 +2722,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+          "stamp_hash": "a899cf916ec0a0efff2152ddb573610324b26531b1b96609326c86f6a0dca790"
         },
         "libvpx": {
           "recipe": {
@@ -2630,7 +2772,7 @@
             }
           },
           "resolved_commit": "9f9b7e9ba2eb9d01640a9e69a3d655866265cf7f",
-          "stamp_hash": "a5ad2d78592829712845cdf452f2200830db6fd18e4c67a51096c8b9346d5299"
+          "stamp_hash": "f10a98b074220fdc4e8b48fa1ac4327486a455c337d6779f93e7a981ad087ace"
         },
         "libvvenc": {
           "recipe": {
@@ -2661,7 +2803,7 @@
             }
           },
           "resolved_commit": "0c2c21eba8b336a273e7dc6e5e7fc0a95e8c5fcc",
-          "stamp_hash": "745713230f03121a35c1ae1b5242f933e911f4bbb1f24aefcb7c9d0328c60b61"
+          "stamp_hash": "072fa0233c23bd90d74b0d4e723e7aa9067f7d4e31b7fc0503e71058fab598fd"
         },
         "libwebp": {
           "recipe": {
@@ -2688,6 +2830,23 @@
           "resolved_commit": "845d5476a866141ba35ac133f856fa62f0b7445f",
           "stamp_hash": "4be9d5c019d3d2475240c7b17843a6ddd9b83ccd2e853c07f2d562ed55649a74"
         },
+        "libxau": {
+          "recipe": {
+            "match_names": [
+              "xau"
+            ],
+            "pc": "xau",
+            "pcs": [
+              "xau",
+              "xproto"
+            ],
+            "platforms": [
+              "linux"
+            ],
+            "system": "system-pc"
+          },
+          "stamp_hash": "a55d1b54cd4105b311e5ddbd0ec4032eb8d083d636669f79d38226b087a34bab"
+        },
         "libxavs2": {
           "recipe": {
             "match_names": [
@@ -2702,19 +2861,19 @@
               "url": "https://github.com/pkuvcl/xavs2.git"
             },
             "steps": [
-              "cd {src}/build/linux && AS=/usr/bin/nasm ./configure --prefix={prefix} --extra-cflags=-fPIC --extra-asflags=-DPIC && make -j{jobs} && make install"
+              "cd {src}/build/linux && AS={tools}/bin/nasm ./configure --prefix={prefix} --extra-cflags=-fPIC --extra-asflags=-DPIC && make -j{jobs} && make install"
             ],
             "system": "custom",
             "triplet_overrides": {
               "mingw-x86_64-llvm": {
                 "steps": [
-                  "cd {src}/build/linux && AS=/usr/bin/nasm CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ ./configure --host=x86_64-w64-mingw32 --prefix={prefix} --extra-cflags=\"-fPIC -Wno-error=incompatible-function-pointer-types\" && make -j{jobs} && make install"
+                  "cd {src}/build/linux && AS={tools}/bin/nasm CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ ./configure --host=x86_64-w64-mingw32 --prefix={prefix} --extra-cflags=\"-fPIC -Wno-error=incompatible-function-pointer-types\" && make -j{jobs} && make install"
                 ]
               }
             }
           },
           "resolved_commit": "eae1e8b9d12468059bdd7dee893508e470fa83d8",
-          "stamp_hash": "7c811fc50f404dbb69b1aa391bed02ef38eb346305ae34daf529843227c8db63"
+          "stamp_hash": "d63762a3e27ed6b25d907f8c8b6bd7582d120b4d3f7cf1e4a6a9fc6e84cf05c4"
         },
         "libxcb": {
           "recipe": {
@@ -2730,7 +2889,9 @@
               "libxcb_xfixes"
             ],
             "needs": [
-              "xcb-proto"
+              "xcb-proto",
+              "libxau",
+              "libxdmcp"
             ],
             "pc": "xcb",
             "source": {
@@ -2741,7 +2902,23 @@
             "strict_pkgconfig": false,
             "system": "makefile"
           },
-          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+          "stamp_hash": "ab884a7e88a950efe80f5885e08bc52a0bebf716b578c2eee57513790f55d9b7"
+        },
+        "libxdmcp": {
+          "recipe": {
+            "match_names": [
+              "xdmcp"
+            ],
+            "pc": "xdmcp",
+            "pcs": [
+              "xdmcp"
+            ],
+            "platforms": [
+              "linux"
+            ],
+            "system": "system-pc"
+          },
+          "stamp_hash": "c5e65819e28420acc3e74383f34ac2ea55360c9bf80c4bab8063c51d50d4f754"
         },
         "libxevd": {
           "recipe": {
@@ -2836,7 +3013,7 @@
               }
             }
           },
-          "stamp_hash": "f3efd1e02558499a3ed8ce1511391e76b904e8754ecd06176d96e5da691f0731"
+          "stamp_hash": "d2adb8666528c1f54ef82a79847cd2f8a998206138199dfa416d4bd6fc971b8a"
         },
         "libzmq": {
           "recipe": {
@@ -2879,11 +3056,11 @@
               }
             }
           },
-          "stamp_hash": "ed99a8313bc515001fa7bbd99dc5e922743373c627b3ea578b7209a392dae55f"
+          "stamp_hash": "390c6649b2bc2d4e940af0e92e8342acbda88bca80f8f2562c122c7ae3c0a59d"
         },
         "libzvbi": {
           "recipe": {
-            "autogen": "AUTOPOINT=true autoreconf -fi",
+            "autogen": "ACLOCAL_PATH=/usr/share/aclocal AUTOPOINT=true autoreconf -fi",
             "configure_args": [
               "--disable-nls"
             ],
@@ -2925,7 +3102,7 @@
               }
             }
           },
-          "stamp_hash": "5dd3a87434c4b76027d3f9f6300935e88925a65653c75946d048686f08d90d4b"
+          "stamp_hash": "97cb3804dc9151bac25fac397f9daacb04fbedbb9db7e1e884f5dfbaa0916518"
         },
         "lilv": {
           "recipe": {
@@ -3016,7 +3193,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "c6bb8ea864b66663a1d19a6c630300086c6e04f7a1106879d803cc98b6b7da47"
+          "stamp_hash": "b1e8f64e950cc0790c8e514f2613d90bef31742fc79354df0eded8ff6d22b363"
         },
         "onnxruntime": {
           "recipe": {
@@ -3091,7 +3268,7 @@
               }
             }
           },
-          "stamp_hash": "35cbd699dd906ac49de8c438ea6d795390da212e6636ec8b9656e3ae64215cd4"
+          "stamp_hash": "34ee12e66111a82f521eaabdba55fefce6f26706e9f117a0f4a74867b750d0e6"
         },
         "openapv": {
           "recipe": {
@@ -3115,7 +3292,7 @@
             "system": "cmake"
           },
           "resolved_commit": "a5312e4fa405057ff0be2c370283fabfe588c1f4",
-          "stamp_hash": "340af4860544ab0e2ce71221faa9fb223c09bfb329984186b68c753f58b15ebf"
+          "stamp_hash": "2563a86eef3fc4a58287daa94e4d324d801f9e5b344cf82861867652e2cdd051"
         },
         "opencl": {
           "recipe": {
@@ -3140,7 +3317,7 @@
             },
             "system": "cmake"
           },
-          "stamp_hash": "101785250ef3bad0328cc65edd20383de9b17ac65169b62606873249bcea4174"
+          "stamp_hash": null
         },
         "opencl-headers": {
           "recipe": {
@@ -3159,7 +3336,7 @@
             ],
             "system": "custom"
           },
-          "stamp_hash": "fa7bd875e884cd0b8fe774856f21883ccd67caef382e40c43f56cda7b540bed7"
+          "stamp_hash": null
         },
         "opengl": {
           "recipe": {
@@ -3221,7 +3398,7 @@
             }
           },
           "resolved_commit": "a7e992847de83aa36be0c399c89db3fb827b0be2",
-          "stamp_hash": "6e8a72075993d9488d07cd07d131c4ace3ac73bbe6b98e02c9daf0c0b0f5f441"
+          "stamp_hash": "ebb1021abc85c4830c75d413afd25c6c6ebef23304228e0411d234b1fdb6267f"
         },
         "pixman": {
           "recipe": {
@@ -3264,7 +3441,7 @@
             },
             "system": "cmake"
           },
-          "stamp_hash": "72dc39a99141b267085db96ebe04101f55ffdb0cd55790ca4cda2fa8cfa07e7b"
+          "stamp_hash": "e3672fddeddcd5b302fe843342e05d9d62c1a30b993914beaf6ac524add163de"
         },
         "pulseaudio": {
           "recipe": {
@@ -3339,7 +3516,7 @@
             "system": "cmake"
           },
           "resolved_commit": "c98c4fbff6d8f3016a3ce6685bf8f43433c3efcc",
-          "stamp_hash": "c13dd7cd8f421be8cb2e2fde797f99318817f4ce98128b9f205612bf893fafa1"
+          "stamp_hash": "648bc0b1d5bbc897670b462ba8cac569959b4485c64cf1d29d3b8a3c299366cb"
         },
         "serd": {
           "recipe": {
@@ -3402,7 +3579,7 @@
             ],
             "system": "custom"
           },
-          "stamp_hash": "3e83c107910d961832345e98e4a9d5c82e2c0bed1e2436c8ed0c105432b67c32"
+          "stamp_hash": null
         },
         "sratom": {
           "recipe": {
@@ -3548,7 +3725,7 @@
               }
             }
           },
-          "stamp_hash": "5b7776cee1a9b4c620e5696993b6bc3015fb18564ef120b7de70c11b7eab8bb8"
+          "stamp_hash": "5131ad0d0d1c591676457ca95d56592c04c28a587a651a5415ee67d00bec48de"
         },
         "x264": {
           "recipe": {
@@ -3569,7 +3746,7 @@
             "system": "makefile"
           },
           "resolved_commit": "31e19f92f00c7003fa115047ce50978bc98c3a0d",
-          "stamp_hash": "2202dc8b7c9a32a29009e4eb9d2b24d69c64265f65736b5790257949dcd7e372"
+          "stamp_hash": "2ea8237e24643198573e3a8c49d77b30089388fcb7538467da95d1798eb41eb0"
         },
         "x265": {
           "recipe": {
@@ -3599,7 +3776,7 @@
             "system": "cmake"
           },
           "resolved_commit": "aa7f602f7592eddb9d87749be7466da005b556ee",
-          "stamp_hash": "f2ac48200c3b67b4e7086779c9051976dbeadecdba22b272996c8034bfeaf6f9"
+          "stamp_hash": "41fdc9643c28d036ee8c17ecd25a5b7717b0cb5977a0b8222ff879f9b1723c7d"
         },
         "xcb-proto": {
           "recipe": {
@@ -3618,7 +3795,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "17f328b7d4a597447ea33ee651c12abce06aacbcf5b90091ab6a67f2e5eb1ef0"
+          "stamp_hash": "8aae09a7f9f7e95fc47888e90a1b7d4d4f8ddbc72b9e2850baf6389063dc0689"
         },
         "zimg": {
           "recipe": {
@@ -3650,7 +3827,7 @@
               }
             }
           },
-          "stamp_hash": "d8a7de1b19c44ed3b9fcfd7ffacd2854b8fd10a029480543fd31e5c597c52d89"
+          "stamp_hash": "b32f2135b2b4cdd17d39010d7e91e98ccbd65118169059903e9a28899a4f4491"
         },
         "zix": {
           "recipe": {
@@ -3692,7 +3869,7 @@
             },
             "system": "cmake"
           },
-          "stamp_hash": "81e248260988661edcaed86b31f93eab5e649f5cf98e699638fd92a12366495d"
+          "stamp_hash": "4790a4f4c4c58bbfe1a56e34f8fdd063560beab6f27aca748ddad27e585f70f8"
         }
       }
     },
@@ -6641,7 +6818,17 @@
         "resolved_rev": "b1f564bda248dbe8ac37cb743966fdd7ee4b490c",
         "url": "https://git.ffmpeg.org/ffmpeg.git"
       },
-      "last_built": [],
+      "last_built": [
+        "amf",
+        "ffnvcodec",
+        "libcdio",
+        "libcdio-paranoia",
+        "libzvbi",
+        "openal",
+        "opencl",
+        "pocketsphinx",
+        "sdl2"
+      ],
       "ports": {
         "amf": {
           "recipe": {
@@ -6684,7 +6871,28 @@
               }
             }
           },
-          "stamp_hash": "51ac0dd90a4bbd740256027f91e1f7c8e1ceb02907385dfbea410556e5f78e31"
+          "stamp_hash": "b0152c2f04d2bac97ce4e42b44d5ce21e0d7b1d2cd7e9874cde83c10052869bb"
+        },
+        "brotli": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_SHARED_LIBS=ON"
+            ],
+            "match_names": [
+              "brotli",
+              "libbrotlidec",
+              "libbrotlienc",
+              "libbrotlicommon"
+            ],
+            "pc": "libbrotlidec",
+            "source": {
+              "sha256": "e720a6ca29428b803f4ad165371771f5398faba397edf6778837a18599ea13ff",
+              "type": "tar",
+              "url": "https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz"
+            },
+            "system": "cmake"
+          },
+          "stamp_hash": "5272b5fd39af2dab2a022cbe42c661982cbe15e27a256ab64ae3bca31b4ea4b5"
         },
         "cairo": {
           "recipe": {
@@ -6922,6 +7130,26 @@
           },
           "stamp_hash": "5326e88afc681f73425288d32a88e1c1c7eed458260c5caddc15fec3a780210a"
         },
+        "glib": {
+          "recipe": {
+            "fixups": [
+              "glib_pc"
+            ],
+            "match_names": [
+              "glib-2.0",
+              "glib"
+            ],
+            "pc": "glib-2.0",
+            "pcs": [
+              "glib-2.0"
+            ],
+            "platforms": [
+              "linux"
+            ],
+            "system": "system-pc"
+          },
+          "stamp_hash": null
+        },
         "gmp": {
           "recipe": {
             "configure_args": [
@@ -6994,6 +7222,9 @@
               "lensfun",
               "liblensfun"
             ],
+            "needs": [
+              "glib"
+            ],
             "pc": "lensfun",
             "pc_libs": [
               "-llensfun",
@@ -7022,7 +7253,8 @@
               "-DSW_BUILD=OFF"
             ],
             "fixups": [
-              "lept_pc"
+              "lept_pc",
+              "leptonica_config"
             ],
             "match_names": [
               "leptonica",
@@ -7064,7 +7296,7 @@
               }
             }
           },
-          "stamp_hash": "33b44bade8c7050c847c348ce4d8ec3b0c63cac20d7d403f994c2646a447afaf"
+          "stamp_hash": "263665917938b8f18a807dce6afe2cf4c68226d70bf38916f3ee93c40ad5d1cd"
         },
         "libaom": {
           "recipe": {
@@ -7152,7 +7384,7 @@
               "libfribidi",
               "libharfbuzz"
             ],
-            "pc": "ass",
+            "pc": "libass",
             "source": {
               "rev": "0.17.3",
               "type": "git",
@@ -7161,7 +7393,7 @@
             "system": "meson"
           },
           "resolved_commit": "e46aedea0a0d17da4c4ef49d84b94a7994664ab5",
-          "stamp_hash": "a24580bd606e50a16cd9d688089c075a5fa5906ebd896ef83e940741d54e945f"
+          "stamp_hash": "d1caa23bec98f7fcbb454293facaa3df7b88e9d7383763a383b75c31f40a5d04"
         },
         "libavc1394": {
           "recipe": {
@@ -7326,7 +7558,8 @@
             ],
             "match_names": [
               "libcdio_paranoia",
-              "libcdio-paranoia"
+              "libcdio-paranoia",
+              "cdparanoia"
             ],
             "needs": [
               "libcdio"
@@ -7346,7 +7579,7 @@
               }
             }
           },
-          "stamp_hash": "0ead38fbfb18054bc746d7d26e8b2f925c15caa7ec7683a7174c02e445dea7cf"
+          "stamp_hash": "96d117e6ed8d283b82ed2eaa7c4c43415093005634bb8dc085a7f0cee4fd6fbb"
         },
         "libcodec2": {
           "recipe": {
@@ -7421,6 +7654,29 @@
             "system": "makefile"
           },
           "stamp_hash": null
+        },
+        "libdeflate": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_SHARED_LIBS=ON",
+              "-DLIBDEFLATE_BUILD_TESTS=OFF"
+            ],
+            "match_names": [
+              "libdeflate"
+            ],
+            "pc": "libdeflate",
+            "platforms": [
+              "linux"
+            ],
+            "source": {
+              "rev": "v1.23",
+              "type": "git",
+              "url": "https://github.com/ebiggers/libdeflate.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "78051988f96dc8d8916310d8b24021f01bd9e102",
+          "stamp_hash": "cab8ebc5e2cda35047151b9e3e610b577868aa967bf800163da00c30f0ce8ffd"
         },
         "libdrm": {
           "recipe": {
@@ -7498,6 +7754,11 @@
               "freetype2",
               "libfreetype"
             ],
+            "needs": [
+              "zlib",
+              "libpng",
+              "brotli"
+            ],
             "pc": "freetype2",
             "source": {
               "rev": "VER-2-13-2",
@@ -7507,7 +7768,7 @@
             "system": "cmake"
           },
           "resolved_commit": "920c5502cc3ddda88f6c7d85ee834ac611bb11cc",
-          "stamp_hash": "1b6b9b5535e356f1285b442f0398c2b636ab15ec5afe05acb0b2d85a34288b0a"
+          "stamp_hash": "98cf54a32d3d28b2e54921d41b9c002050da5893d380484b683c0a1d143f3643"
         },
         "libfribidi": {
           "recipe": {
@@ -7693,7 +7954,7 @@
               "url": "https://github.com/jackaudio/jack2/archive/refs/tags/v1.9.22.tar.gz"
             },
             "steps": [
-              "sed -i \"s/latin-1/utf-8/g\" {src}/waflib/*.py && cd {src} && python3 waf configure --prefix={prefix} --autostart=none && python3 waf build -j{jobs} && python3 waf install"
+              "sed -i \"s/latin-1/utf-8/g\" {src}/waflib/*.py && sed -i -e \"s/^import os, re, imp, sys/import os, re, sys, types/\" -e \"s/imp\\\\.new_module/types.ModuleType/\" {src}/waflib/Context.py && cd {src} && python3 waf configure --prefix={prefix} --autostart=none && python3 waf build -j{jobs} && python3 waf install"
             ],
             "system": "custom"
           },
@@ -7788,7 +8049,7 @@
             }
           },
           "resolved_commit": "d2bec177f68fe807a8c12d3b8d18ee8208bbdc32",
-          "stamp_hash": "9bcf40a1c0fe63562298b95a35625aba9be03e49b74b44a29bd6027cc9d20179"
+          "stamp_hash": "e083ddff56d2f98128a8f0abd7586ceec390101ccc11551b0e57c20888e6ee94"
         },
         "libkvazaar": {
           "recipe": {
@@ -7817,7 +8078,7 @@
               "lc3"
             ],
             "meson_args": [],
-            "pc": "liblc3",
+            "pc": "lc3",
             "source": {
               "sha256": "b65e38943708529efd04a87dd1a9f16a9856ed6199d082b18e7d42fb5c59486e",
               "type": "tar",
@@ -7825,7 +8086,7 @@
             },
             "system": "meson"
           },
-          "stamp_hash": "9c6961c3b4e9f08aba7ea7afec28132bae921fe372d1df947e0787d35a2f6852"
+          "stamp_hash": "d6fc6fa58f1c1aac8753bb6d53d39657e965114998d7182fb7704841132473cd"
         },
         "liblcevc_dec": {
           "recipe": {
@@ -7861,6 +8122,28 @@
           },
           "stamp_hash": "a5e278897cb55a59efd5167291c1f32c9d0789f9350deeb848fbd086c5713561"
         },
+        "liblerc": {
+          "recipe": {
+            "cmake_args": [
+              "-DBUILD_SHARED_LIBS=ON"
+            ],
+            "match_names": [
+              "Lerc"
+            ],
+            "pc": "Lerc",
+            "platforms": [
+              "linux"
+            ],
+            "source": {
+              "rev": "v4.0.0",
+              "type": "git",
+              "url": "https://github.com/Esri/lerc.git"
+            },
+            "system": "cmake"
+          },
+          "resolved_commit": "fbeb481120b79d05163f8544c645e9975920526f",
+          "stamp_hash": "bd0310e5cc91c455b9b9cb6fd9ce87c4ed5c8d731998c9fb3eca4e4c36f00140"
+        },
         "libmodplug": {
           "recipe": {
             "configure_args": [],
@@ -7891,6 +8174,9 @@
             "configure_args": [
               "--disable-frontend"
             ],
+            "fixups": [
+              "mp3lame_pc"
+            ],
             "make_args": [
               "LDFLAGS=-no-undefined"
             ],
@@ -7906,7 +8192,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "5371461f8f6e38315d959e03f778a3086cbf46ee9b5b644ad025921631eb4074"
+          "stamp_hash": "22a30474c0e0ba3e61ad542a238c9fb432f174d3a9176722e300782d62817b62"
         },
         "libmysofa": {
           "recipe": {
@@ -8124,13 +8410,14 @@
                   "cp -a {src}/runtime/include/* {prefix}/include/",
                   "cp -a {src}/runtime/lib/intel64/Release/*.lib {prefix}/lib/",
                   "cp -a {src}/runtime/bin/intel64/Release/* {prefix}/bin/",
+                  "cp -a {src}/runtime/3rdparty/tbb/bin/* {prefix}/bin/ 2>/dev/null || true",
                   "cp -a {src}/runtime/bin/intel64/Release/openvino_c.dll {prefix}/lib/",
                   "printf 'prefix=%s\\nlibdir=%s\\n\\nName: openvino\\nDescription: OpenVINO toolkit\\nVersion: 2024.6\\nLibs: -L%s/lib -lopenvino_c\\nCflags: -I%s/include\\n' \"{prefix}\" \"{prefix}\" \"{prefix}\" > {prefix}/lib/pkgconfig/openvino.pc"
                 ]
               }
             }
           },
-          "stamp_hash": "b1a7a0c4efb4408cbfadf2033576a2810b6cf94da1424a144f4183124d431fb7"
+          "stamp_hash": "99ea0c1fc897475d2c0f711d665b4810321157a54854da78dae97337e4ff6adf"
         },
         "libopus": {
           "recipe": {
@@ -8490,6 +8777,9 @@
               "-DSNAPPY_BUILD_BENCHMARKS=OFF",
               "-DBUILD_SHARED_LIBS=ON"
             ],
+            "fixups": [
+              "simple_pc"
+            ],
             "match_names": [
               "libsnappy",
               "snappy"
@@ -8503,7 +8793,7 @@
             "system": "cmake"
           },
           "resolved_commit": "2c94e11145f0b7b184b831577c93e5a41c4c0346",
-          "stamp_hash": "144af380cf723382e9741ccc2827ff91cc189ea0ee19eab6076f6dd1476538ea"
+          "stamp_hash": "cf1370c7b9a1b3046f002a6ff1495e6a77e71a97652cd5f1d0a45cfc63ae0077"
         },
         "libsndfile": {
           "recipe": {
@@ -8533,6 +8823,9 @@
             "cmake_args": [
               "-DBUILD_TESTS=OFF"
             ],
+            "fixups": [
+              "simple_pc"
+            ],
             "match_names": [
               "libsoxr",
               "soxr"
@@ -8546,7 +8839,7 @@
             "system": "cmake"
           },
           "resolved_commit": "945b592b70470e29f917f4de89b4281fbbd540c0",
-          "stamp_hash": "672aec9fd65d3fae1f9317fc706a9127da54ffabad6ea45363d235dcafeb4012"
+          "stamp_hash": "6b548b1dade1b8d73f31fcf2d3e7021b7a79d552a0254d00c3b04200268d38ae"
         },
         "libspeex": {
           "recipe": {
@@ -8787,7 +9080,9 @@
             ],
             "needs": [
               "zlib",
-              "libjpeg-turbo"
+              "libjpeg-turbo",
+              "libdeflate",
+              "liblerc"
             ],
             "pc": "libtiff-4",
             "source": {
@@ -8797,7 +9092,7 @@
             },
             "system": "makefile"
           },
-          "stamp_hash": "845cde42dfdae66fb28e0570303f4ebdd0ee5032009bda24772a73f7656e69e9"
+          "stamp_hash": "27d6a31d6693479fe3c7f1bd1f073b4337602acae2b2b5de62d1274e044106ad"
         },
         "libtwolame": {
           "recipe": {
@@ -8946,7 +9241,7 @@
               "-Denable_tests=false",
               "-Denable_docs=false"
             ],
-            "pc": "vmaf",
+            "pc": "libvmaf",
             "source": {
               "rev": "v3.0.0",
               "type": "git",
@@ -8956,7 +9251,7 @@
             "system": "meson"
           },
           "resolved_commit": "17a67b238ce0539bdeafdc95961abac64fa16ea8",
-          "stamp_hash": "2099f3b1033c829820e81ffce3d708d85d3eb6cc03d7cdd353de7d9423e97b6f"
+          "stamp_hash": "22632c4ba1958f75a8a7d8fb207d7542c09b2c09bdb6a12343a01cbd0beddc58"
         },
         "libvo-amrwbenc": {
           "recipe": {
@@ -9107,6 +9402,23 @@
           "resolved_commit": "845d5476a866141ba35ac133f856fa62f0b7445f",
           "stamp_hash": "4be9d5c019d3d2475240c7b17843a6ddd9b83ccd2e853c07f2d562ed55649a74"
         },
+        "libxau": {
+          "recipe": {
+            "match_names": [
+              "xau"
+            ],
+            "pc": "xau",
+            "pcs": [
+              "xau",
+              "xproto"
+            ],
+            "platforms": [
+              "linux"
+            ],
+            "system": "system-pc"
+          },
+          "stamp_hash": null
+        },
         "libxavs2": {
           "recipe": {
             "match_names": [
@@ -9121,19 +9433,19 @@
               "url": "https://github.com/pkuvcl/xavs2.git"
             },
             "steps": [
-              "cd {src}/build/linux && AS=/usr/bin/nasm ./configure --prefix={prefix} --extra-cflags=-fPIC --extra-asflags=-DPIC && make -j{jobs} && make install"
+              "cd {src}/build/linux && AS={tools}/bin/nasm ./configure --prefix={prefix} --extra-cflags=-fPIC --extra-asflags=-DPIC && make -j{jobs} && make install"
             ],
             "system": "custom",
             "triplet_overrides": {
               "mingw-x86_64-llvm": {
                 "steps": [
-                  "cd {src}/build/linux && AS=/usr/bin/nasm CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ ./configure --host=x86_64-w64-mingw32 --prefix={prefix} --extra-cflags=\"-fPIC -Wno-error=incompatible-function-pointer-types\" && make -j{jobs} && make install"
+                  "cd {src}/build/linux && AS={tools}/bin/nasm CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ ./configure --host=x86_64-w64-mingw32 --prefix={prefix} --extra-cflags=\"-fPIC -Wno-error=incompatible-function-pointer-types\" && make -j{jobs} && make install"
                 ]
               }
             }
           },
           "resolved_commit": "eae1e8b9d12468059bdd7dee893508e470fa83d8",
-          "stamp_hash": "d1c60317e4a72c79c536ea6ff870a446176460a1a6a864ca2a397469433f73bd"
+          "stamp_hash": "a9dcbd67fc6542c3d39f1bf813d24b135553af522c1afe8d099479c29974c972"
         },
         "libxcb": {
           "recipe": {
@@ -9149,7 +9461,9 @@
               "libxcb_xfixes"
             ],
             "needs": [
-              "xcb-proto"
+              "xcb-proto",
+              "libxau",
+              "libxdmcp"
             ],
             "pc": "xcb",
             "source": {
@@ -9159,6 +9473,22 @@
             },
             "strict_pkgconfig": false,
             "system": "makefile"
+          },
+          "stamp_hash": null
+        },
+        "libxdmcp": {
+          "recipe": {
+            "match_names": [
+              "xdmcp"
+            ],
+            "pc": "xdmcp",
+            "pcs": [
+              "xdmcp"
+            ],
+            "platforms": [
+              "linux"
+            ],
+            "system": "system-pc"
           },
           "stamp_hash": null
         },
@@ -9302,7 +9632,7 @@
         },
         "libzvbi": {
           "recipe": {
-            "autogen": "AUTOPOINT=true autoreconf -fi",
+            "autogen": "ACLOCAL_PATH=/usr/share/aclocal AUTOPOINT=true autoreconf -fi",
             "configure_args": [
               "--disable-nls"
             ],
@@ -9344,7 +9674,7 @@
               }
             }
           },
-          "stamp_hash": "dae40b150d2799d5c973c7f9ef6553cbc462325778f9a6930aa188e0382a080a"
+          "stamp_hash": "581deaecf770aadba507be2a32bd7e44f3a0035fefb22c07cec506e369478bbe"
         },
         "lilv": {
           "recipe": {
