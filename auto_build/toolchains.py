@@ -44,19 +44,33 @@ def _sha256(path):
     return h.hexdigest()
 
 
-def _curl(url, dst):
+def _curl(url, dst, workdir):
     """Download with the engine's network policy: direct first, one retry
-    through the fallback proxy (same as runners' _run_net)."""
+    through the fallback proxy (same as runners' _run_net). Output lands in
+    a log file whose tail is printed on failure."""
+    log = os.path.join(workdir, "toolchain_download.log")
     cmd = ["curl", "-fL", "--retry", "3", "-o", dst, url]
-    if subprocess.run(cmd).returncode != 0:
+
+    def _attempt(env_extra=None):
+        env = dict(os.environ)
+        if env_extra:
+            env.update(env_extra)
+        with open(log, "w") as f:
+            return subprocess.run(cmd, stdout=f,
+                                  stderr=subprocess.STDOUT,
+                                  env=env).returncode
+
+    rc = _attempt()
+    if rc != 0:
         proxy = os.environ.get("FFMAKE_PROXY") or FALLBACK_PROXY
         print("toolchain download failed; retrying via proxy {}".format(
             proxy))
-        env = dict(os.environ)
-        env["https_proxy"] = proxy
-        env["http_proxy"] = proxy
-        if subprocess.run(cmd, env=env).returncode != 0:
-            raise BuildError("toolchain download failed: {}".format(url))
+        rc = _attempt({"https_proxy": proxy, "http_proxy": proxy})
+    if rc != 0:
+        from .runners.base import _log_tail
+        print("toolchain download failed (exit {})\n{}".format(
+            rc, _log_tail(log)))
+        raise BuildError("toolchain download failed: {}".format(url))
 
 
 def ensure(root, triplet_cfg):
@@ -88,7 +102,8 @@ def ensure(root, triplet_cfg):
     dist = os.path.join(paths.distfiles(root), os.path.basename(entry["url"]))
     if not os.path.exists(dist):
         print("toolchain {}: fetching {}".format(name, entry["url"]))
-        _curl(entry["url"], dist)
+        _curl(entry["url"], dist,
+              os.path.join(paths.build(root), "tools"))
     digest = _sha256(dist)
     if digest != entry["sha256"]:
         raise BuildError(

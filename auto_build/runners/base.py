@@ -37,6 +37,22 @@ class BuildError(Exception):
     pass
 
 
+def _log_tail(path, lines=40, window=16384):
+    """Last `lines` of a build log, read from a bounded tail window so
+    multi-MB logs stay cheap. Prefixed for visual separation in stdout."""
+    try:
+        with open(path, "r", errors="ignore") as f:
+            f.seek(0, os.SEEK_END)
+            size = f.tell()
+            f.seek(max(0, size - window))
+            chunk = f.read()
+        body = "\n".join("    | " + l
+                         for l in chunk.splitlines()[-lines:])
+        return "    (log tail: {})\n{}".format(path, body)
+    except OSError:
+        return "    (log unavailable: {})".format(path)
+
+
 class Runner(object):
     system = "base"
 
@@ -72,10 +88,19 @@ class Runner(object):
             pcdir=self.ctx.get("pcdir"), extra=extra)
 
     def run(self, cmd, cwd, log_path, env=None):
+        log_dir = os.path.dirname(log_path)
+        if log_dir:
+            os.makedirs(log_dir, exist_ok=True)
         with open(log_path, "w") as f:
             rc = subprocess.run(cmd, cwd=cwd, env=env or self.env(),
                                 stdout=f, stderr=subprocess.STDOUT).returncode
         if rc != 0:
+            # Surface the failure inline: CI run pages only show stdout,
+            # while the detail sits in a log file inside an ephemeral job
+            # container. Tail the log into the stream so the error is
+            # diagnosable from the run page alone.
+            print("{} failed in {} (exit {})".format(cmd[0], cwd, rc))
+            print(_log_tail(log_path))
             raise BuildError("{} failed in {} (see {})".format(
                 cmd[0], cwd, log_path))
 
