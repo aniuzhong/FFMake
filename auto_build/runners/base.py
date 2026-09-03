@@ -122,13 +122,17 @@ class Runner(object):
             return None
         return os.path.join(self.ctx["tools_prefix"], sub)
 
-    def env(self, strict=True, extra=None):
+    def env(self, strict=True, extra=None, cross=True):
         # PKG_CONFIG traffic goes through the ASCII alias pcdir so that
-        # meson/cmake consumers never see non-ASCII sysroot paths
+        # meson/cmake consumers never see non-ASCII sysroot paths.
+        # cross=False is for host tools (dep["tool"]): their binaries run
+        # on the build machine, so the cross toolchain must stay out of
+        # PATH — a cross cc earlier than /usr/bin would turn a host tool
+        # into a target binary (the nasm.exe lesson).
         return env_mod.build_child_env(
             self.ctx["prefix"], strict_pkgconfig=strict,
             tools_bin=os.path.join(self.ctx["tools_prefix"], "bin"),
-            cross_bin=self.cross_bin(),
+            cross_bin=self.cross_bin() if cross else None,
             pcdir=self.ctx.get("pcdir"), extra=extra)
 
     def run(self, cmd, cwd, log_path, env=None):
@@ -405,6 +409,9 @@ class Runner(object):
         """
         cp = self.ctx["triplet_cfg"]["cross_prefix"]
         if not cp:
+            return []
+        # host tools always build natively, whatever the triplet says
+        if dep is not None and dep.get("tool"):
             return []
         if dep is not None and dep.get("no_cross_args"):
             return []

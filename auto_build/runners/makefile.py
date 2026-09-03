@@ -23,6 +23,10 @@ class MakefileRunner(Runner):
             return
         prefix = self.install_prefix(dep)
         src, bdir, logs = self.prepare(key, dep)
+        # Host tools (dep["tool"]) build natively: their artifacts run on
+        # the build machine, whatever cross toolchain the triplet declares
+        # (cross nasm.exe lesson: a target-binary assembler can't run).
+        _is_tool = bool(dep.get("tool"))
         if dep.get("prefixup"):
             # pre-build source repair (e.g. strip unbuildable tool programs
             # from Makefile.in before configure consumes it)
@@ -40,7 +44,7 @@ class MakefileRunner(Runner):
             self.run(["bash", "-c",
                       self._subst(dep["autogen"], src, bdir, prefix)],
                      src, os.path.join(logs, "autogen.log"),
-                     env=self.env(extra=extra))
+                     env=self.env(extra=extra, cross=not _is_tool))
         # joined --prefix=... form: required by FFmpeg, safest everywhere;
         # configure_name covers OpenSSL-style "Configure" spellings.
         # strict_pkgconfig:false opts a port into system .pc visibility
@@ -62,7 +66,7 @@ class MakefileRunner(Runner):
         # triplet's cc_suffix (posix threads) rides along via CC/CXX --
         # --host alone would resolve to the default (win32) variant.
         extra = None
-        if self.ctx["triplet_cfg"]["cross_prefix"]:
+        if self.ctx["triplet_cfg"]["cross_prefix"] and not _is_tool:
             alias_inc = paths.sysroot_alias(
                 self.ctx["root"], self.ctx["triplet"]) + "/include"
             alias_lib = paths.sysroot_alias(
@@ -98,7 +102,7 @@ class MakefileRunner(Runner):
         # cross links must see the target sysroot: make_args LDFLAGS= vars
         # replace env LDFLAGS entirely, so re-add -L (and the triplet's
         # cross_ldflags, e.g. compiler-rt builtins for llvm-mingw) here.
-        if self.ctx["triplet_cfg"]["cross_prefix"]:
+        if self.ctx["triplet_cfg"]["cross_prefix"] and not _is_tool:
             alias_lib = paths.sysroot_alias(
                 self.ctx["root"], self.ctx["triplet"]) + "/lib"
         else:
@@ -116,10 +120,12 @@ class MakefileRunner(Runner):
             make_args.append(a.format(**subst))
         self.run(["make", "-j", str(self.ctx["jobs"])] + make_args, bdir,
                  os.path.join(logs, "make.log"),
-                 env=self.env(strict=strict, extra=extra))
+                 env=self.env(strict=strict, extra=extra,
+                              cross=not _is_tool))
         self.run(["make", dep.get("install_target", "install")] + make_args,
                  bdir, os.path.join(logs, "install.log"),
-                 env=self.env(strict=strict, extra=extra))
+                 env=self.env(strict=strict, extra=extra,
+                              cross=not _is_tool))
         self.write_stamp(key, dep)
         print("dep {}: built & installed -> {}".format(key, prefix))
 
