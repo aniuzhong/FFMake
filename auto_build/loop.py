@@ -136,9 +136,9 @@ def _read_flags(path):
 
 
 def _run_logged(cmd, cwd, env, log_path):
-    with open(log_path, "w") as f:
-        return subprocess.run(cmd, cwd=cwd, env=env, stdout=f,
-                              stderr=subprocess.STDOUT).returncode
+    from .runners.base import run_with_heartbeat
+    return run_with_heartbeat(cmd, cwd, log_path, env=env,
+                              label=os.path.basename(cmd[0]))
 
 
 def _ensure_dep(ctx, deps, key, _stack=()):
@@ -158,6 +158,8 @@ def _ensure_dep(ctx, deps, key, _stack=()):
     for need in dep.get("needs", []):
         _ensure_dep(ctx, deps, need, _stack + (key,))
     runner = get_runner(dep.get("system", "makefile"), ctx)
+    print("port {}: building (system {})".format(
+        key, dep.get("system", "makefile")), flush=True)
     runner.build(key, dep)
     fixups.apply(ctx, key, dep)
     validate.validate_dep(ctx, key, dep)

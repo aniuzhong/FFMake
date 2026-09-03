@@ -21,6 +21,8 @@ import os
 import shutil
 import subprocess
 import tarfile
+import threading
+import time
 import urllib.parse
 
 from .. import env as env_mod
@@ -50,6 +52,33 @@ def _proxy_reachable(proxy_url, timeout=1.5):
             return True
     except OSError:
         return False
+
+
+def run_with_heartbeat(cmd, cwd, log_path, env=None, label=None,
+                       interval=None):
+    """Run with stdout/stderr redirected into log_path. A daemon thread
+    prints a heartbeat line every interval so CI pages show liveness
+    during long compiles (stdout is the only thing CI streams)."""
+    if interval is None:
+        interval = int(os.environ.get("FFMAKE_HEARTBEAT_SECS", "120"))
+    log_dir = os.path.dirname(log_path)
+    if log_dir:
+        os.makedirs(log_dir, exist_ok=True)
+    label = label or cmd[0]
+    with open(log_path, "w") as f:
+        proc = subprocess.Popen(cmd, cwd=cwd, env=env,
+                                stdout=f, stderr=subprocess.STDOUT)
+        start = time.monotonic()
+
+        def _beat():
+            while proc.poll() is None:
+                time.sleep(interval)
+                if proc.poll() is None:
+                    print("{}: still running ({}s elapsed)".format(
+                        label, int(time.monotonic() - start)), flush=True)
+
+        threading.Thread(target=_beat, daemon=True).start()
+        return proc.wait()
 
 
 def _log_tail(path, lines=40, window=16384):
@@ -106,9 +135,7 @@ class Runner(object):
         log_dir = os.path.dirname(log_path)
         if log_dir:
             os.makedirs(log_dir, exist_ok=True)
-        with open(log_path, "w") as f:
-            rc = subprocess.run(cmd, cwd=cwd, env=env or self.env(),
-                                stdout=f, stderr=subprocess.STDOUT).returncode
+        rc = run_with_heartbeat(cmd, cwd, log_path, env)
         if rc != 0:
             # Surface the failure inline: CI run pages only show stdout,
             # while the detail sits in a log file inside an ephemeral job

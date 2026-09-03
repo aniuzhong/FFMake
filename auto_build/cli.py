@@ -99,9 +99,10 @@ def cmd_build(args):
             ctx["root"], ctx["triplet"])),
         cross_bin=_cross_bin(ctx))
     with open(log, "w") as f:
-        rc = subprocess.run(["make", "-j", str(ctx["jobs"])], cwd=out,
-                            env=env, stdout=f, stderr=subprocess.STDOUT
-                            ).returncode
+        pass
+    from .runners.base import run_with_heartbeat
+    rc = run_with_heartbeat(["make", "-j", str(ctx["jobs"])], cwd=out,
+                            log_path=log, env=env, label="ffmpeg make")
     if rc != 0:
         _die("build failed (see {})".format(log))
     print("build: OK")
@@ -114,9 +115,9 @@ def cmd_install(args):
     env = env_mod.build_child_env(
         ctx["prefix"], tools_bin=os.path.join(ctx["tools_prefix"], "bin"),
         cross_bin=_cross_bin(ctx))
-    with open(log, "w") as f:
-        rc = subprocess.run(["make", "install"], cwd=out, env=env,
-                            stdout=f, stderr=subprocess.STDOUT).returncode
+    from .runners.base import run_with_heartbeat
+    rc = run_with_heartbeat(["make", "install"], cwd=out,
+                            log_path=log, env=env, label="ffmpeg install")
     if rc != 0:
         _die("install failed (see {})".format(log))
     _install_pe_runtime(ctx)
