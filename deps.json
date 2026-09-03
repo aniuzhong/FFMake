@@ -203,17 +203,6 @@
         "--disable-tools"
       ],
       "triplet_overrides": {
-        "mingw-x86_64": {
-          "no_cross_args": true,
-          "configure_args": [
-            "--enable-shared",
-            "--disable-unit-tests",
-            "--disable-docs",
-            "--disable-examples",
-            "--disable-tools",
-            "--target=x86_64-win64-gcc"
-          ]
-        },
         "mingw-x86_64-llvm": {
           "no_cross_args": true,
           "configure_args": [
@@ -355,11 +344,6 @@
         "cd {src}/build/generic && ./configure --prefix={prefix} && make -j{jobs} && make install"
       ],
       "triplet_overrides": {
-        "mingw-x86_64": {
-          "steps": [
-            "cd {src}/build/generic && CC=x86_64-w64-mingw32-gcc-posix ./configure --prefix={prefix} --host=x86_64-w64-mingw32 && make -j{jobs} && make install"
-          ]
-        },
         "mingw-x86_64-llvm": {
           "steps": [
             "cd {src}/build/generic && CC=x86_64-w64-mingw32-gcc ./configure --prefix={prefix} --host=x86_64-w64-mingw32 && make -j{jobs} && make install"
@@ -714,18 +698,6 @@
       ],
       "install_target": "install_sw",
       "triplet_overrides": {
-        "mingw-x86_64": {
-          "configure_args": [
-            "mingw64",
-            "shared",
-            "--libdir=lib",
-            "--cross-compile-prefix=x86_64-w64-mingw32-",
-            "CC=gcc-posix",
-            "CXX=g++-posix"
-          ],
-          "no_cross_args": true,
-          "install_target": "install_sw"
-        },
         "mingw-x86_64-llvm": {
           "configure_args": [
             "mingw64",
@@ -1039,16 +1011,6 @@
         "--disable-nls"
       ],
       "triplet_overrides": {
-        "mingw-x86_64": {
-          "needs": [
-            "libiconv"
-          ],
-          "configure_args": [
-            "--disable-nls",
-            "--disable-examples",
-            "--with-libiconv-prefix={prefix}"
-          ]
-        },
         "mingw-x86_64-llvm": {
           "needs": [
             "libiconv"
@@ -1073,7 +1035,6 @@
       "pc": "iconv",
       "system": "makefile",
       "platforms": [
-        "mingw-x86_64",
         "mingw-x86_64-llvm"
       ],
       "source": {
@@ -1708,15 +1669,6 @@
         "-DENABLE_DRAFTS=OFF"
       ],
       "triplet_overrides": {
-        "mingw-x86_64": {
-          "cmake_args": [
-            "-DBUILD_TESTS=OFF",
-            "-DBUILD_SHARED=ON",
-            "-DBUILD_STATIC=OFF",
-            "-DENABLE_DRAFTS=OFF",
-            "-DCMAKE_SYSTEM_VERSION=6.1"
-          ]
-        },
         "mingw-x86_64-llvm": {
           "cmake_args": [
             "-DBUILD_TESTS=OFF",
@@ -1944,15 +1896,6 @@
         "-DSW_BUILD=OFF"
       ],
       "triplet_overrides": {
-        "mingw-x86_64": {
-          "cmake_args": [
-            "-DCMAKE_PREFIX_PATH={prefix}",
-            "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
-            "-DBUILD_PROG=OFF",
-            "-DSW_BUILD=OFF",
-            "-DBUILD_SHARED_LIBS=ON"
-          ]
-        },
         "mingw-x86_64-llvm": {
           "cmake_args": [
             "-DCMAKE_PREFIX_PATH={prefix}",
@@ -1992,9 +1935,6 @@
         "-DCMAKE_PREFIX_PATH={prefix}"
       ],
       "triplet_overrides": {
-        "mingw-x86_64": {
-          "prefixup": "sed -i 's/set(LIB_Ws2_32 Ws2_32)/set(LIB_Ws2_32 ws2_32)/' {src}/CMakeLists.txt"
-        },
         "mingw-x86_64-llvm": {
           "prefixup": "sed -i 's/set(LIB_Ws2_32 Ws2_32)/set(LIB_Ws2_32 ws2_32)/' {src}/CMakeLists.txt"
         }
@@ -2017,20 +1957,7 @@
         "-DALSOFT_UTILS=OFF",
         "-DALSOFT_TESTS=OFF",
         "-DALSOFT_REQUIRE_ALSA=OFF"
-      ],
-      "triplet_overrides": {
-        "mingw-x86_64": {
-          "cmake_args": [
-            "-DALSOFT_EXAMPLES=OFF",
-            "-DALSOFT_UTILS=OFF",
-            "-DALSOFT_TESTS=OFF",
-            "-DALSOFT_REQUIRE_ALSA=OFF",
-            "-DALSOFT_BACKEND_WASAPI=OFF",
-            "-DALSOFT_BACKEND_DSOUND=ON",
-            "-DALSOFT_BACKEND_WINMM=ON"
-          ]
-        }
-      }
+      ]
     },
     "libraw1394": {
       "platforms": [
@@ -2569,12 +2496,7 @@
         "-DBUILD_SHARED_LIBS=ON",
         "-DWHISPER_BUILD_TESTS=OFF",
         "-DWHISPER_BUILD_EXAMPLES=OFF"
-      ],
-      "triplet_overrides": {
-        "mingw-x86_64": {
-          "prefixup": "sed -i 's/        #if _WIN32_WINNT >= 0x0602$/        #if 0 \\/\\/ mingw-w64 7.0 headers lack THREAD_POWER_THROTTLING_STATE/' {src}/ggml/src/ggml-cpu/ggml-cpu.c"
-        }
-      }
+      ]
     },
     "libilbc": {
       "match_names": [
@@ -2660,12 +2582,6 @@
         "make -C {src}/librtmp install prefix={prefix} CRYPTO= OPT=\"-O2 -I{prefix}/include\" XLDFLAGS=\"-L{prefix}/lib\""
       ],
       "triplet_overrides": {
-        "mingw-x86_64": {
-          "steps": [
-            "make -C {src}/librtmp -j{jobs} SYS=mingw CROSS_COMPILE=x86_64-w64-mingw32- CC=x86_64-w64-mingw32-gcc-posix CRYPTO= OPT=\"-O2 -I{prefix}/include\" XLDFLAGS=\"-L{prefix}/lib\"",
-            "make -C {src}/librtmp install prefix={prefix} SYS=mingw CROSS_COMPILE=x86_64-w64-mingw32- CC=x86_64-w64-mingw32-gcc-posix CRYPTO= OPT=\"-O2 -I{prefix}/include\" XLDFLAGS=\"-L{prefix}/lib\""
-          ]
-        },
         "mingw-x86_64-llvm": {
           "steps": [
             "make -C {src}/librtmp -j{jobs} SYS=mingw CROSS_COMPILE=x86_64-w64-mingw32- CC=x86_64-w64-mingw32-gcc CRYPTO= OPT=\"-O2 -I{prefix}/include\" XLDFLAGS=\"-L{prefix}/lib\"",

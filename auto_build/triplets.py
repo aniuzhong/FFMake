@@ -21,50 +21,7 @@ TRIPLETS = {
         "exe": "ffmpeg",
         "ffmpeg_flags": [],
     },
-    # mingw-w64 cross: PE binaries; x264 et al. install run DLLs into bin/
-    # and import libs into lib/, so both dirs are scanned.
-    # cmake_system_* / meson_system feed the runners' cross-file generators:
-    # a triplet is a declaration, the runner emits the correct plumbing
-    # (CMake toolchain file / Meson cross file) from this metadata.
-    # mingw-w64 cross via the distro gcc (FROZEN 2026-08-31, superseded by
-    # mingw-x86_64-llvm): kept for revival on newer hosts -- its overrides
-    # in deps.json and the flags file stay valid. The engine refuses to run
-    # frozen triplets unless FFMAKE_ALLOW_FROZEN=1 is set. Reasons: binutils
-    # 2.34 cannot link static deps (.refptr), mingw-w64 7.0 header ceiling,
-    # and pe_runtime paths hardcode this host's gcc layout (lesson #106).
-    "mingw-x86_64": {
-        "frozen": "2026-08-31",
-        "cross_prefix": "x86_64-w64-mingw32-",
-        # posix-thread compiler variant: std::mutex/std::thread in C++
-        # ports need the posix model (win32 model lacks libstdc++ threads)
-        "cc_suffix": "-posix",
-        "target_os": "mingw32",
-        "shlib_dirs": ["lib", "bin"],
-        "shlib_glob": "*.dll",
-        "exe": "ffmpeg.exe",
-        "cmake_system_name": "Windows",
-        "cmake_system_processor": "AMD64",
-        # try_run() support: cross cmake ports run their test binaries via
-        # this emulator (wine). Without it cmake 3.25 crashes (bad_alloc)
-        # when a try_run build is configured in cross mode.
-        "cmake_emulator": "wine",
-        # gcc 9.3-posix runtime DLLs (see pe_runtime docs on the llvm
-        # triplet; libgomp covers -fopenmp ports like whisper's ggml)
-        "pe_runtime": [
-            ["libwinpthread-1.dll", "/usr/x86_64-w64-mingw32/lib"],
-            ["libgcc_s_seh-1.dll", "/usr/lib/gcc/x86_64-w64-mingw32/9.3-posix"],
-            ["libstdc++-6.dll", "/usr/lib/gcc/x86_64-w64-mingw32/9.3-posix"],
-            ["libgomp-1.dll", "/usr/lib/gcc/x86_64-w64-mingw32/9.3-posix"],
-        ],
-        "meson_system": "windows",
-        "meson_cpu_family": "x86_64",
-        "ffmpeg_flags": [
-            "--enable-cross-compile",
-            "--target-os=mingw32",
-            "--cross-prefix=x86_64-w64-mingw32-",
-            "--arch=x86_64",
-        ],
-    },
+
     # mingw-w64 cross on the llvm-mingw toolchain (clang/lld, modern
     # mingw-w64 headers). Same target as mingw-x86_64; the toolchain is
     # selected purely by PATH precedence: cross_bin (a subdir of the
