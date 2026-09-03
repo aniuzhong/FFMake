@@ -285,12 +285,19 @@ class Runner(object):
                 "https_proxy": proxy, "http_proxy": proxy})
             self.run(cmd, cwd, log_path, env=env)
 
+    # git circuit breaker: without a low-speed timeout a stalled transfer
+    # (googlesource/skia direct-connect lesson) hangs forever and never
+    # trips _run_net's proxy fallback, which only fires on failure.
+    GIT_SLOW = ["-c", "http.lowSpeedLimit=1000", "-c",
+                "http.lowSpeedTime=30"]
+
     def fetch_to(self, dst, source, key):
         """Clone/download `source` into dst. No stamp logic here; callers
         that need stamps wrap this via prepare(). dst must not exist."""
         stype = source.get("type")
         if stype == "git":
-            self._run_net(["git", "clone", source["url"], dst],
+            self._run_net(["git"] + self.GIT_SLOW
+                          + ["clone", source["url"], dst],
                           self.ctx["root"],
                           os.path.join(self.ctx["logs"], key + "_clone.log"))
             rev = source.get("rev")
@@ -303,8 +310,9 @@ class Runner(object):
                          env=self.env(strict=False))
             if source.get("submodules"):
                 # e.g. libjxl third_party; shallow to keep it fast
-                self.run(["git", "-C", dst, "submodule", "update",
-                          "--init", "--depth", "1", "--recursive"],
+                self.run(["git", "-C", dst] + self.GIT_SLOW
+                         + ["submodule", "update",
+                            "--init", "--depth", "1", "--recursive"],
                          self.ctx["root"],
                          os.path.join(self.ctx["logs"],
                                       key + "_submodules.log"),

@@ -9,7 +9,7 @@
   port       vcpkg-style dependency management: install <key>..., list.
 
 Non-lifecycle: probe (L0 diagnostics), init (optional workspace bootstrap).
-Triplets: linux-x86_64 (native), mingw-x86_64 (cross, wine-tested).
+Triplets: linux-x86_64 (native), mingw-x86_64-llvm (cross).
 """
 
 import argparse
@@ -44,12 +44,6 @@ def _ctx(args):
     # host toolchains (llvm-mingw ...) provision on demand, pinned by
     # toolchains.json — before any verb touches the triplet
     toolchains.ensure(root, triplet_cfg)
-    frozen = triplet_cfg.get("frozen")
-    if frozen and not os.environ.get("FFMAKE_ALLOW_FROZEN"):
-        _die("triplet '{}' is frozen since {} (superseded; see triplets.py "
-             "and lessons #106/#109)\n"
-             "revive deliberately with: FFMAKE_ALLOW_FROZEN=1".format(
-                 args.triplet, frozen))
     src = args.ffmpeg_src or os.environ.get("FFMAKE_FFMPEG_SRC")
     if src:
         # explicit source must exist; otherwise loop resolves lazily:

@@ -31,7 +31,7 @@
         "sha256": "1c511d09516af493694ed9baf13c55947a36389674d657a2d5e0ccedc6b291d8"
       },
       "steps": [
-        "cd {src} && ./configure --prefix={tools} --parallel={jobs}",
+        "cd {src} && ./configure --prefix={tools} --parallel={jobs} -- -DCMAKE_USE_OPENSSL=OFF",
         "cd {src} && make -j{jobs}",
         "cd {src} && make install"
       ]
