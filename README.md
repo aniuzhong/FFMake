@@ -5,24 +5,23 @@
 # FFMake
 
 > A reproducible exhaustive build system for FFmpeg.
-> By default, it targets Kylin V10 x86_64, which I am currently using; This branch may be archived as my personal working environment changes.
-> The CI also includes an Ubuntu latest image for releases.
+> Targets Kylin V10 x86_64 by default; the build environment may adapts to my own workstation.
+> Suggested workflow: build with the FFMake engine on a local high-performance Debian-based machine;
+> per-machine environment drift can be resolved with agent assistance.
+> GitHub-hosted builds are disabled due to cost.
 
 # Do's and Don'ts
 
 ## Host
 
-- The build host is **Linux x86_64 Debian-based** only.
-    - Main branch tracks **Kylin V10**.
-    - CI release validation uses **Ubuntu Latest** image.
+- Linux x86_64 Debian-based only; currently **Kylin V10**
 - Other Linux distributions are not considered for now.
-- Building on Windows are not considered.
+- Building on Windows is not considered.
 
 ## Toolchain
 
 - Native Linux uses **GCC**.
-- Windows cross‑compilation uses **MinGW LLVM**.
-- **MinGW GCC** is frozen and not used for now.
+- Windows cross-compilation uses **MinGW LLVM**.
 - Native Windows **MSVC** is not supported.
 
 ## Target

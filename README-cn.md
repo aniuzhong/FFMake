@@ -5,27 +5,25 @@
 # FFMake
 
 > 可复现的 FFmpeg 穷举式构建系统。
-> 默认构建适配我正在使用的 Kylin V10 x86_64，该分支可能会随个人工作环境变更而归档；
-> CI 中另含 Ubuntu latest 镜像作为发布。
+> 默认适配 Kylin V10 x86_64，构建环境可能会根据我的个人工作机调整。
+> 建议开发者使用 FFMake 引擎在本地高性能 Debian 系机器上进行构建；各机器间的环境差异可由 Agent 辅助消解。
+> GitHub 托管构建由于成本原因暂不启用。
 
-# Do's and Don'ts (什么做而什么不做) 
+# 什么做而什么不做
 
-## 宿主 (Host)
+## 宿主
 
-- 构建宿主机只用 **Linux x86_64 Debian 系**
-    - 主分支跟 **Kylin V10**
-    - CI 发布校验用 **Ubuntu Latest** 镜像
+- 构建宿主机只用 **Linux x86_64 Debian 系**，目前为 **Kylin V10**
 - 暂时不考虑在其它 Linux 发行版上构建
 - 不考虑在 Windows 上构建
 
-## 工具链 (Toolchain)
+## 工具链
 
-- Linux 原生用 **GCC** 
-- Windows 交叉用 **MinGW LLWM**。
-- **MinGW GCC** 暂时不用，已冻结。
-- Windows 原生 **MSVC** 不支持。
+- Linux 原生用 **GCC**
+- Windows 交叉用 **MinGW LLVM**
+- Windows 原生 **MSVC** 不支持
 
-## 目标 (Target) 
+## 目标
 
 - **x86_64-linux**
 - **x86_64-windows**
