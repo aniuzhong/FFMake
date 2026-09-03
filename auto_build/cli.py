@@ -305,6 +305,36 @@ def cmd_dist(args):
                    os.path.join(stage, "include"))
     _copy_filtered(os.path.join(prefix, "lib"), os.path.join(stage, "lib"))
 
+    # linkage relocation (ELF triplets): the build tree carries an absolute
+    # DT_RPATH into the workspace sysroot (loop.py sets it on purpose for
+    # transitive deps-of-deps resolution). Shipped that way, the package
+    # only runs on the build machine. Rewrite to $ORIGIN/../lib so bin/ and
+    # lib/ travel together; --force-rpath keeps DT_RPATH (not RUNPATH) so
+    # transitive resolution still works (the libjxl_cms lesson).
+    if ctx["triplet_cfg"]["target_os"] != "mingw32":
+        patchelf = shutil.which("patchelf")
+        if not patchelf:
+            _die("patchelf not found -- required to relocate ELF rpaths; "
+                 "install it (image helper-tools layer) or dist on the "
+                 "build image")
+        relocated = 0
+        for sub in ("bin", "lib"):
+            root = os.path.join(stage, sub)
+            for dirpath, _, files in os.walk(root):
+                for fn in files:
+                    path = os.path.join(dirpath, fn)
+                    try:
+                        with open(path, "rb") as f:
+                            if f.read(4) != b"\x7fELF":
+                                continue
+                    except OSError:
+                        continue
+                    subprocess.run(
+                        [patchelf, "--set-rpath", "$ORIGIN/../lib",
+                         "--force-rpath", path], check=True)
+                    relocated += 1
+        print("dist: relocated rpath on {} ELF files".format(relocated))
+
     # version banner (run the real binary; wine for PE triplets)
     base = _ffmpeg_cmd(ctx)
     version_lines, config_line = "", ""
@@ -332,8 +362,8 @@ def cmd_dist(args):
     mingw = ctx["triplet_cfg"]["target_os"] == "mingw32"
     reloc = ("Windows: keep bin/ together (PE DLL search is exe-relative)."
              if mingw else
-             "Linux: ELF RPATH still points at the build sysroot -- the "
-             "tree runs in place until the linkage-relocation phase.")
+             "Linux: ELF rpaths rewritten to $ORIGIN/../lib — the tree is "
+             "relocatable; run from anywhere.")
     manifest = "\n".join([
         "# {} release".format(name),
         "",

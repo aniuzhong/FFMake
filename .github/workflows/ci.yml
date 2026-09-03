@@ -1,0 +1,33 @@
+name: ci
+
+# Fast gate. Runs on GitHub runners directly — probe is workspace-independent
+# by design (empty prefix must pass). Under act the job runs inside the
+# ffmake-ci container (scripts/act-run.sh).
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: environment self-check (L0)
+        run: python3 -m auto_build probe
+
+      - name: port inventory
+        run: python3 -m auto_build port list | tee /tmp/ports.txt
+
+      - name: baseline assertions
+        run: |
+          # smbclient owns a sysroot .pc + stamp: missing means the image
+          # feed layers drifted. Only meaningful where a populated workspace
+          # exists (local act runs); a fresh checkout legitimately reports
+          # everything missing.
+          if [ -d workspace/var/stamps ]; then
+            ! grep -qE "^\s*smbclient\b.*\bmissing\b" /tmp/ports.txt
+          fi

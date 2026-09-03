@@ -1,0 +1,41 @@
+name: build
+
+# Full per-triplet build (hours, cold). Manual dispatch; run it locally via
+# act (scripts/act-run.sh) — GH-hosted runners cannot host these workloads
+# (proxy, bind-mounted workspace, CUDA feed layer).
+
+on:
+  workflow_dispatch:
+    inputs:
+      triplets:
+        description: 'triplets to build (subset of the matrix)'
+        type: choice
+        default: 'all'
+        options:
+          - all
+          - linux-x86_64
+          - mingw-x86_64-llvm
+
+jobs:
+  build:
+    if: ${{ inputs.triplets == 'all' || inputs.triplets == matrix.triplet }}
+    strategy:
+      fail-fast: false
+      matrix:
+        triplet: [linux-x86_64, mingw-x86_64-llvm]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: build + install + smoke test
+        run: python3 -m auto_build all --triplet ${{ matrix.triplet }}
+
+      - name: assemble redistributable package
+        run: python3 ffmake.py dist --triplet ${{ matrix.triplet }}
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !env.ACT }}
+        with:
+          name: ffmpeg-${{ matrix.triplet }}
+          path: release/ffmpeg-*-${{ matrix.triplet }}*
+          if-no-files-found: error
