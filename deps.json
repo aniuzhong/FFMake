@@ -1296,7 +1296,7 @@
         "ac_cv_header_zlib_h=no"
       ],
       "autogen": "autoreconf -fi",
-      "prefixup": "sed -i 's/^#if defined _WIN32 && defined __GNUC__ && __GNUC__ >= 3/#if 0/' {src}/caca/string.c {src}/caca/figfont.c && sed -i 's/^bin_PROGRAMS =.*/bin_PROGRAMS =/' {src}/src/Makefile.am && sed -i 's/^bin_PROGRAMS =.*/bin_PROGRAMS =/; s/^noinst_PROGRAMS =.*/noinst_PROGRAMS =/' {src}/examples/Makefile.am",
+      "prefixup": "sed -i 's/^#if defined _WIN32 && defined __GNUC__ && __GNUC__ >= 3/#if 0/' {src}/caca/string.c {src}/caca/figfont.c && sed -i 's/^bin_PROGRAMS =.*/bin_PROGRAMS =/' {src}/src/Makefile.am && sed -i 's/^bin_PROGRAMS =.*/bin_PROGRAMS =/; s/^noinst_PROGRAMS =.*/noinst_PROGRAMS =/' {src}/examples/Makefile.am && git -C {src} checkout -- doc/Makefile.am && sed -i '/^          cxx caca-sharp/ s/ doc$//' {src}/Makefile.am",
       "make_args": [
         "LDFLAGS=-no-undefined"
       ],

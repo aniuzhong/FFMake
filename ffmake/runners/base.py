@@ -139,7 +139,10 @@ class Runner(object):
         log_dir = os.path.dirname(log_path)
         if log_dir:
             os.makedirs(log_dir, exist_ok=True)
-        rc = run_with_heartbeat(cmd, cwd, log_path, env)
+        # default to the L0-scrubbed engine environment: env=None must NOT
+        # leak the parent process PATH/proxy vars into build steps
+        rc = run_with_heartbeat(cmd, cwd, log_path,
+                                env if env is not None else self.env())
         if rc != 0:
             # Surface the failure inline: CI run pages only show stdout,
             # while the detail sits in a log file inside an ephemeral job

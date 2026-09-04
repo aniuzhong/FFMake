@@ -14,7 +14,7 @@ _REGISTRY = {}
 def _load(name):
     if name not in _REGISTRY:
         _REGISTRY[name] = importlib.import_module(
-            "auto_build.fixups." + name)
+            "ffmake.fixups." + name)
     return _REGISTRY[name]
 
 
