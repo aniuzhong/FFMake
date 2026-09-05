@@ -3165,6 +3165,84 @@
           ]
         }
       }
+    },
+    "libcurl": {
+      "match_names": [
+        "libcurl",
+        "curl"
+      ],
+      "pc": "libcurl",
+      "system": "makefile",
+      "platforms": [
+        "linux"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/curl/curl/releases/download/curl-8_11_1/curl-8.11.1.tar.xz",
+        "sha256": "c7ca7db48b0909743eaef34250da02c19bc61d4f1dcedd6603f109409536ab56"
+      },
+      "configure_args": [
+        "--with-openssl",
+        "--without-libpsl",
+        "--without-libidn2",
+        "--without-brotli",
+        "--without-zstd",
+        "--without-libgsasl",
+        "--without-libssh2",
+        "--disable-ldap",
+        "--disable-ldaps",
+        "--disable-manual",
+        "--disable-curl"
+      ]
+    },
+    "libtorch": {
+      "match_names": [
+        "libtorch",
+        "torch"
+      ],
+      "pc": "torch",
+      "system": "custom",
+      "platforms": [
+        "linux"
+      ],
+      "source": {
+        "type": "zip",
+        "url": "https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.5.1%2Bcpu.zip",
+        "sha256": "TBD"
+      },
+      "steps": [
+        "cd {bdir} && unzip -q -o *.zip",
+        "cp -a {bdir}/libtorch/include/* {prefix}/include/",
+        "mkdir -p {prefix}/lib",
+        "cp -a {bdir}/libtorch/lib/* {prefix}/lib/",
+        "cp -a {bdir}/libtorch/share {prefix}/ 2>/dev/null || true",
+        "printf 'prefix=%s\\nlibdir=${{prefix}}/lib\\nincludedir=${{prefix}}/include\\n\\nName: torch\\nDescription: Torch C++ API (libtorch)\\nVersion: 2.5.1\\nLibs: -L${{libdir}} -ltorch -lc10 -ltorch_cpu\\nCflags: -I${{includedir}}\\n' \"{prefix}\" > {prefix}/lib/pkgconfig/torch.pc"
+      ]
+    },
+    "libmpeghdec": {
+      "match_names": [
+        "libmpeghdec",
+        "mpeghdec"
+      ],
+      "pc": "mpeghdec",
+      "system": "cmake",
+      "platforms": [
+        "linux"
+      ],
+      "source": {
+        "type": "tar",
+        "url": "https://github.com/Fraunhofer-IIS/mpeghdec/archive/refs/tags/r4.0.1.tar.gz",
+        "sha256": "e7842b46c8054367eea0537922b61180be7e7dc9747d872071854b08139c6016"
+      },
+      "cmake_args": [
+        "-DBUILD_SHARED_LIBS=ON"
+      ],
+      "source_dir": "src",
+      "steps": [
+        "mkdir -p {prefix}/lib/pkgconfig {prefix}/include",
+        "printf 'prefix=%s\\nlibdir=${{prefix}}/lib\\nincludedir=${{prefix}}/include\\n\\nName: mpeghdec\\nDescription: MPEG-H Audio decoder (Fraunhofer)\\nVersion: 4.0.1\\nLibs: -L${{libdir}} -lmpeghdec\\nCflags: -I${{includedir}}/mpeghdec\\n' \"{prefix}\" > {prefix}/lib/pkgconfig/mpeghdec.pc"
+      ],
+      "prefixup": "sed -i 's/^  add_subdirectory(demo)/#&/; s/^  add_subdirectory(doc)/#&/' {src}/CMakeLists.txt"
     }
   },
   "ffmpeg": {

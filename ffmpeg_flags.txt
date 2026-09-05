@@ -116,3 +116,5 @@
 --enable-libopenvino
 --enable-libtensorflow
 --enable-avisynth
+--enable-bzlib
+--enable-libcurl
