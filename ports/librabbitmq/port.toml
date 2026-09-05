@@ -1,0 +1,20 @@
+match_names = [
+    "librabbitmq",
+    "rabbitmq",
+]
+pc = "librabbitmq"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_TESTING=OFF",
+    "-DBUILD_TOOLS=OFF",
+    "-DBUILD_EXAMPLES=OFF",
+    "-DBUILD_SHARED_LIBS=ON",
+]
+needs = [
+    "openssl",
+]
+
+[source]
+type = "tar"
+url = "https://github.com/alanxz/rabbitmq-c/archive/refs/tags/v0.15.0.tar.gz"
+sha256 = "7b652df52c0de4d19ca36c798ed81378cba7a03a0f0c5d498881ae2d79b241c2"

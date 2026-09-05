@@ -1,0 +1,24 @@
+system = "system-pc"
+pcs = [
+    "cairo",
+]
+
+[triplet_overrides.mingw-x86_64-llvm]
+system = "meson"
+needs = [
+    "pixman",
+]
+meson_args = [
+    "-Dtests=disabled",
+    "-Dglib=disabled",
+    "-Dxcb=disabled",
+    "-Dxlib=disabled",
+    "-Dtee=disabled",
+    "-Dquartz=disabled",
+    "-Ddwrite=disabled",
+]
+
+[triplet_overrides.mingw-x86_64-llvm.source]
+type = "tar"
+url = "http://deb.debian.org/debian/pool/main/c/cairo/cairo_1.18.4.orig.tar.xz"
+sha256 = "445ed8208a6e4823de1226a74ca319d3600e83f6369f99b14265006599c32ccb"

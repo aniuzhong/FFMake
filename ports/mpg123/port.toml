@@ -1,0 +1,19 @@
+match_names = [
+    "mpg123",
+    "libmpg123",
+]
+pc = "libmpg123"
+system = "makefile"
+configure_args = [
+    "--disable-static",
+    "--enable-shared",
+    "--with-audio=dummy",
+]
+make_args = [
+    "LDFLAGS=-no-undefined",
+]
+
+[source]
+type = "tar"
+url = "http://deb.debian.org/debian/pool/main/m/mpg123/mpg123_1.32.10.orig.tar.xz"
+sha256 = "98867a796fa1eeb161847d211734d585ff61c56712fbc333de416fea7b59de29"

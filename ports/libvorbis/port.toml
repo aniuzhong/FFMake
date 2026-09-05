@@ -1,0 +1,17 @@
+match_names = [
+    "libvorbis",
+    "vorbis",
+]
+pc = "vorbis"
+system = "makefile"
+needs = [
+    "libogg",
+]
+configure_args = []
+make_args = [
+    "LDFLAGS=-no-undefined",
+]
+
+[source]
+type = "tar"
+url = "https://downloads.xiph.org/releases/vorbis/libvorbis-1.3.7.tar.gz"

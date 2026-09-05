@@ -1,0 +1,12 @@
+match_names = [
+    "libopencv",
+    "opencv4",
+]
+pc = "opencv4"
+system = "system-pc"
+platforms = [
+    "linux-x86_64",
+]
+pcs = [
+    "opencv4",
+]

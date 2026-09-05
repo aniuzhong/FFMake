@@ -1,0 +1,13 @@
+match_names = [
+    "xevd",
+]
+pc = "xevd"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_SHARED_LIBS=ON",
+]
+
+[source]
+type = "git"
+url = "https://github.com/mpeg5/xevd.git"
+rev = "0f066b3ea33834fe4e25b41c32c66f912f0b5d30"

@@ -1,0 +1,25 @@
+match_names = [
+    "libopenmpt",
+    "openmpt",
+]
+pc = "libopenmpt"
+system = "makefile"
+needs = [
+    "libogg",
+    "libvorbis",
+    "mpg123",
+    "zlib",
+]
+configure_args = [
+    "--disable-openmpt123",
+    "--disable-examples",
+    "--disable-tests",
+]
+make_args = [
+    "LDFLAGS=-no-undefined",
+]
+
+[source]
+type = "tar"
+url = "https://lib.openmpt.org/files/libopenmpt/src/libopenmpt-0.7.13%2Brelease.autotools.tar.gz"
+sha256 = "dcd7cde4f9c498eb496c4556e1c1b81353e2a74747e8270a42565117ea42e1f1"

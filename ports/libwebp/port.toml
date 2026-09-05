@@ -1,0 +1,19 @@
+match_names = [
+    "libwebp",
+]
+pc = "libwebp"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_SHARED_LIBS=ON",
+    "-DWEBP_BUILD_CWEBP=OFF",
+    "-DWEBP_BUILD_DWEBP=OFF",
+    "-DWEBP_BUILD_EXTRAS=OFF",
+    "-DWEBP_BUILD_VWEBP=OFF",
+    "-DWEBP_BUILD_GIF2WEBP=OFF",
+    "-DWEBP_BUILD_IMG2WEBP=OFF",
+]
+
+[source]
+type = "git"
+url = "https://github.com/webmproject/libwebp.git"
+rev = "v1.4.0"

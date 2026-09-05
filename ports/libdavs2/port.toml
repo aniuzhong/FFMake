@@ -1,0 +1,19 @@
+match_names = [
+    "davs2",
+    "libdavs2",
+]
+pc = "davs2"
+system = "custom"
+steps = [
+    "cd {src}/build/linux && ./configure --prefix={prefix} --extra-cflags=-fPIC --extra-asflags=-DPIC && make -j{jobs} && make install",
+]
+
+[source]
+type = "git"
+url = "https://github.com/pkuvcl/davs2.git"
+rev = "1.7"
+
+[triplet_overrides.mingw-x86_64-llvm]
+steps = [
+    "cd {src}/build/linux && CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ ./configure --host=x86_64-w64-mingw32 --prefix={prefix} --extra-cflags=-fPIC && make -j{jobs} && make install",
+]

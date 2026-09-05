@@ -1,0 +1,15 @@
+match_names = [
+    "opencl-headers",
+]
+pc = "OpenCL-Headers"
+system = "custom"
+steps = [
+    "mkdir -p {prefix}/include {prefix}/lib/pkgconfig",
+    "cp -r {src}/CL {prefix}/include/",
+    "printf 'prefix=%s\\nincludedir=${{prefix}}/include\\n\\nName: OpenCL-Headers\\nDescription: OpenCL API headers\\nVersion: 2024.05.08\\nCflags: -I${{includedir}}\\n' \"{prefix}\" > {prefix}/lib/pkgconfig/OpenCL-Headers.pc",
+]
+
+[source]
+type = "tar"
+sha256 = "3c3dd236d35f4960028f4f58ce8d963fb63f3d50251d1e9854b76f1caab9a309"
+url = "https://github.com/KhronosGroup/OpenCL-Headers/archive/refs/tags/v2024.05.08.tar.gz"

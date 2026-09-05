@@ -1,0 +1,18 @@
+match_names = [
+    "libssh",
+]
+pc = "libssh"
+system = "cmake"
+needs = [
+    "openssl",
+]
+prefixup = "sed -i 's/if(OPENSSL_VERSION VERSION_LESS \"1.1.0\")/if(FALSE)/' src/CMakeLists.txt"
+cmake_args = [
+    "-DWITH_EXAMPLES=OFF",
+    "-DWITH_GCRYPT=OFF",
+]
+
+[source]
+type = "git"
+url = "https://gitlab.com/libssh/libssh-mirror.git"
+rev = "libssh-0.10.6"

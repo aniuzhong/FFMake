@@ -1,0 +1,24 @@
+match_names = [
+    "libcdio",
+    "cdio",
+]
+pc = "libcdio"
+system = "makefile"
+configure_args = [
+    "--disable-example-progs",
+    "--disable-tests",
+]
+[source]
+type = "tar"
+url = "https://github.com/libcdio/libcdio/releases/download/2.4.0/libcdio-2.4.0.tar.bz2"
+
+[triplet_overrides.mingw-x86_64-llvm]
+prefixup = "find {src} \\( -name Makefile.am -o -name Makefile.in \\) -exec sed -i 's/ -Wl,--version-script=[^ ]*//g' {{}} +"
+configure_args = [
+    "--disable-cxx",
+    "--disable-example-progs",
+    "--disable-tests",
+]
+make_args = [
+    "LDFLAGS=-no-undefined",
+]

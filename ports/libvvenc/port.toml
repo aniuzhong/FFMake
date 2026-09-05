@@ -1,0 +1,19 @@
+match_names = [
+    "libvvenc",
+]
+pc = "libvvenc"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_SHARED_LIBS=ON",
+    "-DVVENC_ENABLE_APP=OFF",
+    "-DVVENC_ENABLE_TESTS=OFF",
+]
+[source]
+type = "git"
+url = "https://github.com/fraunhoferhhi/vvenc.git"
+rev = "v1.13.0"
+
+[triplet_overrides.mingw-x86_64-llvm]
+cmake_args = [
+    "-DCMAKE_CXX_FLAGS=-Wno-error -Wno-deprecated-literal-operator",
+]

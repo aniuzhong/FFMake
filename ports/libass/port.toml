@@ -1,0 +1,21 @@
+match_names = [
+    "ass",
+    "libass",
+]
+pc = "libass"
+system = "meson"
+needs = [
+    "libfreetype",
+    "libfribidi",
+    "libharfbuzz",
+]
+meson_args = [
+    "-Dfontconfig=disabled",
+    "-Drequire-system-font-provider=false",
+    "-Dtest=false",
+]
+
+[source]
+type = "git"
+url = "https://github.com/libass/libass.git"
+rev = "0.17.3"

@@ -1,0 +1,16 @@
+match_names = [
+    "mbedtls",
+    "mbedcrypto",
+]
+pc = "mbedtls"
+system = "cmake"
+cmake_args = [
+    "-DUSE_SHARED_MBEDTLS_LIBRARY=ON",
+    "-DENABLE_TESTING=OFF",
+    "-DENABLE_PROGRAMS=OFF",
+]
+
+[source]
+type = "tar"
+url = "https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-3.6.2/mbedtls-3.6.2.tar.bz2"
+sha256 = "8b54fb9bcf4d5a7078028e0520acddefb7900b3e66fec7f7175bb5b7d85ccdca"

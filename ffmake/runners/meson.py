@@ -21,7 +21,6 @@ class MesonRunner(Runner):
         prefix = self.install_prefix(dep)
         src, bdir, logs = self.prepare(key, dep)
         if dep.get("prefixup"):
-            # pre-build source repair, same semantics as other runners
             subst = {
                 "src": os.path.abspath(src),
                 "bdir": os.path.abspath(bdir),

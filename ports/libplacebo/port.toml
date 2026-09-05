@@ -1,0 +1,26 @@
+match_names = [
+    "libplacebo",
+]
+pc = "libplacebo"
+system = "meson"
+needs = [
+    "vulkan-loader",
+    "vulkan-headers",
+    "libshaderc",
+]
+meson_args = [
+    "-Dvulkan=enabled",
+    "-Dvk-proc-addr=disabled",
+    "-Dshaderc=enabled",
+    "-Dglslang=disabled",
+    "-Dopengl=disabled",
+    "-Dd3d11=disabled",
+    "-Dtests=false",
+    "-Ddemos=false",
+]
+
+[source]
+type = "git"
+url = "https://code.videolan.org/videolan/libplacebo.git"
+rev = "v7.360.1"
+submodules = true

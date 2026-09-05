@@ -1,0 +1,15 @@
+match_names = [
+    "whisper",
+]
+pc = "whisper"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_SHARED_LIBS=ON",
+    "-DWHISPER_BUILD_TESTS=OFF",
+    "-DWHISPER_BUILD_EXAMPLES=OFF",
+]
+
+[source]
+type = "tar"
+url = "https://github.com/ggml-org/whisper.cpp/archive/refs/tags/v1.9.3.tar.gz"
+sha256 = "1650f884effba487025143bd8facd2f9fb40a83b3737a732803c67a8d659d9c0"

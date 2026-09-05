@@ -28,10 +28,3 @@
 
 - **x86_64-linux**
 - **x86_64-windows**
-
-## Strategy for Heavy Dependencies
-
-For heavyweight third‑party libraries such as OpenCV, ONNX Runtime, and TensorFlow, we do not actively take on their builds:
-
-1. Evaluate the availability of official pre‑compiled binaries.
-2. Reuse the binary packages maintained officially by Debian/Ubuntu;

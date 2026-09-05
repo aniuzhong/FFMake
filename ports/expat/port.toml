@@ -1,0 +1,15 @@
+match_names = [
+    "expat",
+    "libexpat",
+]
+pc = "expat"
+system = "makefile"
+configure_args = []
+make_args = [
+    "LDFLAGS=-no-undefined",
+]
+
+[source]
+type = "tar"
+url = "https://github.com/libexpat/libexpat/releases/download/R_2_7_1/expat-2.7.1.tar.gz"
+sha256 = "0cce2e6e69b327fc607b8ff264f4b66bdf71ead55a87ffd5f3143f535f15cfa2"

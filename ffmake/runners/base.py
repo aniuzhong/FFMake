@@ -27,7 +27,6 @@ import urllib.parse
 
 from .. import env as env_mod
 from .. import paths
-from .. import triplets as triplets_mod
 
 # Bump to invalidate all stamps after recipe changes.
 RECIPE_VERSION = 3
@@ -103,7 +102,6 @@ class Runner(object):
     def __init__(self, ctx):
         self.ctx = ctx
 
-    # --- namespace routing -------------------------------------------------
     def ns(self, dep):
         """Stamps/build trees are namespaced: host tools vs per-triplet."""
         return paths.TOOLS_NS if dep.get("tool") else self.ctx["triplet"]
@@ -114,7 +112,6 @@ class Runner(object):
         return self.ctx["tools_prefix"] if dep.get("tool") \
             else self.ctx["prefix"]
 
-    # --- plumbing ---------------------------------------------------------
     def cross_bin(self):
         """Cross toolchain bin dir for this triplet (None for native)."""
         sub = self.ctx["triplet_cfg"].get("cross_toolchain")
@@ -139,21 +136,18 @@ class Runner(object):
         log_dir = os.path.dirname(log_path)
         if log_dir:
             os.makedirs(log_dir, exist_ok=True)
-        # default to the L0-scrubbed engine environment: env=None must NOT
-        # leak the parent process PATH/proxy vars into build steps
+        # env=None must NOT leak the parent process PATH/proxy vars into
+        # build steps -- default to the L0-scrubbed engine environment
         rc = run_with_heartbeat(cmd, cwd, log_path,
                                 env if env is not None else self.env())
         if rc != 0:
-            # Surface the failure inline: CI run pages only show stdout,
-            # while the detail sits in a log file inside an ephemeral job
-            # container. Tail the log into the stream so the error is
-            # diagnosable from the run page alone.
+            # CI run pages stream stdout only -- tail the log so a
+            # failure is diagnosable without the (ephemeral) log file.
             print("{} failed in {} (exit {})".format(cmd[0], cwd, rc))
             print(_log_tail(log_path))
             raise BuildError("{} failed in {} (see {})".format(
                 cmd[0], cwd, log_path))
 
-    # --- cross plumbing ----------------------------------------------------
     def cross_file(self, kind, bdir):
         """Emit a CMake toolchain file ("cmake") or Meson cross file ("meson")
         for the current triplet into bdir; None for the native triplet.
@@ -227,18 +221,29 @@ class Runner(object):
             f.write(body)
         return path
 
-    # --- stamps (JSON: hash + rev/url + args) ------------------------------
     def _stamp_path(self, key, dep):
         return paths.stamp_file(self.ctx["root"], self.ns(dep), key)
 
+    @staticmethod
+    def _strip_reason(x):
+        """`reason` documents WHY a recipe says what it says; it never
+        changes what gets built. Keep it out of the ABI hash so writing
+        rationale never invalidates stamps."""
+        if isinstance(x, dict):
+            return {k: Runner._strip_reason(v) for k, v in x.items()
+                    if k != "reason"}
+        if isinstance(x, list):
+            return [Runner._strip_reason(v) for v in x]
+        return x
+
     def _stamp_data(self, key, dep):
-        """vcpkg-style ABI hash: the WHOLE deps.json entry is the recipe.
+        """vcpkg-style ABI hash: the WHOLE recipe entry is the recipe.
         Hash the full dict (plus RECIPE_VERSION for engine-level bumps) so
-        any deps.json edit invalidates the port automatically."""
+        any edit invalidates the port automatically -- except `reason`."""
         source = dep.get("source") or {}
         payload = json.dumps({
             "recipe_version": RECIPE_VERSION,
-            "entry": dep,
+            "entry": self._strip_reason(dep),
         }, sort_keys=True)
         return {
             "hash": hashlib.sha256(payload.encode("utf-8")).hexdigest(),
@@ -264,7 +269,6 @@ class Runner(object):
             json.dump(self._stamp_data(key, dep), f, indent=2, sort_keys=True)
             f.write("\n")
 
-    # --- fetching ---------------------------------------------------------
     @staticmethod
     def _sha256(path):
         h = hashlib.sha256()
@@ -294,25 +298,57 @@ class Runner(object):
     GIT_SLOW = ["-c", "http.lowSpeedLimit=1000", "-c",
                 "http.lowSpeedTime=30"]
 
+    def distfile_path(self, source):
+        """Content-addressed cache path: the sha256 pin is the key, so a
+        present file is verified by construction. Unpinned sources fall
+        back to the URL basename (and warn at verify time)."""
+        d = paths.distfiles(self.ctx["root"])
+        if source.get("sha256"):
+            return os.path.join(
+                d, source["sha256"] + os.path.splitext(source["url"])[1])
+        return os.path.join(d, os.path.basename(source["url"]))
+
+    def _mirror_path(self, key):
+        return os.path.join(paths.git_mirrors(self.ctx["root"]),
+                            key + ".git")
+
     def fetch_to(self, dst, source, key):
         """Clone/download `source` into dst. No stamp logic here; callers
         that need stamps wrap this via prepare(). dst must not exist."""
         stype = source.get("type")
         if stype == "git":
-            self._run_net(["git"] + self.GIT_SLOW
-                          + ["clone", source["url"], dst],
-                          self.ctx["root"],
-                          os.path.join(self.ctx["logs"], key + "_clone.log"))
+            mirror = self._mirror_path(key)
+            if os.path.exists(mirror):
+    # offline bootstrap; origin keeps pointing upstream so later
+                # fetches reach the real source
+                self.run(["git", "clone", "-q", mirror, dst],
+                         self.ctx["root"],
+                         os.path.join(self.ctx["logs"],
+                                      key + "_clone.log"),
+                         env=self.env(strict=False))
+                self.run(["git", "-C", dst, "remote", "set-url",
+                          "origin", source["url"]],
+                         self.ctx["root"],
+                         os.path.join(self.ctx["logs"],
+                                      key + "_clone.log"),
+                         env=self.env(strict=False))
+            else:
+                self._run_net(["git"] + self.GIT_SLOW
+                              + ["clone", source["url"], dst],
+                              self.ctx["root"],
+                              os.path.join(self.ctx["logs"],
+                                           key + "_clone.log"))
+                # grow the farm from fresh objects (local hardlink clone)
+                subprocess.run(["git", "clone", "--mirror", "-q", dst,
+                                mirror])
             rev = source.get("rev")
             if rev:
-                # plain clone + checkout: works for branches, tags and
-                # pinned commit hashes alike
                 self.run(["git", "-C", dst, "checkout", "-q", rev],
                          self.ctx["root"],
                          os.path.join(self.ctx["logs"], key + "_checkout.log"),
                          env=self.env(strict=False))
             if source.get("submodules"):
-                # e.g. libjxl third_party; shallow to keep it fast
+    # shallow: submodules are build inputs, not history
                 self.run(["git", "-C", dst] + self.GIT_SLOW
                          + ["submodule", "update",
                             "--init", "--depth", "1", "--recursive"],
@@ -322,16 +358,26 @@ class Runner(object):
                          env=self.env(strict=False))
         elif stype == "tar":
             url = source["url"]
-            dist = os.path.join(paths.distfiles(self.ctx["root"]),
-                                os.path.basename(url))
+            dist = self.distfile_path(source)
+            pinned = source.get("sha256")
             if not os.path.exists(dist):
+                tmp = dist + ".part"
                 self._run_net(["curl", "-fL", "--retry", "3",
-                               "-o", dist, url],
+                               "-o", tmp, url],
                               self.ctx["root"],
                               os.path.join(self.ctx["logs"],
                                            key + "_download.log"))
-            # verify on every use (cache corruption detection), vcpkg-style
-            pinned = source.get("sha256")
+                digest = self._sha256(tmp)
+                if pinned and digest != pinned:
+                    os.remove(tmp)
+                    raise BuildError(
+                        "{}: distfile sha256 mismatch\n"
+                        "  expected: {}\n  actual:   {}\n"
+                        "  if the upstream re-uploaded, re-pin the "
+                        "hash".format(key, pinned, digest))
+                os.replace(tmp, dist)
+            # verify on every use: the key claims a digest, the bytes
+            # must still match it (cache corruption detection)
             digest = self._sha256(dist)
             if pinned:
                 if digest != pinned:
@@ -381,6 +427,11 @@ class Runner(object):
         as the stamp dictates. src/ stays pristine across recipe changes.
         Returns (src, bdir, logs_dir) ready for an out-of-tree build."""
         root = self.ctx["root"]
+        if self._in_source_builder(dep):
+            # reached only on a stamp miss (up_to_date short-circuits in
+            # build()); a re-earned build must start from pristine sources
+            self._sanitize_src(os.path.join(paths.src(root), key),
+                               dep.get("source"))
         ns = self.ns(dep)
         src = os.path.join(paths.src(root), key)
         bdir = paths.port_build_dir(root, ns, key)
@@ -394,6 +445,13 @@ class Runner(object):
         same_source = bool(old) and \
             old.get("rev") == new["rev"] and old.get("url") == new["url"]
         if not same_source:
+            if not old and self._seeded_src(src, source):
+                # offline-seeded tree: keep it and re-earn the stamp by
+                # building; a real rev bump still re-fetches below
+                print("dep {}: seeded src accepted (offline), stamp "
+                      "re-earned on build".format(key))
+                os.makedirs(logs, exist_ok=True)
+                return src, bdir, logs
             # source changed (or first build): wipe both, re-fetch
             if os.path.isdir(src):
                 shutil.rmtree(src)
@@ -409,7 +467,45 @@ class Runner(object):
         os.makedirs(logs, exist_ok=True)
         return src, bdir, logs
 
-    # --- cross-compilation helpers ----------------------------------------
+
+    @staticmethod
+    def _in_source_builder(dep):
+        """Builders that compile inside the vendor tree (custom `cd {src}`
+        steps, prefixup sed -i) mutate src/, and that state leaks across
+        triplets sharing the tree -- a mingw object farm will poison the
+        next linux build with __imp__-prefixed symbols. Such ports get a
+        forced sanitize on every stamp-miss rebuild."""
+        if dep.get("system") == "custom":
+    # a custom recipe is an operation sequence over the vendor tree
+            # in any shape (cd, make -C, plain cp) -- pristine start
+            return True
+        prefixup = dep.get("prefixup") or ""
+        return "sed -i" in prefixup and "{src}" in prefixup
+
+    def _sanitize_src(self, src, source):
+        import subprocess as _sp
+        if (source or {}).get("type") == "git" and \
+                os.path.exists(os.path.join(src, ".git")):
+            _sp.run(["git", "-C", src, "clean", "-xfd"], capture_output=True)
+            _sp.run(["git", "-C", src, "checkout", "-q", "-f", "HEAD"],
+                    capture_output=True)
+            return
+        import shutil as _sh
+        _sh.rmtree(src, ignore_errors=True)
+        self.fetch_to(src, source or {}, "sanitize")
+
+    @staticmethod
+    def _seeded_src(src, source):
+        """Offline-seeded vendor tree acceptance (cold start only)."""
+        if not os.path.isdir(src):
+            return False
+        stype = (source or {}).get("type")
+        if stype == "git":
+            return os.path.exists(os.path.join(src, ".git"))
+        if stype == "tar":
+            return bool(os.listdir(src))
+        return False
+
     def cross_args(self, dep=None):
         """Autotools cross args for the current triplet (empty for native).
 

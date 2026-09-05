@@ -1,0 +1,332 @@
+{
+ "+": {
+  "<": "feature",
+  "=": "bar"
+ },
+ "--cpu": {
+  "=": "host"
+ },
+ "--cuda-gpu-arch": {
+  "=": "sm_30"
+ },
+ "--error-exitcode": {
+  "=": "1"
+ },
+ "--target-env": {
+  "=": "vulkan1.4"
+ },
+ "--tool": {
+  "=": "massif"
+ },
+ "-fsanitize": {
+  "=": "fuzzer"
+ },
+ "-mabi": {
+  "=": "64"
+ },
+ "-march": {
+  "=": "native"
+ },
+ "-mcpu": {
+  "=": "native"
+ },
+ "-mtune": {
+  "=": "p5600"
+ },
+ "-std": {
+  "=": "c"
+ },
+ "-werror": {
+  "=": "unused"
+ },
+ ".arch": {
+  "<": "level"
+ },
+ "__byte_order__": {
+  "==": "__ORDER_BIG_ENDIAN__"
+ },
+ "__cplusplus": {
+  ">=": "201103L"
+ },
+ "__djgpp__": {
+  "==": "2"
+ },
+ "__icl": {
+  "<": "1300",
+  ">=": "1400"
+ },
+ "__mingw64_version_major": {
+  "<": "3"
+ },
+ "__msvcrt_version__": {
+  "<": "0x0700"
+ },
+ "__stdc_version__": {
+  ">=": "201112L"
+ },
+ "_m_arm_fp": {
+  ">=": "30"
+ },
+ "_msc_full_ver": {
+  ">=": "193030705"
+ },
+ "_vc_crt_major_version": {
+  "<": "14",
+  ">=": "12"
+ },
+ "_win32_winnt": {
+  "<": "0x0600"
+ },
+ "aom": {
+  ">=": "2.0.0"
+ },
+ "arch": {
+  "=": "compute_30"
+ },
+ "aribb24": {
+  ">": "1.0.3"
+ },
+ "atomic_lock": {
+  "=": "PTHREAD_MUTEX_INITIALIZER"
+ },
+ "avs_major_ver": {
+  ">": "7",
+  ">=": "3"
+ },
+ "be": {
+  "<": "2.0",
+  ">=": "3.15."
+ },
+ "blackmagic_decklink_api_version": {
+  ">=": "0x0a0b0000"
+ },
+ "c": {
+  "=": "D3D12_VIDEO_ENCODER_CODEC_AV1"
+ },
+ "dav1d": {
+  ">=": "1.0.0"
+ },
+ "davs2": {
+  ">=": "1.6.0"
+ },
+ "dvdnav": {
+  ">=": "6.1.0"
+ },
+ "dvdread": {
+  ">=": "6.1.1"
+ },
+ "env": {
+  "=": "override"
+ },
+ "feature": {
+  "=": "D3D12_FEATURE_VIDEO_ENCODER_CODEC"
+ },
+ "ffnvcodec": {
+  "<": "12.1",
+  ">=": "12.1.14.0"
+ },
+ "glslang_version_major": {
+  ">=": "16"
+ },
+ "hwcap_1": {
+  "=": "OVERRIDE"
+ },
+ "i": {
+  "=": "SECPKG_ATTR_DTLS_MTU"
+ },
+ "include": {
+  "<": "stdint.h"
+ },
+ "kvazaar": {
+  ">=": "2.0.0"
+ },
+ "lc3": {
+  ">=": "1.1.0"
+ },
+ "lcevc_dec": {
+  ">=": "4.0.0"
+ },
+ "lcms2": {
+  ">=": "2.13"
+ },
+ "libaribcaption": {
+  ">=": "1.1.1"
+ },
+ "libass": {
+  ">=": "0.11.0"
+ },
+ "libjxl": {
+  ">=": "0.7.0"
+ },
+ "libjxl_threads": {
+  ">=": "0.7.0"
+ },
+ "libmfx": {
+  "<": "2.0",
+  ">=": "1.28"
+ },
+ "libmp3lame": {
+  ">=": "3.98.3"
+ },
+ "libopenjp2": {
+  ">=": "2.1.0"
+ },
+ "libopenmpt": {
+  ">=": "0.2.6557"
+ },
+ "libplacebo": {
+  ">=": "7.351.0"
+ },
+ "librabbitmq": {
+  ">=": "0.7.1"
+ },
+ "librist": {
+  ">=": "0.2.7"
+ },
+ "libssh": {
+  ">=": "0.6.0"
+ },
+ "libva": {
+  ">=": "0.35.0"
+ },
+ "libvmaf": {
+  ">=": "2.0.0"
+ },
+ "libvpl": {
+  ">=": "2.6"
+ },
+ "libvvenc": {
+  ">=": "1.6.1"
+ },
+ "libwebp": {
+  ">=": "0.2.0"
+ },
+ "libwebpmux": {
+  ">=": "0.4.0"
+ },
+ "libzmq": {
+  ">=": "4.2.1"
+ },
+ "m": {
+  "=": "D3D12_VIDEO_ENCODER_MOTION_ESTIMATION_PRECISION_MODE_EIGHTH_PIXEL"
+ },
+ "mfx_version": {
+  "<": "2000",
+  ">=": "1028"
+ },
+ "mpeghdec": {
+  ">=": "3.0.0"
+ },
+ "oapv": {
+  ">=": "0.2.0.0"
+ },
+ "openal": {
+  ">=": "1.1"
+ },
+ "openh264": {
+  ">=": "1.3.0"
+ },
+ "openssl": {
+  "<": "3.0.0",
+  ">=": "3.0.0"
+ },
+ "rav1e": {
+  ">=": "0.5.0"
+ },
+ "ret": {
+  "=": "0"
+ },
+ "rockchip_mpp": {
+  ">=": "1.3.8"
+ },
+ "rubberband": {
+  ">=": "1.8.1"
+ },
+ "s": {
+  "=": "yes"
+ },
+ "sdl2": {
+  "<": "3.0.0",
+  ">=": "2.0.1"
+ },
+ "shaderc": {
+  ">=": "2019.1"
+ },
+ "srt": {
+  ">=": "1.3.0"
+ },
+ "svtav1enc": {
+  ">=": "0.9.0"
+ },
+ "svtjpegxs": {
+  ">=": "0.10.0"
+ },
+ "test": {
+  "=": "_mm_setzero_si128"
+ },
+ "uavs3d": {
+  ">=": "1.1.41"
+ },
+ "uintptr_max": {
+  ">=": "UINT64_MAX"
+ },
+ "v": {
+  "=": "wasm_v128_load"
+ },
+ "vbi_version_major": {
+  "==": "2",
+  ">": "0",
+  ">=": "28"
+ },
+ "vfse.discrete.width": {
+  "=": "0"
+ },
+ "vidstab": {
+  ">=": "0.98"
+ },
+ "vk_header_version": {
+  ">=": "277"
+ },
+ "vpl": {
+  ">=": "2.6"
+ },
+ "vpx": {
+  ">=": "1.4.0"
+ },
+ "vulkan": {
+  ">=": "1.3.277"
+ },
+ "whisper": {
+  ">=": "1.7.5"
+ },
+ "wm_cap_driver_connect": {
+  ">": "WM_USER"
+ },
+ "x264_build": {
+  ">=": "155"
+ },
+ "x265_build": {
+  ">=": "89"
+ },
+ "xavs2": {
+  ">=": "1.3.0"
+ },
+ "xcb": {
+  ">=": "1.4"
+ },
+ "xevd": {
+  ">=": "0.4.1"
+ },
+ "xevdb": {
+  ">=": "0.4.1"
+ },
+ "xeve": {
+  ">=": "0.5.1"
+ },
+ "xeveb": {
+  ">=": "0.5.1"
+ },
+ "zimg": {
+  ">=": "2.7.0"
+ }
+}

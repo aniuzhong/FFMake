@@ -1,0 +1,18 @@
+match_names = [
+    "iconv",
+    "libiconv",
+]
+pc = "iconv"
+system = "makefile"
+platforms = [
+    "mingw-x86_64-llvm",
+]
+configure_args = [
+    "--disable-nls",
+]
+make_args = [
+    "LDFLAGS=-no-undefined -Wl,--export-all-symbols",
+]
+[source]
+type = "tar"
+url = "https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.17.tar.gz"

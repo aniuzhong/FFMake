@@ -1,6 +1,7 @@
 """L1 runner registry: build-system dispatch via deps.json 'system' field."""
 
 from .base import BuildError, Runner
+from .binary import BinaryRunner
 from .cmake import CmakeRunner
 from .custom import CustomRunner
 from .makefile import MakefileRunner
@@ -10,6 +11,7 @@ from .system_pc import SystemPcRunner
 
 _RUNNERS = {
     "makefile": MakefileRunner,
+    "binary": BinaryRunner,
     "cmake": CmakeRunner,
     "meson": MesonRunner,
     "pip": PipRunner,

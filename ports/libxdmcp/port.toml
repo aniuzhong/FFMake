@@ -1,0 +1,11 @@
+match_names = [
+    "xdmcp",
+]
+pc = "xdmcp"
+system = "system-pc"
+pcs = [
+    "xdmcp",
+]
+platforms = [
+    "linux",
+]

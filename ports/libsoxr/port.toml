@@ -1,0 +1,13 @@
+match_names = [
+    "libsoxr",
+    "soxr",
+]
+pc = "soxr"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_TESTS=OFF",
+]
+[source]
+type = "git"
+url = "https://github.com/chirlu/soxr.git"
+rev = "0.1.3"

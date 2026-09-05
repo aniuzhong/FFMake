@@ -1,0 +1,29 @@
+match_names = [
+    "openssl",
+]
+pc = "openssl"
+system = "makefile"
+configure_name = "Configure"
+configure_args = [
+    "linux-x86_64",
+    "shared",
+    "--libdir=lib",
+]
+install_target = "install_sw"
+
+[source]
+type = "git"
+url = "https://github.com/openssl/openssl.git"
+rev = "openssl-3.2.1"
+
+[triplet_overrides.mingw-x86_64-llvm]
+configure_args = [
+    "mingw64",
+    "shared",
+    "--libdir=lib",
+    "--cross-compile-prefix=x86_64-w64-mingw32-",
+    "CC=gcc",
+    "CXX=g++",
+]
+no_cross_args = true
+install_target = "install_sw"

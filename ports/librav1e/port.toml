@@ -1,0 +1,35 @@
+match_names = [
+    "rav1e",
+    "librav1e",
+]
+pc = "rav1e"
+system = "custom"
+platforms = [
+    "linux",
+    "mingw-x86_64-llvm",
+]
+steps = [
+    "cd {src} && $HOME/.cargo/bin/cargo rustc --lib --release --features capi --crate-type cdylib --crate-type staticlib --quiet",
+    "cd {src} && PATH=$HOME/.cargo/bin:$PATH $HOME/.cargo/bin/cbindgen --crate rav1e --output include/rav1e/rav1e.h",
+    "mkdir -p {prefix}/include {prefix}/lib/pkgconfig",
+    "cp -a {src}/include/rav1e {prefix}/include/",
+    "cp -a {src}/target/release/librav1e.so* {src}/target/release/librav1e.a {prefix}/lib/",
+    "printf 'prefix=%s\\nexec_prefix=${{prefix}}\\nlibdir=${{prefix}}/lib\\nincludedir=${{prefix}}/include\\n\\nName: rav1e\\nDescription: The fastest and safest AV1 encoder\\nVersion: 0.8.1\\nLibs: -L${{libdir}} -lrav1e\\nLibs.private: -lm -lpthread -ldl\\nCflags: -I${{includedir}}/rav1e\\n' \"{prefix}\" > {prefix}/lib/pkgconfig/rav1e.pc",
+]
+
+[source]
+type = "git"
+url = "https://github.com/xiph/rav1e.git"
+rev = "1fe82de02510767539e89b2ee6fa846920ae2686"
+
+[triplet_overrides.mingw-x86_64-llvm]
+steps = [
+    "cd {src} && PATH=$HOME/.cargo/bin:$PATH CARGO_TARGET_X86_64_PC_WINDOWS_GNU_LINKER=/usr/bin/x86_64-w64-mingw32-gcc $HOME/.cargo/bin/cargo rustc --lib --release --features capi --crate-type cdylib --target x86_64-pc-windows-gnu --quiet",
+    "cd {src} && PATH=$HOME/.cargo/bin:$PATH $HOME/.cargo/bin/cbindgen --crate rav1e --output include/rav1e/rav1e.h",
+    "mkdir -p {prefix}/include/rav1e {prefix}/lib/pkgconfig {prefix}/bin",
+    "cp -a {src}/include/rav1e {prefix}/include/",
+    "cp {src}/include/rav1e/rav1e.h {prefix}/include/rav1e.h",
+    "cp -a {src}/target/x86_64-pc-windows-gnu/release/rav1e.dll {prefix}/bin/",
+    "cp -a {src}/target/x86_64-pc-windows-gnu/release/librav1e.dll.a {prefix}/lib/",
+    "printf 'prefix=%s\\nexec_prefix=${{prefix}}\\nlibdir=${{prefix}}/lib\\nincludedir=${{prefix}}/include/rav1e\\n\\nName: rav1e\\nDescription: The fastest and safest AV1 encoder\\nVersion: 0.8.1\\nLibs: -L${{libdir}} -lrav1e\\n' \"{prefix}\" > {prefix}/lib/pkgconfig/rav1e.pc",
+]

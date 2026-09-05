@@ -1,0 +1,27 @@
+platforms = [
+    "linux",
+]
+match_names = [
+    "libpulse",
+    "pulse",
+]
+pc = "libpulse"
+system = "meson"
+needs = [
+    "libsndfile",
+]
+meson_args = [
+    "-Ddaemon=disabled",
+    "-Dtests=disabled",
+    "-Ddoxygen=disabled",
+    "-Dman=disabled",
+    "-Dbluez5=disabled",
+    "-Dgtk-videotest=disabled",
+    "-Dgsettings=disabled",
+    "-Dwebrtc-aec=disabled",
+]
+
+[source]
+type = "tar"
+url = "https://freedesktop.org/software/pulseaudio/releases/pulseaudio-17.0.tar.xz"
+sha256 = "053794d6671a3e397d849e478a80b82a63cb9d8ca296bd35b73317bb5ceb87b5"

@@ -1,0 +1,20 @@
+match_names = [
+    "libx265",
+    "x265",
+]
+pc = "x265"
+system = "cmake"
+source_dir = "source"
+cmake_args = [
+    "-DENABLE_SHARED=ON",
+    "-DENABLE_CLI=OFF",
+    "-DENABLE_PIC=ON",
+    "-DENABLE_LIBNUMA=OFF",
+]
+[source]
+type = "git"
+url = "https://github.com/Multicorewareinc/x265.git"
+rev = "3.6"
+
+[hook]
+pc_version = "3.6"

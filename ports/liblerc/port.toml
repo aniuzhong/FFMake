@@ -1,0 +1,14 @@
+reason = "stale platforms=[linux] dropped: golden lock proves mingw builds succeeded; libtiff needs requires them on both triplets"
+match_names = [
+    "Lerc",
+]
+pc = "Lerc"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_SHARED_LIBS=ON",
+]
+
+[source]
+type = "git"
+url = "https://github.com/Esri/lerc.git"
+rev = "v4.0.0"

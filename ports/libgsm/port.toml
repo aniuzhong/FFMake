@@ -1,0 +1,25 @@
+match_names = [
+    "libgsm",
+]
+pc = "gsm"
+system = "custom"
+steps = [
+    "make -C {src} -j{jobs}",
+    "make -C {src} install GSM_INSTALL_ROOT={prefix} GSM_INSTALL_INC={prefix}/include GSM_INSTALL_LIB={prefix}/lib",
+    "mkdir -p {prefix}/lib/pkgconfig && printf 'prefix={prefix}\\nlibdir={prefix}/lib\\nincludedir={prefix}/include\\n\\nName: gsm\\nDescription: GSM 06.10 lossy speech compression\\nVersion: 1.0.22\\nLibs: -L{prefix}/lib -lgsm\\nCflags: -I{prefix}/include\\n' > {prefix}/lib/pkgconfig/gsm.pc",
+]
+pc_libs = [
+    "-lgsm",
+]
+
+[source]
+type = "tar"
+url = "https://www.quut.com/gsm/gsm-1.0.22.tar.gz"
+sha256 = "f0072e91f6bb85a878b2f6dbf4a0b7c850c4deb8049d554c65340b3bf69df0ac"
+
+[triplet_overrides.mingw-x86_64-llvm]
+steps = [
+    "make -C {src} -j{jobs} TOAST= TCAT= UNTOAST= CC=x86_64-w64-mingw32-gcc AR=x86_64-w64-mingw32-ar ARFLAGS=cr RANLIB=x86_64-w64-mingw32-ranlib LIBTOOL=install INSTALL=install",
+    "make -C {src} install TOAST= TCAT= UNTOAST= TOAST= GSM_INSTALL_ROOT={prefix} GSM_INSTALL_INC={prefix}/include GSM_INSTALL_LIB={prefix}/lib",
+    "mkdir -p {prefix}/lib/pkgconfig && printf 'prefix={prefix}\\nlibdir={prefix}/lib\\nincludedir={prefix}/include\\n\\nName: gsm\\nDescription: GSM 06.10 lossy speech compression\\nVersion: 1.0.22\\nLibs: -L{prefix}/lib -lgsm\\nCflags: -I{prefix}/include\\n' > {prefix}/lib/pkgconfig/gsm.pc",
+]

@@ -1,0 +1,15 @@
+match_names = [
+    "libtwolame",
+    "twolame",
+]
+pc = "twolame"
+system = "makefile"
+prefixup = "sed -i 's/^int twolame_encode_buffer_float32_interleaved(/TL_API int twolame_encode_buffer_float32_interleaved(/' {src}/libtwolame/twolame.h"
+configure_args = []
+make_args = [
+    "LDFLAGS=-no-undefined",
+]
+
+[source]
+type = "tar"
+url = "https://github.com/njh/twolame/releases/download/0.4.0/twolame-0.4.0.tar.gz"

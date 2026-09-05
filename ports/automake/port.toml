@@ -1,0 +1,13 @@
+tool = true
+pc = ""
+system = "makefile"
+needs = [
+    "autoconf",
+]
+configure_args = [
+    "--docdir=/tmp/x",
+]
+
+[source]
+type = "tar"
+url = "https://mirrors.tuna.tsinghua.edu.cn/gnu/automake/automake-1.16.5.tar.gz"

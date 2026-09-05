@@ -1,0 +1,20 @@
+platforms = [
+    "linux",
+]
+match_names = [
+    "libva",
+    "va",
+    "vaapi",
+]
+pc = "libva"
+system = "meson"
+needs = [
+    "libdrm",
+]
+strict_pkgconfig = false
+meson_args = []
+
+[source]
+type = "tar"
+url = "https://github.com/intel/libva/releases/download/2.22.0/libva-2.22.0.tar.bz2"
+sha256 = "e3da2250654c8d52b3f59f8cb3f3d8e7fb1a2ee64378dbc400fbc5663de7edb8"

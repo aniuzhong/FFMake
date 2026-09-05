@@ -1,0 +1,15 @@
+match_names = [
+    "libx264",
+    "x264",
+]
+pc = "x264"
+system = "makefile"
+configure_args = [
+    "--enable-shared",
+    "--disable-cli",
+]
+
+[source]
+type = "git"
+url = "https://github.com/mirror/x264.git"
+rev = "stable"

@@ -1,0 +1,16 @@
+match_names = [
+    "libaribcaption",
+    "aribcaption",
+]
+pc = "libaribcaption"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_SHARED_LIBS=ON",
+    "-DCMAKE_C_FLAGS=-D_WIN32_WINNT=0x0601",
+    "-DCMAKE_CXX_FLAGS=-D_WIN32_WINNT=0x0601",
+]
+
+[source]
+type = "tar"
+url = "https://github.com/xqq/libaribcaption/releases/download/v1.1.1/libaribcaption-1.1.1.tar.gz"
+sha256 = "278d03a0a662d00a46178afc64f32535ede2d78c603842b6fd1c55fa9cd44683"

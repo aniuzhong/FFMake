@@ -1,0 +1,66 @@
+# mingw triplet: llvm-mingw cross on clang/lld with modern mingw-w64
+# headers. Same target as a gcc mingw triplet; the toolchain is selected
+# purely by PATH precedence (cross_toolchain injected ahead of system
+# PATH), so bare x86_64-w64-mingw32-* names resolve here. clang emits no
+# .refptr relocations, so static deps link fine into shared ffmpeg.
+#
+# cross_ldflags: libtool's --tag=CXX DLL mode assembles the CRT manually
+# with -nostdlib and forgets compiler-rt -> ___chkstk_ms undefined.
+# {clang_rt} expands to the absolute builtins archive path, passed
+# through -Wl so libtool treats it as opaque: a bare -l gets
+# deplib-scanned (drops libtool to static-only), a bare .a argument gets
+# stripped as "static archive in shared link", and whole-archive
+# force-loads duplicate CRT symbols that lld auto-exports into every
+# import lib. As a plain linker input at the tail it just resolves the
+# chkstk refs that -nostdlib C++ DLL links lose.
+#
+# cmake_emulator: try_run() support -- cross cmake ports run their test
+# binaries via wine; without it cmake 3.25 crashes (bad_alloc) when a
+# try_run build is configured in cross mode. WINEPATH points at the
+# sysroot bin/ so the test's DLL deps resolve.
+#
+# pe_runtime: cross-built binaries dynamically link the toolchain
+# runtime; a sysroot without them runs nowhere (neither wine nor real
+# Windows). cmd_ffmpeg copies them next to the binaries; entries are
+# [name-or-glob, src_dir] where "TOOLS:" marks a path relative to the
+# shared tools sysroot.
+cross_prefix = "x86_64-w64-mingw32-"
+cross_toolchain = "llvm-mingw/bin"
+cc_suffix = ""
+cross_ldflags = "-Wl,{clang_rt}"
+target_os = "mingw32"
+shlib_dirs = [
+    "lib",
+    "bin",
+]
+shlib_glob = "*.dll"
+exe = "ffmpeg.exe"
+cmake_system_name = "Windows"
+cmake_system_processor = "AMD64"
+cmake_emulator = "wine"
+pe_runtime = [
+    [
+        "libc++.dll",
+        "TOOLS:llvm-mingw/x86_64-w64-mingw32/bin",
+    ],
+    [
+        "libunwind.dll",
+        "TOOLS:llvm-mingw/x86_64-w64-mingw32/bin",
+    ],
+    [
+        "libwinpthread-1.dll",
+        "TOOLS:llvm-mingw/x86_64-w64-mingw32/bin",
+    ],
+    [
+        "libomp.dll",
+        "TOOLS:llvm-mingw/x86_64-w64-mingw32/bin",
+    ],
+]
+meson_system = "windows"
+meson_cpu_family = "x86_64"
+ffmpeg_flags = [
+    "--enable-cross-compile",
+    "--target-os=mingw32",
+    "--cross-prefix=x86_64-w64-mingw32-",
+    "--arch=x86_64",
+]

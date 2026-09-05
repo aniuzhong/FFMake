@@ -1,0 +1,17 @@
+match_names = [
+    "avisynth",
+    "avisynth/avisynth_c.h",
+]
+system = "cmake"
+cmake_args = [
+    "-DENABLE_PLUGINS=OFF",
+    "-DENABLE_CORE_TOOLS=OFF",
+    "-DENABLE_TESTS=OFF",
+]
+
+[source]
+type = "tar"
+url = "https://github.com/AviSynth/AviSynthPlus/archive/refs/tags/v3.7.3.tar.gz"
+
+[triplet_overrides.mingw-x86_64-llvm]
+prefixup = "sed -i 's/#ifndef MSVC/#if 0/' {src}/avs_core/filters/AviSource/avi_source.cpp"

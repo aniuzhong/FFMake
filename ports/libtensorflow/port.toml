@@ -1,0 +1,38 @@
+match_names = [
+    "libtensorflow",
+    "tensorflow",
+]
+system = "custom"
+steps = [
+    "mkdir -p {prefix}/include {prefix}/lib",
+    "rm -rf {prefix}/include/tensorflow {prefix}/include/tsl && cp -a {src}/include/* {prefix}/include/",
+    "rm -f {prefix}/lib/libtensorflow* && cp -a {src}/lib/* {prefix}/lib/",
+    "ln -sf libtensorflow.so.2 {prefix}/lib/libtensorflow.so",
+    "ln -sf libtensorflow_framework.so.2 {prefix}/lib/libtensorflow_framework.so",
+]
+pc_libs = [
+    "-ltensorflow",
+    "-ltensorflow_framework",
+    "-lm",
+]
+
+[source]
+type = "tar"
+url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-2.15.0.tar.gz"
+
+[triplet_overrides.mingw-x86_64-llvm]
+steps = [
+    "mkdir -p {prefix}/include {prefix}/lib {prefix}/bin {src}/linc",
+    "cp -a {src}/include/* {prefix}/include/",
+    "tar -xzf {prefix}/../../distfiles/libtensorflow-cpu-linux-x86_64-2.15.0.tar.gz -C {src}/linc",
+    "cp -a {src}/linc/include/* {prefix}/include/",
+    "cp -a {src}/lib/tensorflow.dll {prefix}/bin/",
+    "cp -a {src}/lib/tensorflow.dll {prefix}/lib/",
+]
+pc_libs = [
+    "-ltensorflow",
+]
+
+[triplet_overrides.mingw-x86_64-llvm.source]
+type = "tar"
+url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-windows-x86_64-2.15.0.zip"

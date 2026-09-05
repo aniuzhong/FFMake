@@ -1,0 +1,12 @@
+match_names = [
+    "gmp",
+]
+pc = "gmp"
+system = "makefile"
+configure_args = [
+    "--enable-cxx",
+]
+
+[source]
+type = "tar"
+url = "https://ftp.gnu.org/pub/gnu/gmp/gmp-6.3.0.tar.xz"

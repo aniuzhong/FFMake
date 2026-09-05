@@ -1,0 +1,20 @@
+match_names = [
+    "libxml-2.0",
+    "libxml2",
+]
+pc = "libxml-2.0"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_SHARED_LIBS=ON",
+    "-DLIBXML2_WITH_PYTHON=OFF",
+    "-DLIBXML2_WITH_ZLIB=OFF",
+    "-DLIBXML2_WITH_LZMA=OFF",
+    "-DLIBXML2_WITH_ICONV=OFF",
+    "-DLIBXML2_WITH_TESTS=OFF",
+    "-DLIBXML2_WITH_PROGRAMS=OFF",
+]
+
+[source]
+type = "git"
+url = "https://github.com/GNOME/libxml2.git"
+rev = "v2.12.6"

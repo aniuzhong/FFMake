@@ -1,0 +1,13 @@
+tool = true
+tool_bin = "bin/cmake"
+system = "custom"
+steps = [
+    "cd {src} && ./configure --prefix={tools} --parallel={jobs} -- -DCMAKE_USE_OPENSSL=OFF",
+    "cd {src} && make -j{jobs}",
+    "cd {src} && make install",
+]
+
+[source]
+type = "tar"
+url = "http://deb.debian.org/debian/pool/main/c/cmake/cmake_3.25.1.orig.tar.gz"
+sha256 = "1c511d09516af493694ed9baf13c55947a36389674d657a2d5e0ccedc6b291d8"

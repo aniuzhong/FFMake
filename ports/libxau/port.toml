@@ -1,0 +1,12 @@
+match_names = [
+    "xau",
+]
+pc = "xau"
+system = "system-pc"
+pcs = [
+    "xau",
+    "xproto",
+]
+platforms = [
+    "linux",
+]

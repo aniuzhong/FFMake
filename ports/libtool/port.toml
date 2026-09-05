@@ -1,0 +1,8 @@
+tool = true
+system = "makefile"
+configure_args = []
+
+[source]
+type = "tar"
+url = "https://mirrors.tuna.tsinghua.edu.cn/gnu/libtool/libtool-2.4.7.tar.gz"
+sha256 = "04e96c2404ea70c590c546eba4202a4e12722c640016c12b9b2f1ce3d481e9a8"

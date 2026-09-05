@@ -1,0 +1,17 @@
+match_names = [
+    "opencl",
+    "OpenCL",
+]
+pc = "OpenCL"
+system = "cmake"
+needs = [
+    "opencl-headers",
+]
+cmake_args = [
+    "-DOPENCL_ICD_LOADER_HEADERS_DIR={prefix}/include",
+    "-DBUILD_TESTS=OFF",
+]
+[source]
+type = "tar"
+sha256 = "173bdc4f321d550b6578ad2aafc2832f25fbb36041f095e6221025f74134b876"
+url = "https://github.com/KhronosGroup/OpenCL-ICD-Loader/archive/refs/tags/v2023.04.17.tar.gz"

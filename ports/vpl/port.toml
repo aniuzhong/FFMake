@@ -1,0 +1,16 @@
+match_names = [
+    "vpl",
+    "libvpl",
+]
+pc = "vpl"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_EXAMPLES=OFF",
+    "-DBUILD_TESTS=OFF",
+    "-DBUILD_TOOLS=OFF",
+]
+
+[source]
+type = "tar"
+sha256 = "978398c7bb1665a6ad7a1a15cc57dc0204608e56c88436e376b717320a9e63fd"
+url = "https://github.com/oneapi-src/oneVPL/archive/refs/tags/v2023.4.0.tar.gz"

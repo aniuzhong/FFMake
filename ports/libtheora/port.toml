@@ -1,0 +1,21 @@
+match_names = [
+    "libtheora",
+    "theora",
+]
+pc = "theora"
+system = "makefile"
+needs = [
+    "libogg",
+    "libvorbis",
+]
+prefixup = "sed -i 's/\\r$//' {src}/win32/xmingw32/libtheoradec-all.def {src}/win32/xmingw32/libtheoraenc-all.def"
+configure_args = [
+    "--disable-examples",
+]
+make_args = [
+    "LDFLAGS=-no-undefined",
+]
+
+[source]
+type = "tar"
+url = "https://downloads.xiph.org/releases/theora/libtheora-1.1.1.tar.gz"

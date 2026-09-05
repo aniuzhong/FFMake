@@ -1,0 +1,15 @@
+match_names = [
+    "SvtAv1Enc",
+    "libsvtav1",
+]
+pc = "SvtAv1Enc"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_APPS=OFF",
+    "-DBUILD_TESTING=OFF",
+]
+
+[source]
+type = "git"
+url = "https://gitlab.com/AOMediaCodec/SVT-AV1.git"
+rev = "v2.2.1"

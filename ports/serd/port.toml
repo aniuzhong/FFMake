@@ -1,0 +1,15 @@
+match_names = [
+    "serd",
+    "serd-0",
+]
+pc = "serd-0"
+system = "meson"
+meson_args = [
+    "-Dtests=disabled",
+    "-Ddocs=disabled",
+]
+
+[source]
+type = "tar"
+url = "https://download.drobilla.net/serd-0.32.4.tar.xz"
+sha256 = "cbefb569e8db686be8c69cb3866a9538c7cb055e8f24217dd6a4471effa7d349"

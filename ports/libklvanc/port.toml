@@ -1,0 +1,30 @@
+platforms = [
+    "linux",
+    "mingw-x86_64-llvm",
+]
+match_names = [
+    "libklvanc",
+    "klvanc",
+    "libklvanc/vanc.h",
+]
+pc = "libklvanc"
+system = "makefile"
+autogen = "sh {src}/autogen.sh --build"
+configure_args = [
+    "--disable-static",
+    "--enable-shared",
+]
+pc_libs = [
+    "-lklvanc",
+]
+
+[source]
+type = "git"
+url = "https://github.com/stoth68000/libklvanc.git"
+rev = "d2bec177f68fe807a8c12d3b8d18ee8208bbdc32"
+
+[triplet_overrides.mingw-x86_64-llvm]
+prefixup = "grep -rl '<sys/errno.h>' {src}/src 2>/dev/null | xargs -r sed -i 's|<sys/errno.h>|<errno.h>|g' && sed -i 's/ tools//' {src}/Makefile.am"
+make_args = [
+    "LDFLAGS=-no-undefined -L{alias}/lib -lwinpthread",
+]

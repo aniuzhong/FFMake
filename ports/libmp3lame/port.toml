@@ -1,0 +1,17 @@
+match_names = [
+    "libmp3lame",
+    "mp3lame",
+]
+pc = "mp3lame"
+system = "makefile"
+configure_args = [
+    "--disable-frontend",
+]
+make_args = [
+    "LDFLAGS=-no-undefined",
+]
+prefixup = "sed -i 's/#if DEPRECATED_OR_OBSOLETE_CODE_REMOVED/#if 0/' {src}/libmp3lame/lame.c {src}/libmp3lame/set_get.c"
+
+[source]
+type = "tar"
+url = "https://sourceforge.net/projects/lame/files/lame/3.100/lame-3.100.tar.gz"

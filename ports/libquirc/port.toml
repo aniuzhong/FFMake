@@ -1,0 +1,30 @@
+match_names = [
+    "libquirc",
+    "quirc",
+]
+pc = "quirc"
+system = "custom"
+prefixup = "sed -i 's/^SDL_CFLAGS := .*/SDL_CFLAGS :=/; s/^OPENCV_CFLAGS := .*/OPENCV_CFLAGS :=/' Makefile"
+steps = [
+    "make -C {src} -j{jobs} libquirc.so",
+    "cp {src}/lib/quirc.h {prefix}/include/",
+    "cp -L {src}/libquirc.so.1.2 {prefix}/lib/libquirc.so.1.2 && ln -sf libquirc.so.1.2 {prefix}/lib/libquirc.so.1 && ln -sf libquirc.so.1 {prefix}/lib/libquirc.so",
+    "mkdir -p {prefix}/lib/pkgconfig && printf 'prefix={prefix}\\nlibdir={prefix}/lib\\nincludedir={prefix}/include\\n\\nName: quirc\\nDescription: QR decoder library\\nVersion: 1.2\\nLibs: -L{prefix}/lib -lquirc\\nCflags: -I{prefix}/include\\n' > {prefix}/lib/pkgconfig/quirc.pc",
+]
+pc_libs = [
+    "-lquirc",
+    "-lm",
+]
+
+[source]
+type = "git"
+url = "https://github.com/dlbeer/quirc.git"
+rev = "v1.2"
+
+[triplet_overrides.mingw-x86_64-llvm]
+steps = [
+    "make -C {src} libquirc.a CC=x86_64-w64-mingw32-gcc",
+    "mkdir -p {prefix}/lib {prefix}/include",
+    "cp {src}/libquirc.a {prefix}/lib/",
+    "cp {src}/lib/*.h {prefix}/include/",
+]

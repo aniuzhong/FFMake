@@ -1,0 +1,18 @@
+match_names = [
+    "harfbuzz",
+    "libharfbuzz",
+]
+pc = "harfbuzz"
+reason = "glib/icu integrations disabled: meson auto-detect depends on sysroot build order and changed linkage vs the reference artifact (certified 2026-09-05)"
+system = "meson"
+meson_args = [
+    "-Dglib=disabled",
+    "-Dicu=disabled",
+    "-Dtests=disabled",
+    "-Ddocs=disabled",
+]
+
+[source]
+type = "git"
+url = "https://github.com/harfbuzz/harfbuzz.git"
+rev = "8.4.0"

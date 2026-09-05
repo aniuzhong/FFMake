@@ -1,0 +1,17 @@
+match_names = [
+    "vulkan-headers",
+]
+pc = "vulkan"
+system = "custom"
+steps = [
+    "cmake -S {src} -B {bdir} -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX={prefix}",
+    "cmake --build {bdir} -j{jobs}",
+    "cmake --install {bdir}",
+    "mkdir -p {prefix}/lib/pkgconfig",
+    "printf 'prefix=%s\\nincludedir=${{prefix}}/include\\n\\nName: Vulkan-Headers\\nDescription: Vulkan header files\\nVersion: 1.4.357.0\\nCflags: -I${{includedir}}\\n' \"{prefix}\" > {prefix}/lib/pkgconfig/vulkan.pc",
+]
+
+[source]
+type = "tar"
+url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/refs/tags/vulkan-sdk-1.4.357.0.tar.gz"
+sha256 = "e87dce08116151f6b6d7de6b6faf41498e87e6cf848ff16fa3bd5402190ad4a3"

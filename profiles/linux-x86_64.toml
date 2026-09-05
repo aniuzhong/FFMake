@@ -1,0 +1,8 @@
+cross_prefix = ""
+target_os = "linux"
+shlib_dirs = [
+    "lib",
+]
+shlib_glob = "lib*.so*"
+exe = "ffmpeg"
+ffmpeg_flags = []

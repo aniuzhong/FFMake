@@ -1,0 +1,15 @@
+match_names = [
+    "kvazaar",
+    "libkvazaar",
+]
+pc = "kvazaar"
+system = "makefile"
+autogen = "sh {src}/autogen.sh"
+configure_args = []
+make_args = [
+    "LDFLAGS=-no-undefined",
+]
+
+[source]
+type = "tar"
+url = "https://github.com/ultravideo/kvazaar/archive/refs/tags/v2.3.1.tar.gz"

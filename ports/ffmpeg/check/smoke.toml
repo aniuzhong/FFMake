@@ -1,0 +1,88 @@
+[[case]]
+flag = "--enable-libx264"
+name = "libx264-encode"
+kind = "encode"
+encoder = "libx264"
+input = "testsrc2=duration=0.5:size=640x360:rate=30"
+ext = "mp4"
+
+[[case]]
+flag = "--enable-libx265"
+name = "libx265-encode"
+kind = "encode"
+encoder = "libx265"
+input = "testsrc2=duration=0.5:size=640x360:rate=30"
+ext = "mp4"
+
+[[case]]
+flag = "--enable-libzimg"
+name = "zscale-16bit"
+kind = "filter"
+filter = "setparams=colorspace=bt709:color_primaries=bt709:color_trc=bt709,zscale=transfer=linear,format=yuv444p10,zscale=transfer=bt709"
+input = "testsrc2=duration=0.5:size=640x360:rate=30"
+ext = "png"
+
+[[case]]
+flag = "--enable-libdav1d"
+name = "libdav1d-embed"
+kind = "capability"
+list = "decoders"
+needle = "libdav1d"
+
+[[case]]
+flag = "--enable-libsvtav1"
+name = "libsvtav1-encode"
+kind = "encode"
+encoder = "libsvtav1"
+input = "testsrc2=duration=0.5:size=640x360:rate=30"
+ext = "mkv"
+
+[[case]]
+flag = "--enable-libdav1d"
+name = "libdav1d-decode"
+kind = "decode"
+decoder = "libdav1d"
+input_file = "libsvtav1-encode.mkv"
+
+[[case]]
+flag = "--enable-libaom"
+name = "libaom-encode"
+kind = "encode"
+encoder = "libaom-av1"
+input = "testsrc2=duration=0.3:size=320x180:rate=30"
+ext = "mkv"
+
+[[case]]
+flag = "--enable-libvpx"
+name = "libvpx-vp9-encode"
+kind = "encode"
+encoder = "libvpx-vp9"
+input = "testsrc2=duration=0.5:size=640x360:rate=30"
+ext = "webm"
+
+[[case]]
+flag = "--enable-libmp3lame"
+name = "libmp3lame-encode"
+kind = "encode"
+stream = "a"
+encoder = "libmp3lame"
+input = "sine=duration=0.5:sample_rate=44100"
+ext = "mp3"
+
+[[case]]
+flag = "--enable-libopus"
+name = "libopus-encode"
+kind = "encode"
+stream = "a"
+encoder = "libopus"
+input = "sine=duration=0.5:sample_rate=48000"
+ext = "opus"
+
+[[case]]
+flag = "--enable-libvorbis"
+name = "libvorbis-encode"
+kind = "encode"
+stream = "a"
+encoder = "libvorbis"
+input = "sine=duration=0.5:sample_rate=44100"
+ext = "ogg"

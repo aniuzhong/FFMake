@@ -1,0 +1,12 @@
+match_names = [
+    "libuavs3d",
+    "uavs3d",
+]
+pc = "uavs3d"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_SHARED_LIBS=ON",
+]
+[source]
+type = "git"
+url = "https://github.com/uavs3/uavs3d.git"

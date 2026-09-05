@@ -1,0 +1,8 @@
+system = "system-pc"
+pcs = [
+    "gl",
+    "egl",
+]
+match_names = [
+    "GL/glx.h",
+]

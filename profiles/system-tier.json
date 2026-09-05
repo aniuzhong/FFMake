@@ -1,0 +1,18 @@
+{
+ "comment": "ports satisfied by the host system; never built, never demanded (per triplet)",
+ "schema": 1,
+ "triplets": {
+  "linux-x86_64": [
+   "cairo",
+   "libdc1394",
+   "libsmbclient",
+   "opengl",
+   "pulseaudio",
+   "sdl2",
+   "spirv-headers"
+  ],
+  "mingw-x86_64-llvm": [
+   "opengl"
+  ]
+ }
+}

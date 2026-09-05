@@ -1,0 +1,25 @@
+platforms = [
+    "linux",
+    "mingw-x86_64-llvm",
+]
+match_names = [
+    "libopenh264",
+    "openh264",
+]
+pc = "openh264"
+system = "custom"
+steps = [
+    "make -C {src} -j{jobs} AR=x86_64-linux-gnu-ar",
+    "make -C {src} PREFIX={prefix} install",
+]
+[source]
+type = "git"
+url = "https://github.com/cisco/openh264.git"
+rev = "v2.4.1"
+
+[triplet_overrides.mingw-x86_64-llvm]
+steps = [
+    "make -C {src} -j{jobs} CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ AR=x86_64-w64-mingw32-ar",
+    "make -C {src} PREFIX={prefix} install",
+]
+prefixup = "grep -rl 'soname' {src}/Makefile {src}/build/*.mk 2>/dev/null | xargs -r sed -i -e 's/-Xlinker -soname -Xlinker [^ ]*//g' -e 's/-Wl,-soname,[^ ]*//g' && sed -i 's/-f elf64/-f win64/g; s/-f elf\b/-f win64/g; s/-f elf$/-f win64/g' {src}/build/platform-gnu-chain.mk"

@@ -1,0 +1,21 @@
+match_names = [
+    "libzimg",
+    "zimg",
+]
+pc = "zimg"
+system = "makefile"
+autogen = "sh {src}/autogen.sh"
+configure_args = []
+make_args = [
+    "LDFLAGS=-no-undefined",
+]
+[source]
+type = "tar"
+url = "https://github.com/sekrit-twc/zimg/archive/refs/tags/release-3.0.5.tar.gz"
+sha256 = "a9a0226bf85e0d83c41a8ebe4e3e690e1348682f6a2a7838f1b8cbff1b799bcf"
+
+[triplet_overrides.mingw-x86_64-llvm]
+configure_args = [
+    "--disable-shared",
+    "--enable-static",
+]

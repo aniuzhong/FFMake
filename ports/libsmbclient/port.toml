@@ -1,0 +1,12 @@
+match_names = [
+    "libsmbclient",
+    "smbclient",
+]
+pc = "smbclient"
+system = "system-pc"
+platforms = [
+    "linux-x86_64",
+]
+pcs = [
+    "smbclient",
+]

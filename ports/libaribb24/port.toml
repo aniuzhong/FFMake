@@ -1,0 +1,19 @@
+match_names = [
+    "aribb24",
+    "libaribb24",
+]
+pc = "aribb24"
+system = "makefile"
+autogen = "autoreconf -fi"
+configure_args = []
+make_args = [
+    "LDFLAGS=-no-undefined",
+]
+needs = [
+    "libpng",
+]
+
+[source]
+type = "git"
+url = "https://github.com/nkoriyama/aribb24.git"
+rev = "v1.0.3"

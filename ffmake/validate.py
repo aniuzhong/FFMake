@@ -27,8 +27,8 @@ def is_installed(prefix, tools_prefix, key, dep):
 
 def validate_dep(ctx, key, dep):
     if dep.get("tool"):
-        tool_bin = dep.get("tool_bin", key)
-        path = os.path.join(ctx["tools_prefix"], "bin", tool_bin)
+        tool_bin = dep.get("tool_bin", "bin/" + key)
+        path = os.path.join(ctx["tools_prefix"], tool_bin)
         if not os.path.isfile(path):
             raise BuildError(
                 "tool '{}' missing after install: {}".format(key, path))
@@ -51,15 +51,27 @@ def validate_dep(ctx, key, dep):
             "{}: pkg-config cannot resolve '{}' in strict mode "
             "(wrong libdir or broken .pc)".format(key, pc))
 
+    # the shared-library check is a CLOSURE-level invariant, not a
+    # per-port one: headers-only ports legitimately install no .so, and
+    # the old system only passed them because the glob scanned the whole
+    # sysroot in build order. See closure_shlib_gate().
+    from . import facts
+    facts.backfill_installed(ctx, key, dep)
+    print("validate {}: pc + strict pkg-config ok ({})".format(
+        key, ctx["triplet"]))
+
+
+def closure_shlib_gate(ctx):
+    """At least one shared library must exist in the sysroot once the
+    closure is built (catches wholesale linkage breakage)."""
+    import glob as _glob
     shlib_glob = ctx["triplet_cfg"]["shlib_glob"]
     hits = []
     for d in ctx["triplet_cfg"]["shlib_dirs"]:
-        hits += glob.glob(os.path.join(prefix, d, shlib_glob))
+        hits += _glob.glob(os.path.join(ctx["prefix"], d, shlib_glob))
     if not hits:
-        raise BuildError("{}: no shared libraries matching {} in {}"
-                         .format(key, shlib_glob,
-                                 [os.path.join(prefix, d)
-                                  for d in ctx["triplet_cfg"]
-                                  ["shlib_dirs"]]))
-    print("validate {}: pc + strict pkg-config + shared libs ok ({})".format(
-        key, ctx["triplet"]))
+        raise BuildError(
+            "closure: no shared libraries matching {} in {} -- linkage "
+            "is broken".format(shlib_glob, ctx["prefix"]))
+    print("validate: closure shlib gate ok ({} artifacts)".format(
+        len(hits)))

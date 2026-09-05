@@ -1,0 +1,15 @@
+match_names = [
+    "libopenjp2",
+    "libopenjpeg",
+]
+pc = "libopenjp2"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_SHARED_LIBS=ON",
+    "-DBUILD_CODEC=OFF",
+]
+
+[source]
+type = "git"
+url = "https://github.com/uclouvain/openjpeg.git"
+rev = "v2.5.2"

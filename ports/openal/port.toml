@@ -1,0 +1,17 @@
+match_names = [
+    "openal",
+    "openal-soft",
+]
+pc = "openal"
+system = "cmake"
+cmake_args = [
+    "-DALSOFT_EXAMPLES=OFF",
+    "-DALSOFT_UTILS=OFF",
+    "-DALSOFT_TESTS=OFF",
+    "-DALSOFT_REQUIRE_ALSA=OFF",
+]
+
+[source]
+type = "tar"
+url = "https://github.com/kcat/openal-soft/releases/download/1.24.3/openal-soft-1.24.3.tar.bz2"
+sha256 = "cb5e6197a1c0da0edcf2a81024953cc8fa8545c3b9474e48c852af709d587892"

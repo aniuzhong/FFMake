@@ -1,6 +1,5 @@
-import sys
-
-from ffmake.cli import main
+from .cli import main
 
 if __name__ == "__main__":
+    import sys
     sys.exit(main())

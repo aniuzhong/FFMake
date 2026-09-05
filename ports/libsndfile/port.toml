@@ -1,0 +1,17 @@
+match_names = [
+    "libsndfile",
+    "sndfile",
+]
+pc = "sndfile"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_SHARED_LIBS=ON",
+    "-DBUILD_PROGRAMS=OFF",
+    "-DBUILD_EXAMPLES=OFF",
+    "-DBUILD_TESTING=OFF",
+]
+
+[source]
+type = "git"
+url = "https://github.com/libsndfile/libsndfile.git"
+rev = "1.2.2"

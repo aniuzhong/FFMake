@@ -1,0 +1,13 @@
+match_names = [
+    "frei0r",
+    "frei0r.h",
+]
+system = "cmake"
+cmake_args = [
+    "-DWITHOUT_OPENCV=ON",
+    "-DWITHOUT_GAVL=ON",
+    "-DBUILD_TESTS=OFF",
+]
+[source]
+type = "tar"
+url = "https://github.com/dyne/frei0r/archive/refs/tags/v2.3.3.tar.gz"

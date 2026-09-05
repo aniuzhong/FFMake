@@ -55,16 +55,14 @@ class MakefileRunner(Runner):
         subst = {"alias": alias, "prefix": prefix,
                  "src": os.path.abspath(src), "bdir": os.path.abspath(bdir),
                  "tools": self.ctx["tools_prefix"]}
-        # placeholder support for args like --with-libiconv-prefix={prefix}
         cfg_args = [a.format(**subst) if "{" in a else a
                     for a in dep.get("configure_args", [])]
         args = [os.path.join(os.path.abspath(src), configure),
                 "--prefix=" + prefix] + cfg_args + self.cross_args(dep)
-        # cross: make the target sysroot headers visible. autoconf captures
-        # CPPFLAGS into the generated Makefile, which covers ports that
-        # assume default-path headers (native keeps its proven env). The
-        # triplet's cc_suffix (posix threads) rides along via CC/CXX --
-        # --host alone would resolve to the default (win32) variant.
+    # autoconf bakes CPPFLAGS into the generated Makefile, so this is
+        # how ports assuming default-path headers see the sysroot; the
+        # cc_suffix (posix threads) must ride via CC/CXX -- --host alone
+        # resolves to the default (win32) thread variant.
         extra = None
         if self.ctx["triplet_cfg"]["cross_prefix"] and not _is_tool:
             alias_inc = paths.sysroot_alias(

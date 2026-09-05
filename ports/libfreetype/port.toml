@@ -1,0 +1,20 @@
+match_names = [
+    "freetype2",
+    "libfreetype",
+]
+pc = "freetype2"
+system = "cmake"
+needs = [
+    "zlib",
+    "libpng",
+    "brotli",
+]
+cmake_args = [
+    "-DBUILD_SHARED_LIBS=ON",
+    "-DFT_DISABLE_BZIP2=ON",
+]
+
+[source]
+type = "git"
+url = "https://github.com/freetype/freetype.git"
+rev = "VER-2-13-2"

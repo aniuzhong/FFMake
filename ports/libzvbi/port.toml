@@ -1,0 +1,29 @@
+match_names = [
+    "libzvbi",
+    "zvbi-0.2",
+]
+pc = "zvbi-0.2"
+system = "makefile"
+autogen = "ACLOCAL_PATH=/usr/share/aclocal AUTOPOINT=true autoreconf -fi"
+configure_args = [
+    "--disable-nls",
+]
+make_args = [
+    "LDFLAGS=-no-undefined",
+    "libzvbi_la_LIBADD=libzvbiinline.la $(LIBS) $(UNICODE_LIBS) $(LTLIBICONV)",
+]
+
+[source]
+type = "tar"
+url = "http://deb.debian.org/debian/pool/main/z/zvbi/zvbi_0.2.44.orig.tar.gz"
+sha256 = "bca620ab670328ad732d161e4ce8d9d9fc832533cb7440e98c50e112b805ac5e"
+
+[triplet_overrides.mingw-x86_64-llvm]
+needs = [
+    "libiconv",
+]
+configure_args = [
+    "--disable-nls",
+    "--disable-examples",
+    "--with-libiconv-prefix={prefix}",
+]

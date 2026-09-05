@@ -1,0 +1,10 @@
+tool = true
+pc = ""
+system = "makefile"
+configure_args = [
+    "--without-lispdir",
+]
+
+[source]
+type = "tar"
+url = "https://mirrors.tuna.tsinghua.edu.cn/gnu/autoconf/autoconf-2.71.tar.gz"

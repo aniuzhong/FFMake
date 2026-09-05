@@ -1,0 +1,16 @@
+platforms = [
+    "linux",
+]
+match_names = [
+    "libvdpau",
+    "vdpau",
+]
+pc = "vdpau"
+system = "meson"
+strict_pkgconfig = false
+meson_args = []
+
+[source]
+type = "tar"
+url = "https://gitlab.freedesktop.org/vdpau/libvdpau/-/archive/1.5/libvdpau-1.5.tar.gz"
+sha256 = "66490802f30426d30ff9e8af35263bbbbaa23b52d0a2d797d06959c3d19638fd"

@@ -1,0 +1,15 @@
+match_names = [
+    "dav1d",
+    "libdav1d",
+]
+pc = "dav1d"
+system = "meson"
+meson_args = [
+    "-Denable_tests=false",
+    "-Denable_tools=false",
+]
+
+[source]
+type = "git"
+url = "https://github.com/videolan/dav1d.git"
+rev = "1.5.4"

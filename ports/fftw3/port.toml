@@ -1,0 +1,19 @@
+match_names = [
+    "fftw3",
+    "fftw3f",
+]
+pc = "fftw3f"
+system = "makefile"
+configure_args = [
+    "--enable-shared",
+    "--disable-static",
+    "--enable-float",
+]
+make_args = [
+    "LDFLAGS=-no-undefined",
+]
+
+[source]
+type = "tar"
+url = "https://www.fftw.org/fftw-3.3.10.tar.gz"
+sha256 = "56c932549852cddcfafdab3820b0200c7742675be92179e59e6215b340e26467"

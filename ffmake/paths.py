@@ -50,33 +50,49 @@ def repo_root():
 
 
 def workspace(root=None):
-    return os.path.join(root or repo_root(), "workspace")
+    # retired name, kept for callers during the transition -- everything
+    # physical now lives under store/
+    return store(root)
+
+
+def store(root=None):
+    return os.path.join(root or repo_root(), "store")
 
 
 def distfiles(root=None):
-    return os.path.join(workspace(root), "distfiles")
+    """Content-addressed tarball cache (key = sha256). The durable seed
+    layer; git mirrors are its sibling."""
+    return os.path.join(store(root), "distfiles")
+
+
+def git_mirrors(root=None):
+    """Bare mirrors of every pinned git source: the durable copy of git
+    knowledge, so workspace/src trees stay regenerable."""
+    return os.path.join(store(root), "git-mirrors")
 
 
 def src(root=None):
-    return os.path.join(workspace(root), "src")
+    # extracted vendor trees, regenerable from store/distfiles +
+    # store/git-mirrors at any time
+    return os.path.join(store(root), "src")
 
 
 def build(root=None):
-    return os.path.join(workspace(root), "build")
+    return os.path.join(store(root), "build")
 
 
 def logs(root=None):
-    return os.path.join(workspace(root), "logs")
+    return os.path.join(store(root), "logs")
 
 
 def tools_prefix(root=None):
     """Host tools sysroot (nasm etc.), shared across triplets."""
-    return os.path.join(workspace(root), "tools")
+    return os.path.join(store(root), "tools")
 
 
 def out(root, triplet):
     """Per-triplet sysroot root."""
-    return os.path.join(workspace(root), "out", triplet)
+    return os.path.join(store(root), "out", triplet)
 
 
 def prefix(root, triplet):
@@ -102,7 +118,7 @@ def ffmpeg_out(root, triplet):
 
 
 def stamp_file(root, ns, key):
-    return os.path.join(workspace(root), "var", "stamps", ns, key + ".json")
+    return os.path.join(store(root), "stamps", ns, key + ".json")
 
 
 def lock_file(root=None):
@@ -129,7 +145,7 @@ def sysroot_alias(root, triplet):
 
 def pkgmap_file(root=None):
     """real-prefix -> ascii-alias mapping consumed by the pkg-config wrapper."""
-    return os.path.join(workspace(root), "tools", "pkgmap.json")
+    return os.path.join(tools_prefix(root), "pkgmap.json")
 
 
 def ensure_ascii_alias(root=None, triplet=None):
@@ -149,7 +165,12 @@ def ensure_ascii_alias(root=None, triplet=None):
         elif os.path.isdir(alias):
             shutil.rmtree(alias)
         os.symlink(target, alias)
-        mapping[target] = alias
+    # pkgmap covers ALL alias links in the base dir: concurrent triplet
+    # builds rewrite this file, each must preserve the others' entries
+    for name in os.listdir(base):
+        alias = os.path.join(base, name)
+        if os.path.islink(alias):
+            mapping[os.path.realpath(alias)] = alias
     with open(pkgmap_file(root), "w") as f:
         json.dump(mapping, f, indent=2, sort_keys=True)
     wrapper = os.path.join(tools_prefix(root), "bin", "pkg-config")
@@ -165,22 +186,27 @@ def ffmpeg_src_dir(root=None):
 
 
 def ensure_workspace(root=None, triplet=None):
+    """Create the store layout; the name is transitional."""
     root = root or repo_root()
     dirs = [
-        "distfiles",
-        "src",
-        os.path.join("tools", "bin"),
-        "logs",
-        os.path.join("var", "stamps", TOOLS_NS),
+        os.path.join("store", "src"),
+        os.path.join("store", "build"),
+        os.path.join("store", "out"),
+        os.path.join("store", "tools", "bin"),
+        os.path.join("store", "stamps", TOOLS_NS),
+        os.path.join("store", "distfiles"),
+        os.path.join("store", "git-mirrors"),
+        os.path.join("store", "logs"),
+        os.path.join("store", "facts"),
     ]
     if triplet:
         dirs += [
-            os.path.join("build", triplet, "ffmpeg-out"),
-            os.path.join("out", triplet, "lib", "pkgconfig"),
-            os.path.join("out", triplet, "include"),
-            os.path.join("out", triplet, "bin"),
-            os.path.join("var", "stamps", triplet),
+            os.path.join("store", "build", triplet, "ffmpeg-out"),
+            os.path.join("store", "out", triplet, "lib", "pkgconfig"),
+            os.path.join("store", "out", triplet, "include"),
+            os.path.join("store", "out", triplet, "bin"),
+            os.path.join("store", "stamps", triplet),
         ]
     for d in dirs:
-        os.makedirs(os.path.join(workspace(root), d), exist_ok=True)
-    return workspace(root)
+        os.makedirs(os.path.join(root, d), exist_ok=True)
+    return store(root)

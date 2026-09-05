@@ -1,0 +1,21 @@
+match_names = [
+    "vulkan",
+    "libvulkan",
+]
+pc = "vulkan"
+system = "cmake"
+strict_pkgconfig = false
+needs = [
+    "vulkan-headers",
+]
+cmake_args = [
+    "-DCMAKE_PREFIX_PATH={prefix}",
+    "-DVULKAN_HEADERS_INSTALL_DIR={prefix}",
+    "-DBUILD_TESTS=OFF",
+    "-DBUILD_LOADER_TOOL=OFF",
+]
+
+[source]
+type = "tar"
+url = "https://github.com/KhronosGroup/Vulkan-Loader/archive/refs/tags/vulkan-sdk-1.4.357.0.tar.gz#/vulkan-sdk-1.4.357.0-loader.tar.gz"
+sha256 = "54f2537df22313768da0317dda2abdaaab7711b4081c48c869a79db343d0ae70"

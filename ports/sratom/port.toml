@@ -1,0 +1,21 @@
+match_names = [
+    "sratom",
+    "sratom-0",
+]
+pc = "sratom-0"
+system = "meson"
+needs = [
+    "serd",
+    "sord",
+    "zix",
+    "lv2",
+]
+meson_args = [
+    "-Dtests=disabled",
+    "-Ddocs=disabled",
+]
+
+[source]
+type = "tar"
+url = "https://download.drobilla.net/sratom-0.6.18.tar.xz"
+sha256 = "4c6a6d9e0b4d6c01cc06a8849910feceb92e666cb38779c614dd2404a9931e92"

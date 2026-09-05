@@ -1,0 +1,15 @@
+reason = "stale platforms=[linux] dropped: golden lock proves mingw builds succeeded; libtiff needs requires them on both triplets"
+match_names = [
+    "libdeflate",
+]
+pc = "libdeflate"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_SHARED_LIBS=ON",
+    "-DLIBDEFLATE_BUILD_TESTS=OFF",
+]
+
+[source]
+type = "git"
+url = "https://github.com/ebiggers/libdeflate.git"
+rev = "v1.23"

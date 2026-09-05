@@ -1,0 +1,24 @@
+match_names = [
+    "lcevc_dec",
+    "liblcevc_dec",
+]
+pc = "lcevc_dec"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_SHARED_LIBS=ON",
+    "-DVN_SDK_SYSTEM_INSTALL=OFF",
+]
+pc_libs = [
+    "-llcevc_dec",
+]
+
+[source]
+type = "tar"
+url = "https://github.com/v-novaltd/LCEVCdec/archive/refs/tags/4.2.1.tar.gz"
+sha256 = "997e69cfc539f5800a20d92d3f07c3bc4ec0e5b710a3b364b07bcb39a69b8898"
+
+[triplet_overrides.mingw-x86_64-llvm]
+cmake_args = [
+    "-DCMAKE_CXX_FLAGS=-include errno.h",
+    "-DCMAKE_C_FLAGS=-include errno.h",
+]

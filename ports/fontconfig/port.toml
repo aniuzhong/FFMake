@@ -1,0 +1,17 @@
+match_names = [
+    "fontconfig",
+]
+pc = "fontconfig"
+system = "meson"
+needs = [
+    "expat",
+]
+meson_args = [
+    "-Dtests=disabled",
+    "-Ddoc=disabled",
+]
+
+[source]
+type = "tar"
+url = "https://www.freedesktop.org/software/fontconfig/release/fontconfig-2.15.0.tar.xz"
+sha256 = "63a0658d0e06e0fa886106452b58ef04f21f58202ea02a94c39de0d3335d7c0e"

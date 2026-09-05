@@ -1,0 +1,14 @@
+match_names = [
+    "libvidstab",
+    "vidstab",
+]
+pc = "vidstab"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_SHARED_LIBS=ON",
+]
+
+[source]
+type = "git"
+url = "https://github.com/georgmartius/vid.stab.git"
+rev = "v1.1.1"

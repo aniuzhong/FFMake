@@ -1,0 +1,16 @@
+match_names = [
+    "SvtJpegxs",
+    "svtjpegxs",
+    "libsvtjpegxs",
+]
+pc = "SvtJpegxs"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_SHARED_LIBS=ON",
+    "-DENABLE_NASM=ON",
+]
+
+[source]
+type = "git"
+url = "https://github.com/OpenVisualCloud/SVT-JPEG-XS.git"
+rev = "96f8f06e65011042b265221c8558a46090c679bd"

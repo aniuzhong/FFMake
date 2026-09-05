@@ -1,0 +1,15 @@
+match_names = [
+    "libqrencode",
+]
+pc = "libqrencode"
+system = "makefile"
+autogen = "sh {src}/autogen.sh"
+configure_args = []
+make_args = [
+    "LDFLAGS=-no-undefined",
+]
+
+[source]
+type = "git"
+url = "https://github.com/fukuchi/libqrencode.git"
+rev = "v4.1.1"

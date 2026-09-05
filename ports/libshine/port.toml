@@ -1,0 +1,17 @@
+match_names = [
+    "libshine",
+    "shine",
+]
+pc = "shine"
+system = "makefile"
+autogen = "sh {src}/bootstrap"
+prefixup = "sed -i 's/^bin_PROGRAMS.*/bin_PROGRAMS =/' Makefile.am && sed -i 's| -export-symbols libshine.sym| -export-symbols $(top_srcdir)/libshine.sym|' Makefile.am"
+configure_args = []
+make_args = [
+    "LDFLAGS=-no-undefined",
+]
+
+[source]
+type = "git"
+url = "https://github.com/toots/shine.git"
+rev = "3.1.1"

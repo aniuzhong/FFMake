@@ -1,0 +1,19 @@
+match_names = [
+    "sord",
+    "sord-0",
+]
+pc = "sord-0"
+system = "meson"
+needs = [
+    "serd",
+    "zix",
+]
+meson_args = [
+    "-Dtests=disabled",
+    "-Ddocs=disabled",
+]
+
+[source]
+type = "tar"
+url = "https://download.drobilla.net/sord-0.16.18.tar.xz"
+sha256 = "4f398b635894491a4774b1498959805a08e11734c324f13d572dea695b13d3b3"

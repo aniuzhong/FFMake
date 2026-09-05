@@ -1,0 +1,18 @@
+match_names = [
+    "libsrt",
+    "srt",
+]
+pc = "srt"
+system = "cmake"
+needs = [
+    "openssl",
+]
+cmake_args = [
+    "-DENABLE_APPS=OFF",
+    "-DENABLE_TESTS=OFF",
+]
+
+[source]
+type = "git"
+url = "https://github.com/Haivision/srt.git"
+rev = "v1.5.3"

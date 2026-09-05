@@ -1,0 +1,22 @@
+match_names = [
+    "vapoursynth",
+    "vapoursynth/VSScript4.h",
+    "vapoursynth/VSAPI4.h",
+]
+pc = "vapoursynth"
+system = "makefile"
+needs = [
+    "zimg",
+    "cython",
+]
+autogen = "sh {src}/autogen.sh"
+configure_args = [
+    "--disable-vspipe",
+    "--disable-python-module",
+]
+strict_pkgconfig = false
+
+[source]
+type = "tar"
+url = "https://github.com/vapoursynth/vapoursynth/archive/refs/tags/R70.tar.gz"
+sha256 = "59c813ec36046be33812408ff00e16cae63c6843af6acf4e34595910a80e267b"

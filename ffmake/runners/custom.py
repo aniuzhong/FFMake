@@ -32,7 +32,6 @@ class CustomRunner(Runner):
             "jobs": str(self.ctx["jobs"]),
         }
         if dep.get("prefixup"):
-            # pre-build source repair, same semantics as the makefile runner
             self.run(["bash", "-c", dep["prefixup"].format(**subst)], src,
                      os.path.join(logs, "prefixup.log"),
                      env=self.env(strict=False))

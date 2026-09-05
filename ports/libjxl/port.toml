@@ -1,0 +1,22 @@
+match_names = [
+    "libjxl",
+]
+pc = "libjxl"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_SHARED_LIBS=ON",
+    "-DBUILD_TESTING=OFF",
+    "-DJPEGXL_ENABLE_BENCHMARK=OFF",
+    "-DJPEGXL_ENABLE_EXAMPLES=OFF",
+    "-DJPEGXL_ENABLE_MANPAGES=OFF",
+    "-DJPEGXL_ENABLE_JNI=OFF",
+    "-DJPEGXL_ENABLE_SJPEG=OFF",
+    "-DJPEGXL_ENABLE_OPENEXR=OFF",
+    "-DJPEGXL_ENABLE_SKCMS=ON",
+]
+
+[source]
+type = "git"
+url = "https://github.com/libjxl/libjxl.git"
+rev = "v0.10.3"
+submodules = true

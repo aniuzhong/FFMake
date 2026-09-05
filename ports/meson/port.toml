@@ -1,0 +1,10 @@
+tool = true
+system = "pip"
+
+[pip]
+require = [
+    "meson==1.4.2",
+]
+
+[pip.wrappers]
+meson = "mesonbuild.mesonmain:main"

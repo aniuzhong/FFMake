@@ -1,0 +1,17 @@
+match_names = [
+    "pixman",
+    "pixman-1",
+]
+pc = "pixman-1"
+system = "meson"
+meson_args = [
+    "-Dtests=disabled",
+    "-Ddemos=disabled",
+    "-Dgtk=disabled",
+    "-Dlibpng=disabled",
+]
+
+[source]
+type = "tar"
+url = "http://deb.debian.org/debian/pool/main/p/pixman/pixman_0.44.0.orig.tar.gz"
+sha256 = "89a4c1e1e45e0b23dffe708202cb2eaffde0fe3727d7692b2e1739fec78a7dac"

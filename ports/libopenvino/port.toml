@@ -1,0 +1,38 @@
+match_names = [
+    "libopenvino",
+    "openvino",
+]
+pc = "openvino"
+system = "custom"
+steps = [
+    "mkdir -p {prefix}/include {prefix}/lib",
+    "cp -a {src}/runtime/include/* {prefix}/include/",
+    "cp -a {src}/runtime/lib/intel64/* {prefix}/lib/ && cp -a {src}/runtime/3rdparty/tbb/lib/libtbb* {prefix}/lib/",
+    "printf 'prefix=%s\\nlibdir=%s\\n\\nName: openvino\\nDescription: OpenVINO toolkit\\nVersion: 2024.6\\nLibs: -L%s/lib -lopenvino_c -lopenvino\\nCflags: -I%s/include\\n' \"{prefix}\" \"{prefix}\" \"{prefix}\" > {prefix}/lib/pkgconfig/openvino.pc",
+]
+pc_libs = [
+    "-lopenvino",
+    "-lopenvino_c",
+]
+
+[source]
+type = "tar"
+url = "https://storage.openvinotoolkit.org/repositories/openvino/packages/2024.6/linux/l_openvino_toolkit_ubuntu20_2024.6.0.17404.4c0f47d2335_x86_64.tgz"
+
+[triplet_overrides.mingw-x86_64-llvm]
+steps = [
+    "mkdir -p {prefix}/include {prefix}/lib {prefix}/bin",
+    "cp -a {src}/runtime/include/* {prefix}/include/",
+    "cp -a {src}/runtime/lib/intel64/Release/*.lib {prefix}/lib/",
+    "cp -a {src}/runtime/bin/intel64/Release/* {prefix}/bin/",
+    "cp -a {src}/runtime/3rdparty/tbb/bin/* {prefix}/bin/ 2>/dev/null || true",
+    "cp -a {src}/runtime/bin/intel64/Release/openvino_c.dll {prefix}/lib/",
+    "printf 'prefix=%s\\nlibdir=%s\\n\\nName: openvino\\nDescription: OpenVINO toolkit\\nVersion: 2024.6\\nLibs: -L%s/lib -lopenvino_c\\nCflags: -I%s/include\\n' \"{prefix}\" \"{prefix}\" \"{prefix}\" > {prefix}/lib/pkgconfig/openvino.pc",
+]
+pc_libs = [
+    "-lopenvino_c",
+]
+
+[triplet_overrides.mingw-x86_64-llvm.source]
+type = "tar"
+url = "https://storage.openvinotoolkit.org/repositories/openvino/packages/2024.6/windows/w_openvino_toolkit_windows_2024.6.0.17404.4c0f47d2335_x86_64.zip"

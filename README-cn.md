@@ -27,10 +27,3 @@
 
 - **x86_64-linux**
 - **x86_64-windows**
-
-## 应对重型依赖的策略
-
-针对 OpenCV、ONNX Runtime、TensorFlow 等重量级第三方库，我们不主动承接构建：
-
-1. 评估官方发布的预编译二进制的可用性；
-2. 复用 Debian/Ubuntu 官方维护的二进制包；

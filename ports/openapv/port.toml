@@ -1,0 +1,13 @@
+match_names = [
+    "oapv",
+    "liboapv",
+]
+pc = "oapv"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_SHARED_LIBS=ON",
+]
+[source]
+type = "git"
+url = "https://github.com/AcademySoftwareFoundation/openapv.git"
+rev = "a5312e4fa405057ff0be2c370283fabfe588c1f4"

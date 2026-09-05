@@ -1,0 +1,11 @@
+tool = true
+system = "custom"
+steps = [
+    "python3 {src}/configure.py --bootstrap",
+    "cp -f {bdir}/ninja {tools}/bin/ninja",
+]
+
+[source]
+type = "git"
+url = "https://github.com/ninja-build/ninja.git"
+rev = "v1.12.1"

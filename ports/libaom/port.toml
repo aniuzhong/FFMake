@@ -1,0 +1,18 @@
+match_names = [
+    "libaom",
+    "aom",
+]
+pc = "aom"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_SHARED_LIBS=ON",
+    "-DENABLE_TESTS=OFF",
+    "-DENABLE_DOCS=OFF",
+    "-DENABLE_EXAMPLES=OFF",
+    "-DENABLE_TOOLS=OFF",
+]
+
+[source]
+type = "git"
+url = "https://aomedia.googlesource.com/aom"
+rev = "v3.9.1"

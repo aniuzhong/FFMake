@@ -1,0 +1,19 @@
+match_names = [
+    "libcdio_paranoia",
+    "libcdio-paranoia",
+    "cdparanoia",
+]
+pc = "libcdio_paranoia"
+system = "makefile"
+needs = [
+    "libcdio",
+]
+[source]
+type = "tar"
+url = "https://github.com/rocky/libcdio-paranoia/releases/download/release-10.2%2B2.0.2/libcdio-paranoia-10.2+2.0.2.tar.bz2"
+
+[triplet_overrides.mingw-x86_64-llvm]
+prefixup = "find {src} \\( -name Makefile.am -o -name Makefile.in \\) -exec sed -i 's/ -Wl,--version-script=[^ ]*//g' {{}} +"
+make_args = [
+    "LDFLAGS=-no-undefined",
+]

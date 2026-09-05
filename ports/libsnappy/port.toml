@@ -1,0 +1,16 @@
+match_names = [
+    "libsnappy",
+    "snappy",
+]
+pc = "snappy"
+system = "cmake"
+cmake_args = [
+    "-DSNAPPY_BUILD_TESTS=OFF",
+    "-DSNAPPY_BUILD_BENCHMARKS=OFF",
+    "-DBUILD_SHARED_LIBS=ON",
+]
+
+[source]
+type = "git"
+url = "https://github.com/google/snappy.git"
+rev = "1.2.1"

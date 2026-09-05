@@ -1,0 +1,20 @@
+match_names = [
+    "libchromaprint",
+    "chromaprint",
+]
+pc = "libchromaprint"
+system = "cmake"
+needs = [
+    "fftw3",
+]
+cmake_args = [
+    "-DBUILD_TOOLS=OFF",
+    "-DBUILD_TESTS=OFF",
+    "-DCMAKE_PREFIX_PATH={prefix}",
+    "-DCMAKE_DISABLE_FIND_PACKAGE_FFmpeg=TRUE",
+]
+
+[source]
+type = "tar"
+url = "https://github.com/acoustid/chromaprint/releases/download/v1.5.1/chromaprint-1.5.1.tar.gz"
+sha256 = "a1aad8fa3b8b18b78d3755b3767faff9abb67242e01b478ec9a64e190f335e1c"

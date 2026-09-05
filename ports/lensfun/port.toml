@@ -1,0 +1,28 @@
+match_names = [
+    "lensfun",
+    "liblensfun",
+]
+pc = "lensfun"
+system = "cmake"
+needs = [
+    "glib",
+]
+pc_libs = [
+    "-llensfun",
+    "-lm",
+]
+platforms = [
+    "linux-x86_64",
+]
+cmake_args = [
+    "-DBUILD_TESTS=OFF",
+    "-DBUILD_LENSFUN_ADDITIONAL=OFF",
+    "-DGLIB2_INCLUDE_DIRS=/usr/include/glib-2.0;/usr/lib/x86_64-linux-gnu/glib-2.0/include",
+    "-DGLIB2_LIBRARIES=/usr/lib/x86_64-linux-gnu/libglib-2.0.so",
+]
+prefixup = "sed -i 's|^ADD_SUBDIRECTORY(apps)|# apps disabled (lenstool/python not needed)|' {src}/CMakeLists.txt"
+
+[source]
+type = "git"
+url = "https://github.com/lensfun/lensfun.git"
+rev = "23e8cb8050d680c7a293edb3d48b600754665f05"

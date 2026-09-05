@@ -1,0 +1,15 @@
+match_names = [
+    "zix",
+    "zix-0",
+]
+pc = "zix-0"
+system = "meson"
+meson_args = [
+    "-Dtests=disabled",
+    "-Ddocs=disabled",
+]
+
+[source]
+type = "tar"
+url = "https://download.drobilla.net/zix-0.6.2.tar.xz"
+sha256 = "4bc771abf4fcf399ea969a1da6b375f0117784f8fd0e2db356a859f635f616a7"

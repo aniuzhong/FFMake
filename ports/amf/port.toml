@@ -1,0 +1,14 @@
+match_names = [
+    "amf",
+]
+pc = "amf"
+system = "custom"
+steps = [
+    "mkdir -p {prefix}/include/AMF && cp -r {src}/amf/public/include/core {src}/amf/public/include/components {prefix}/include/AMF/",
+    "mkdir -p {prefix}/lib/pkgconfig && printf 'prefix={prefix}\\nlibdir={prefix}/lib\\nincludedir={prefix}/include\\n\\nName: amf\\nDescription: AMD Advanced Media Framework headers\\nVersion: 1.5.2\\nCflags: -I{prefix}/include\\n' > {prefix}/lib/pkgconfig/amf.pc",
+]
+
+[source]
+type = "tar"
+url = "https://github.com/GPUOpen-LibrariesAndSDKs/AMF/archive/refs/tags/v1.5.2.tar.gz"
+sha256 = "8a70b6dc85261e6e6e57769bd81ac1e09c0a4c96bbd5e358ffbc2dee51e8e50a"

@@ -1,0 +1,13 @@
+match_names = [
+    "cython",
+]
+system = "pip"
+tool = true
+
+[pip]
+require = [
+    "cython==3.0.11",
+]
+
+[pip.wrappers]
+cython = "cython:main"

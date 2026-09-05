@@ -1,0 +1,27 @@
+match_names = [
+    "libvpx",
+    "vpx",
+]
+pc = "vpx"
+system = "makefile"
+configure_args = [
+    "--enable-shared",
+    "--disable-unit-tests",
+    "--disable-docs",
+    "--disable-examples",
+    "--disable-tools",
+]
+[source]
+type = "git"
+url = "https://github.com/webmproject/libvpx.git"
+rev = "v1.15.0"
+
+[triplet_overrides.mingw-x86_64-llvm]
+no_cross_args = true
+configure_args = [
+    "--disable-unit-tests",
+    "--disable-docs",
+    "--disable-examples",
+    "--disable-tools",
+    "--target=x86_64-win64-gcc",
+]

@@ -1,0 +1,25 @@
+match_names = [
+    "libbs2b",
+]
+pc = "libbs2b"
+system = "makefile"
+needs = [
+    "libsndfile",
+]
+configure_args = [
+    "ac_cv_func_malloc_0_nonnull=yes",
+    "ac_cv_func_realloc_0_nonnull=yes",
+]
+prefixup = "sed -i 's/^bin_PROGRAMS =.*/bin_PROGRAMS =/' src/Makefile.in"
+make_args = [
+    "LDFLAGS=-no-undefined",
+]
+
+[source]
+type = "tar"
+url = "https://sourceforge.net/projects/bs2b/files/libbs2b/3.1.0/libbs2b-3.1.0.tar.gz"
+
+[triplet_overrides.mingw-x86_64-llvm]
+make_args = [
+    "LDFLAGS=-no-undefined -Wl,--whole-archive,-lclang_rt.builtins-x86_64,--no-whole-archive",
+]

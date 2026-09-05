@@ -1,0 +1,20 @@
+match_names = [
+    "libxavs2",
+    "xavs2",
+]
+pc = "xavs2"
+system = "custom"
+prefixup = "sed -i 's/CPU amdnop//' source/common/x86/x86inc.asm"
+steps = [
+    "cd {src}/build/linux && AS={tools}/bin/nasm ./configure --prefix={prefix} --extra-cflags=-fPIC --extra-asflags=-DPIC && make -j{jobs} && make install",
+]
+
+[source]
+type = "git"
+url = "https://github.com/pkuvcl/xavs2.git"
+rev = "eae1e8b9d12468059bdd7dee893508e470fa83d8"
+
+[triplet_overrides.mingw-x86_64-llvm]
+steps = [
+    "cd {src}/build/linux && AS={tools}/bin/nasm CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ ./configure --host=x86_64-w64-mingw32 --prefix={prefix} --extra-cflags=\"-fPIC -Wno-error=incompatible-function-pointer-types\" && make -j{jobs} && make install",
+]

@@ -1,0 +1,27 @@
+match_names = [
+    "libzmq",
+    "zmq",
+]
+pc = "libzmq"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_TESTS=OFF",
+    "-DBUILD_SHARED=ON",
+    "-DBUILD_STATIC=OFF",
+    "-DENABLE_DRAFTS=OFF",
+]
+
+[source]
+type = "tar"
+url = "https://github.com/zeromq/libzmq/releases/download/v4.3.5/zeromq-4.3.5.tar.gz"
+sha256 = "6653ef5910f17954861fe72332e68b03ca6e4d9c7160eb3a8de5a5a913bfab43"
+
+[triplet_overrides.mingw-x86_64-llvm]
+cmake_args = [
+    "-DBUILD_TESTS=OFF",
+    "-DBUILD_SHARED=ON",
+    "-DBUILD_STATIC=OFF",
+    "-DENABLE_DRAFTS=OFF",
+    "-DCMAKE_SYSTEM_VERSION=6.1",
+]
+prefixup = "sed -i 's/check_include_files(\"winsock2.h;afunix.h\" ZMQ_HAVE_IPC)/set(ZMQ_HAVE_IPC OFF)/' {src}/CMakeLists.txt"

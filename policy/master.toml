@@ -1,0 +1,11 @@
+# channel "master": tracks ffmpeg upstream master.
+# A channel is intent: which root, what floats, how often we re-verify.
+# deps = "lock"   every dependency stays at its pinned rev (knowledge-base
+#                 truth); a "latest-tag" tier for direct deps is planned
+#                 and will be declared here when the engine implements it
+root = "ffmpeg"
+cadence = "weekly"
+
+[float]
+root = "master"          # branch/tag/rev the root product tracks
+deps = "lock"            # pinned; auto-floating is not implemented yet

@@ -1,0 +1,15 @@
+match_names = [
+    "fribidi",
+    "libfribidi",
+]
+pc = "fribidi"
+system = "meson"
+meson_args = [
+    "-Dtests=false",
+    "-Ddocs=false",
+]
+
+[source]
+type = "git"
+url = "https://github.com/fribidi/fribidi.git"
+rev = "v1.0.16"

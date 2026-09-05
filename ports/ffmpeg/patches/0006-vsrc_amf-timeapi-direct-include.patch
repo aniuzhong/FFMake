@@ -1,0 +1,16 @@
+diff --git a/libavfilter/vsrc_amf.c b/libavfilter/vsrc_amf.c
+index c43b5d3d27..ec4373b249 100644
+--- a/libavfilter/vsrc_amf.c
++++ b/libavfilter/vsrc_amf.c
+@@ -74,11 +74,7 @@ AVFILTER_DEFINE_CLASS(amf_capture);
+ // need to increase precision for capture timing accuracy
+ #if defined (_WIN32)
+ 
+-#if __has_include(<timeapi.h>)
+ #include <timeapi.h>
+-#else
+-#include <mmsystem.h>
+-#endif
+ 
+ typedef WINMMAPI MMRESULT (WINAPI *timeBeginPeriod_fn)( UINT uPeriod);
+ typedef WINMMAPI MMRESULT (WINAPI *timeEndPeriod_fn)(UINT uPeriod);

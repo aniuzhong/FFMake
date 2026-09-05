@@ -1,0 +1,13 @@
+match_names = [
+    "ffnvcodec",
+]
+pc = "ffnvcodec"
+system = "custom"
+steps = [
+    "make -C {src} install PREFIX={prefix}",
+]
+
+[source]
+type = "git"
+url = "https://github.com/FFmpeg/nv-codec-headers.git"
+rev = "n12.2.72.0"

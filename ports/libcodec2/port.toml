@@ -1,0 +1,16 @@
+match_names = [
+    "codec2",
+    "libcodec2",
+]
+pc = "codec2"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_SHARED_LIBS=ON",
+    "-DUNITTEST=OFF",
+]
+prefixup = "curl -fsSL -o {src}/cmake/GetPrerequisites.cmake https://raw.githubusercontent.com/Kitware/CMake/v3.20.6/Modules/GetPrerequisites.cmake"
+
+[source]
+type = "git"
+url = "https://github.com/drowe67/codec2.git"
+rev = "1.2.0"

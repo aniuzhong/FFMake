@@ -1,0 +1,11 @@
+match_names = [
+    "fdk-aac",
+    "libfdk_aac",
+]
+pc = "fdk-aac"
+system = "makefile"
+needs = []
+
+[source]
+type = "tar"
+url = "https://downloads.sourceforge.net/opencore-amr/fdk-aac/fdk-aac-2.0.2.tar.gz"

@@ -1,0 +1,15 @@
+match_names = [
+    "libopus",
+    "opus",
+]
+pc = "opus"
+system = "makefile"
+configure_args = []
+make_args = [
+    "LDFLAGS=-no-undefined",
+]
+prefixup = "sed -i 's/-D_FORTIFY_SOURCE=2//g' {src}/configure"
+
+[source]
+type = "tar"
+url = "https://downloads.xiph.org/releases/opus/opus-1.4.tar.gz"

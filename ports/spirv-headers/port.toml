@@ -1,0 +1,14 @@
+match_names = [
+    "spirv-headers",
+]
+pc = "spirv-headers"
+system = "custom"
+steps = [
+    "mkdir -p {prefix}/include && cp -r {src}/include/spirv {prefix}/include/",
+    "mkdir -p {prefix}/lib/pkgconfig && printf 'prefix={prefix}\\nincludedir={prefix}/include\\n\\nName: SPIRV-Headers\\nDescription: Khronos SPIR-V headers\\nVersion: 1.4.357.0\\nCflags: -I{prefix}/include\\n' > {prefix}/lib/pkgconfig/spirv-headers.pc",
+]
+
+[source]
+type = "tar"
+url = "https://github.com/KhronosGroup/SPIRV-Headers/archive/refs/tags/vulkan-sdk-1.4.357.0.tar.gz#/spirv-headers-1.4.357.0.tar.gz"
+sha256 = "4d703067a7e06331ccb37bdfed3f9b7879cc61969a2689ae95c95db34a47ff07"

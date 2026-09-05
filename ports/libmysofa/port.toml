@@ -1,0 +1,20 @@
+match_names = [
+    "libmysofa",
+    "mysofa",
+]
+pc = "mysofa"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_TESTS=OFF",
+    "-DBUILD_SHARED_LIBS=ON",
+]
+[source]
+type = "git"
+url = "https://github.com/hoene/libmysofa.git"
+rev = "v1.3.2"
+
+[triplet_overrides.mingw-x86_64-llvm]
+cmake_args = [
+    "-DBUILD_TESTS=OFF",
+    "-DBUILD_SHARED_LIBS=OFF",
+]

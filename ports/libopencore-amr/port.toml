@@ -1,0 +1,16 @@
+match_names = [
+    "libopencore-amr",
+    "libopencore-amrnb",
+    "libopencore-amrwb",
+    "opencore-amrnb",
+    "libopencore_amrnb",
+    "libopencore_amrwb",
+]
+pc = "opencore-amrnb"
+system = "makefile"
+configure_args = []
+
+[source]
+type = "tar"
+url = "http://deb.debian.org/debian/pool/main/o/opencore-amr/opencore-amr_0.1.6.orig.tar.gz"
+sha256 = "483eb4061088e2b34b358e47540b5d495a96cd468e361050fae615b1809dc4a1"

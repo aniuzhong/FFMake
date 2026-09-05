@@ -1,0 +1,19 @@
+match_names = [
+    "shaderc",
+    "shaderc_shared",
+]
+pc = "shaderc"
+system = "cmake"
+prefixup = "python3 {src}/utils/git-sync-deps"
+cmake_args = [
+    "-DSHADERC_SKIP_TESTS=ON",
+    "-DSHADERC_SKIP_EXAMPLES=ON",
+    "-DSHADERC_SKIP_COPYRIGHT_CHECK=ON",
+    "-DSPIRV_TOOLS_BUILD_STATIC=OFF",
+    "-DBUILD_SHARED_LIBS=ON",
+]
+
+[source]
+type = "git"
+url = "https://github.com/google/shaderc.git"
+rev = "v2026.3"

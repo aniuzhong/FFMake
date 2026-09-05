@@ -1,0 +1,16 @@
+match_names = [
+    "libvmaf",
+    "vmaf",
+]
+pc = "libvmaf"
+system = "meson"
+source_dir = "libvmaf"
+meson_args = [
+    "-Denable_tests=false",
+    "-Denable_docs=false",
+]
+
+[source]
+type = "git"
+url = "https://github.com/Netflix/vmaf.git"
+rev = "v3.0.0"

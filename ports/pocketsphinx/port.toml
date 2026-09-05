@@ -1,0 +1,12 @@
+match_names = [
+    "pocketsphinx",
+]
+pc = "pocketsphinx"
+system = "cmake"
+cmake_args = [
+    "-DBUILD_SHARED_LIBS=ON",
+]
+[source]
+type = "tar"
+url = "https://github.com/cmusphinx/pocketsphinx/archive/refs/tags/v5.1.1.tar.gz"
+sha256 = "e2db414eb66618cd0a98de77507db32517a48f6900b06bfb94c0acc4bef5761d"

@@ -1,0 +1,15 @@
+pc = "libpng16"
+system = "cmake"
+cmake_args = [
+    "-DPNG_SHARED=ON",
+    "-DPNG_STATIC=OFF",
+    "-DPNG_TESTS=OFF",
+]
+needs = [
+    "zlib",
+]
+
+[source]
+type = "git"
+url = "https://github.com/pnggroup/libpng.git"
+rev = "v1.6.43"

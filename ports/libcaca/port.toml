@@ -1,0 +1,29 @@
+match_names = [
+    "caca",
+    "libcaca",
+]
+pc = "caca"
+system = "makefile"
+configure_args = [
+    "ac_cv_header_zlib_h=no",
+]
+autogen = "autoreconf -fi"
+prefixup = "sed -i 's/^#if defined _WIN32 && defined __GNUC__ && __GNUC__ >= 3/#if 0/' {src}/caca/string.c {src}/caca/figfont.c && sed -i 's/^bin_PROGRAMS =.*/bin_PROGRAMS =/' {src}/src/Makefile.am && sed -i 's/^bin_PROGRAMS =.*/bin_PROGRAMS =/; s/^noinst_PROGRAMS =.*/noinst_PROGRAMS =/' {src}/examples/Makefile.am && git -C {src} checkout -- doc/Makefile.am && sed -i '/^          cxx caca-sharp/ s/ doc$//' {src}/Makefile.am"
+make_args = [
+    "LDFLAGS=-no-undefined",
+]
+
+[source]
+type = "git"
+url = "https://github.com/cacalabs/libcaca.git"
+rev = "v0.99.beta20"
+
+[triplet_overrides.mingw-x86_64-llvm]
+configure_args = [
+    "--disable-doc",
+    "--disable-cxx",
+    "CFLAGS=-O2 -Wno-error=implicit-function-declaration -Wno-error=int-conversion",
+]
+make_args = [
+    "LDFLAGS=-no-undefined -L{alias}/lib -Wl,--whole-archive,-lclang_rt.builtins-x86_64,--no-whole-archive",
+]

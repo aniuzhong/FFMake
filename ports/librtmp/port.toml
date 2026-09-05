@@ -1,0 +1,24 @@
+match_names = [
+    "librtmp",
+    "rtmp",
+]
+pc = "librtmp"
+system = "custom"
+needs = [
+    "zlib",
+]
+steps = [
+    "make -C {src}/librtmp -j{jobs} CRYPTO= OPT=\"-O2 -I{prefix}/include\" XLDFLAGS=\"-L{prefix}/lib -Wl,-rpath,{prefix}/lib\"",
+    "make -C {src}/librtmp install prefix={prefix} CRYPTO= OPT=\"-O2 -I{prefix}/include\" XLDFLAGS=\"-L{prefix}/lib\"",
+]
+
+[source]
+type = "tar"
+url = "http://deb.debian.org/debian/pool/main/r/rtmpdump/rtmpdump_2.4+20151223.gitfa8646d.1.orig.tar.gz"
+sha256 = "5c032f5c8cc2937eb55a81a94effdfed3b0a0304b6376147b86f951e225e3ab5"
+
+[triplet_overrides.mingw-x86_64-llvm]
+steps = [
+    "make -C {src}/librtmp -j{jobs} SYS=mingw CROSS_COMPILE=x86_64-w64-mingw32- CC=x86_64-w64-mingw32-gcc CRYPTO= OPT=\"-O2 -I{prefix}/include\" XLDFLAGS=\"-L{prefix}/lib\"",
+    "make -C {src}/librtmp install prefix={prefix} SYS=mingw CROSS_COMPILE=x86_64-w64-mingw32- CC=x86_64-w64-mingw32-gcc CRYPTO= OPT=\"-O2 -I{prefix}/include\" XLDFLAGS=\"-L{prefix}/lib\"",
+]

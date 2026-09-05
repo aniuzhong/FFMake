@@ -1,0 +1,14 @@
+match_names = [
+    "libspeex",
+    "speex",
+]
+pc = "speex"
+system = "makefile"
+configure_args = []
+make_args = [
+    "LDFLAGS=-no-undefined",
+]
+
+[source]
+type = "tar"
+url = "https://downloads.xiph.org/releases/speex/speex-1.2.1.tar.gz"
