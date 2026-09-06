@@ -20,3 +20,6 @@ strict_pkgconfig = false
 type = "tar"
 url = "https://github.com/vapoursynth/vapoursynth/archive/refs/tags/R70.tar.gz"
 sha256 = "59c813ec36046be33812408ff00e16cae63c6843af6acf4e34595910a80e267b"
+
+[triplet_overrides.mingw-x86_64-llvm]
+reason_mingw = "upstream build has no mingw path: autotools mixes host python headers with the Windows branch (SIZEOF_WCHAR_T / Windows.h errors)"

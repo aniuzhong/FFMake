@@ -27,6 +27,9 @@ def is_installed(prefix, tools_prefix, key, dep):
 
 def validate_dep(ctx, key, dep):
     if dep.get("tool"):
+        if dep.get("seed_pending"):
+            print("validate {}: seed pending, skipped".format(key))
+            return
         tool_bin = dep.get("tool_bin", "bin/" + key)
         path = os.path.join(ctx["tools_prefix"], tool_bin)
         if not os.path.isfile(path):
@@ -36,6 +39,16 @@ def validate_dep(ctx, key, dep):
         return
 
     prefix = ctx["prefix"]
+    if dep.get("headers_only"):
+        # a headers-only target port (no library, no pkg-config): the
+        # declared file under the sysroot include tree is the contract
+        header = os.path.join(prefix, dep.get("tool_bin", "include"))
+        if not os.path.isfile(header):
+            raise BuildError(
+                "{}: headers-only port missing {} after install".format(
+                    key, header))
+        print("validate {}: headers ok ({})".format(key, header))
+        return
     pc = dep.get("pc", key)
     pcfile = os.path.join(prefix, "lib", "pkgconfig", pc + ".pc")
     if not os.path.isfile(pcfile):

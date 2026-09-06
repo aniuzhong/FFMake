@@ -1,0 +1,12 @@
+reason = "official CPU prebuilt (download.pytorch.org, cxx11-abi shared-with-deps); pinned to 2.2.2 -- the newest line whose toolchain GLIBCXX requirement fits this host's libstdc++ (3.4.28 ceiling)"
+system = "custom"
+steps = [
+    "mkdir -p {prefix}/include {prefix}/lib && cp -a {src}/include/* {prefix}/include/ && cp -a {src}/lib/* {prefix}/lib/",
+    # <torch/torch.h> lives nested at include/torch/csrc/api/include/torch/;
+    # ffmpeg probes it at the root -- link the API tree up one level
+    "for f in {src}/include/torch/csrc/api/include/torch/*; do ln -sfn \"$f\" {prefix}/include/torch/$(basename \"$f\"); done",
+]
+
+[source]
+type = "tar"
+url = "https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.2.2%2Bcpu.zip"

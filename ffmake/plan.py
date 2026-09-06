@@ -127,9 +127,14 @@ def direct_ports(uni, features, cfg_path):
             else:
                 unmapped.setdefault(n, set()).add(feat)
     for feat in features:
-        if feat in uni:
-            direct.add(feat)
-        elif feat.startswith("lib") and feat[3:] in uni:
+        # the provides index resolves feature name -> port key through
+        # every declared alias (match_names): decklink -> decklink-sdk,
+        # libx264 -> x264, etc.
+        key = index.get(feat)
+        if key:
+            direct.add(key)
+            continue
+        if feat.startswith("lib") and feat[3:] in uni:
             direct.add(feat[3:])
         elif "lib" + feat in uni:
             direct.add("lib" + feat)

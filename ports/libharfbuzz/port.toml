@@ -3,10 +3,10 @@ match_names = [
     "libharfbuzz",
 ]
 pc = "harfbuzz"
-reason = "glib/icu integrations disabled: meson auto-detect depends on sysroot build order and changed linkage vs the reference artifact (certified 2026-09-05)"
+reason = "glib=enabled is REQUIRED by the system tier: host librsvg pulls host pango, whose pangoft2 needs the hb_glib_* symbols this library must provide; icu stays off (no icu in the universe). Deterministic via explicit flags -- auto-detect once picked the wrong side of this boundary (2026-09-05)"
 system = "meson"
 meson_args = [
-    "-Dglib=disabled",
+    "-Dglib=enabled",
     "-Dicu=disabled",
     "-Dtests=disabled",
     "-Ddocs=disabled",
@@ -16,3 +16,12 @@ meson_args = [
 type = "git"
 url = "https://github.com/harfbuzz/harfbuzz.git"
 rev = "8.4.0"
+
+[triplet_overrides.mingw-x86_64-llvm]
+meson_args = [
+    "-Dtests=disabled",
+    "-Ddocs=disabled",
+    "-Dglib=disabled",
+    "-Dicu=disabled",
+]
+reason_mingw = "no glib in the mingw sysroot and no consumer needs hb_glib there (system-tier pango is a linux-side concept)"

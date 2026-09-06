@@ -1,0 +1,16 @@
+reason = "EVC Baseline Profile variant of libxeve: ffmpeg probes pkg-config name xeveb (same xeve.h/xeve_encode); built with the upstream -DSET_PROF=BASE switch"
+match_names = [
+    "xeveb",
+    "libxeveb",
+]
+pc = "xeveb"
+system = "cmake"
+cmake_args = [
+    "-DSET_PROF=BASE",
+    "-DBUILD_SHARED_LIBS=ON",
+]
+
+[source]
+type = "git"
+url = "https://github.com/mpeg5/xeve.git"
+rev = "4325639f8dff8274c023df3d7c1ca6d3cdcfc11b"

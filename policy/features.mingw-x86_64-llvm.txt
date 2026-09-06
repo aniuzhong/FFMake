@@ -88,12 +88,29 @@
 --enable-libopenh264
 --enable-libgsm
 --enable-libquirc
---enable-libklvanc
+# --enable-libklvanc (mingw-unreachable: klvanc headers include pthread.h
+#     (winpthreads placeholder typedefs) which is mutually exclusive with
+#     the real Win32 typedefs decklink's Windows headers need -- same TU
+#     cannot hold both; decklink itself stays. Needs upstream fix)
 --enable-liblcevc-dec
 --enable-avisynth
 --enable-cuda-nvcc
 --enable-librav1e
-
-# 2026-09-05: 移除 cairo/ladspa/libflite/libonnxruntime/libopenvino/libplacebo/libtensorflow。
-# 0903 版 flags(本文件前身)晚于 mingw 基准 release(20260901);为对齐基准 configuration,
-# 这 7 个 0901 之后加入的旗标被移除。原文备份: /tmp/features-backup-0903.txt
+--enable-cairo
+--enable-ladspa
+--enable-libflite
+--enable-liblcevc-dec
+# --enable-libmpeghdec (mingw-unreachable: its FetchContent dependency
+#     "ilo" has no mingw path -- the no-flock fallback still uses MSVC
+#     _SH_DENYNO macros; linux builds fine)
+--enable-libopenvino
+--enable-libplacebo
+--enable-libshaderc
+--enable-libtensorflow
+# --enable-vapoursynth (mingw-unreachable: upstream build mixes the host
+#     python headers with the Windows branch -- SIZEOF_WCHAR_T / Windows.h
+#     errors; no official mingw build path)
+# --enable-decklink (mingw-unreachable: decklink_dec.cpp's TU pulls both
+#     the DeckLink SDK Win headers and ffmpeg's compat/w32pthreads.h, whose
+#     pthread_t typedef clashes with llvm-mingw's pthread.h handle type --
+#     an ffmpeg/llvm-mingw upstream coordination issue; linux unaffected)

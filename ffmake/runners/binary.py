@@ -30,6 +30,10 @@ class BinaryRunner(Runner):
         if self.up_to_date(key, dep):
             print("dep {}: present, skip".format(key))
             return
+        if dep.get("seed_pending"):
+            print("dep {}: seed pending -- manual distfile not placed, "
+                  "skipped".format(key))
+            return
         source = dep.get("source") or {}
         if source.get("type") != "tar":
             raise BuildError("binary {}: needs a pinned tar source".format(

@@ -116,3 +116,17 @@
 --enable-libopenvino
 --enable-libtensorflow
 --enable-avisynth
+--enable-libshaderc
+--enable-libopencv
+--enable-vulkan-static
+--enable-libtorch
+--enable-decklink
+# --enable-libxevdb  (CONFLICT: ffmpeg forbids libxevd+libxevdb together --
+#                     same decoder, two EVC profiles; Main profile kept)
+# --enable-libxeveb  (CONFLICT: same rule for the xeve encoder pair)
+# --enable-decklink   (requires ports/decklink-sdk seeded; see its reason)
+--enable-libmpeghdec
+--enable-librsvg
+--enable-libopencolorio
+# --enable-libglslang  (CONFLICT: configure forbids libglslang+libshaderc
+#     together -- two front-ends for the vulkan glsl path; shaderc kept)

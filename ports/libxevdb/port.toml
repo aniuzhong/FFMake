@@ -1,0 +1,16 @@
+reason = "EVC Baseline Profile variant of the same upstream as libxevd: ffmpeg probes it as a separate decoder via pkg-config name xevdb (same xevd.h/xevd_decode); built with the upstream -DSET_PROF=BASE switch"
+match_names = [
+    "xevdb",
+    "libxevdb",
+]
+pc = "xevdb"
+system = "cmake"
+cmake_args = [
+    "-DSET_PROF=BASE",
+    "-DBUILD_SHARED_LIBS=ON",
+]
+
+[source]
+type = "git"
+url = "https://github.com/mpeg5/xevd.git"
+rev = "0f066b3ea33834fe4e25b41c32c66f912f0b5d30"

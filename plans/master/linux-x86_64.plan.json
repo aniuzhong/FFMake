@@ -5,6 +5,7 @@
   "avisynth",
   "chromaprint",
   "dav1d",
+  "decklink-sdk",
   "fdk-aac",
   "ffnvcodec",
   "flite",
@@ -43,8 +44,11 @@
   "liblcevc_dec",
   "libmodplug",
   "libmp3lame",
+  "libmpeghdec",
   "libmysofa",
+  "libopencolorio",
   "libopencore-amr",
+  "libopencv",
   "libopenh264",
   "libopenjpeg",
   "libopenmpt",
@@ -56,7 +60,9 @@
   "librabbitmq",
   "librav1e",
   "librist",
+  "librsvg",
   "librtmp",
+  "libshaderc",
   "libshine",
   "libsnappy",
   "libsoxr",
@@ -68,6 +74,7 @@
   "libtensorflow",
   "libtesseract",
   "libtheora",
+  "libtorch",
   "libtwolame",
   "libuavs3d",
   "libv4l2",
@@ -112,6 +119,7 @@
   "chromaprint": "policy",
   "cuda-nvcc": "policy",
   "cuvid": "policy",
+  "decklink": "policy",
   "ffnvcodec": "policy",
   "fontconfig": "policy",
   "frei0r": "policy",
@@ -152,11 +160,14 @@
   "liblensfun": "policy",
   "libmodplug": "policy",
   "libmp3lame": "policy",
+  "libmpeghdec": "policy",
   "libmysofa": "policy",
   "liboapv": "policy",
   "libonnxruntime": "policy",
+  "libopencolorio": "policy",
   "libopencore-amrnb": "policy",
   "libopencore-amrwb": "policy",
+  "libopencv": "policy",
   "libopenh264": "policy",
   "libopenjpeg": "policy",
   "libopenmpt": "policy",
@@ -169,8 +180,10 @@
   "librabbitmq": "policy",
   "librav1e": "policy",
   "librist": "policy",
+  "librsvg": "policy",
   "librtmp": "policy",
   "librubberband": "policy",
+  "libshaderc": "policy",
   "libshine": "policy",
   "libsmbclient": "policy",
   "libsnappy": "policy",
@@ -183,6 +196,7 @@
   "libtensorflow": "policy",
   "libtesseract": "policy",
   "libtheora": "policy",
+  "libtorch": "policy",
   "libtwolame": "policy",
   "libuavs3d": "policy",
   "libv4l2": "policy",
@@ -223,6 +237,7 @@
   "vdpau": "policy",
   "version3": "policy",
   "vulkan": "policy",
+  "vulkan-static": "policy",
   "whisper": "policy"
  },
  "order": [
@@ -231,6 +246,7 @@
   "fftw3",
   "chromaprint",
   "dav1d",
+  "decklink-sdk",
   "fdk-aac",
   "ffnvcodec",
   "flite",
@@ -278,8 +294,11 @@
   "liblcevc_dec",
   "libmodplug",
   "libmp3lame",
+  "libmpeghdec",
   "libmysofa",
+  "libopencolorio",
   "libopencore-amr",
+  "libopencv",
   "libopenh264",
   "libopenjpeg",
   "libogg",
@@ -299,6 +318,7 @@
   "librav1e",
   "mbedtls",
   "librist",
+  "librsvg",
   "librtmp",
   "libshine",
   "libsnappy",
@@ -317,6 +337,7 @@
   "leptonica",
   "libtesseract",
   "libtheora",
+  "libtorch",
   "libtwolame",
   "libuavs3d",
   "libv4l2",
@@ -361,6 +382,12 @@
  "schema": 1,
  "triplet": "linux-x86_64",
  "unmapped": {
+  "DeckLinkAPI.h": [
+   "decklink"
+  ],
+  "DeckLinkAPIVersion.h": [
+   "decklink"
+  ],
   "SDL.h": [
    "sdl2"
   ],
@@ -414,6 +441,9 @@
   ],
   "spirv": [
    "vulkan"
+  ],
+  "spirv_library": [
+   "libshaderc"
   ],
   "theoraenc": [
    "libtheora"

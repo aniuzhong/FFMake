@@ -1,0 +1,11 @@
+reason = "system-satisfied on this host (librsvg2-dev installed via apt on request); strict-mode chain requires the whole recursive Requires set of librsvg-2.0.pc in the sysroot, hence the pcs list (discovered iteratively: gio->gobject->glib->libpcre/libffi)"
+match_names = [
+    "librsvg",
+]
+pc = "librsvg-2.0"
+system = "system-pc"
+pcs = [
+    "librsvg-2.0",
+]
+
+[source]

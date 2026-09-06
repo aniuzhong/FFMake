@@ -1,0 +1,15 @@
+reason = "glslang shader compiler, headers-only probe in ffmpeg (build_info.h >= 16). CONFLICT: configure forbids libglslang together with libshaderc (two front-ends for the vulkan glsl path) -- libshaderc is enabled, so this port exists in the knowledge base but stays out of the plan"
+match_names = [
+    "libglslang",
+]
+pc = "glslang"
+system = "cmake"
+cmake_args = [
+    "-DENABLE_OPT=OFF",
+    "-DBUILD_EXTERNAL=OFF",
+]
+
+[source]
+type = "git"
+url = "https://github.com/KhronosGroup/glslang.git"
+rev = "vulkan-sdk-1.4.357.0"

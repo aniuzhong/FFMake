@@ -1,0 +1,15 @@
+From: FFMake knowledge base <ffmake@local>
+Subject: configure: probe libopencv through its C++ interface
+
+The original probe used the C toolchain with the legacy C API header;
+OpenCV 4 headers hard-require C++11 and the cxx probe family expects a
+type name -- cv::Mat from core.hpp is the canonical one. The fallback
+still exercises the full library set from opencv4.pc. The filter itself
+(vf_libopencv.cpp) was always compiled as C++.
+--- a/configure
++++ b/configure
+@@ -7434,2 +7434,2 @@
+-enabled libopencv         && { check_pkg_config libopencv opencv4 opencv2/core/core_c.h cvCreateImageHeader ||
+-                               require libopencv opencv2/core/core_c.h cvCreateImageHeader -lopencv_core -lopencv_imgproc; }
++enabled libopencv         && { check_pkg_config_cxx libopencv opencv4 opencv2/core/core.hpp "cv::Mat" ||
++                               check_class_headers_cxx opencv2/core/core.hpp "cv::Mat" -lopencv_core -lopencv_imgproc; }

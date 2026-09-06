@@ -15,6 +15,7 @@ import glob
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -89,26 +90,46 @@ def cmd_plan(args):
         print("plan: platform-blocked: {}".format(", ".join(p["blocked"])))
 
 
-def cmd_build(args):
-    root = paths.repo_root()
-    uni = model.load_universe(root)
+def _plan_or_stored(root, args, uni):
     if getattr(args, "from_plan", False):
         path = plan_mod.plan_path(root, args.channel, args.triplet)
         if not os.path.isfile(path):
             _die("no stored plan at {} -- run 'plan' or 'upgrade' "
                  "first".format(path))
         with open(path) as f:
-            p = json.load(f)
-        print("build: using stored plan ({} ports)".format(len(p["order"])))
+            return json.load(f)
+    cfg_path = plan_mod.configure_path(root)
+    if not os.path.isfile(cfg_path):
+        _die("ffmpeg source not seeded at {} -- seed the workspace "
+             "first (cold) or fetch".format(cfg_path))
+    p = plan_mod.compute(root, args.triplet, uni, cfg_path,
+                         system_tier=_system_tier(root, args.triplet))
+    plan_mod.write(root, args.channel, args.triplet, p)
+    return p
+
+
+def _build_closure(ctx, uni, plan, args):
+    """Host tools first, then the closure; stamps make this idempotent,
+    so every verb can call it before touching ffmpeg itself."""
+    tools = [k for k, d in sorted(uni.items()) if d.get("tool")]
+    for key in tools:
+        _build_one(ctx, uni, key, args.triplet)
+    ports = [k for k in plan["order"] if k not in tools]
+    if getattr(args, "parallel", False):
+        _build_parallel(ctx, uni, ports, args.triplet, args.jobs)
     else:
-        cfg_path = plan_mod.configure_path(root)
-        if not os.path.isfile(cfg_path):
-            _die("ffmpeg source not seeded at {} -- seed the workspace "
-                 "first (cold) or fetch".format(cfg_path))
-        p = plan_mod.compute(root, args.triplet, uni, cfg_path,
-                             system_tier=_system_tier(root, args.triplet))
-        plan_mod.write(root, args.channel, args.triplet, p)
+        for key in ports:
+            _build_one(ctx, uni, key, args.triplet)
+    validate.closure_shlib_gate(ctx)
+    print("build: closure complete ({} ports)".format(len(plan["order"])))
+
+
+def cmd_build(args):
+    root = paths.repo_root()
+    uni = model.load_universe(root)
+    p = _plan_or_stored(root, args, uni)
     ctx = make_ctx(root, args.triplet, args.jobs)
+    _build_closure(ctx, uni, p, args)
 
     tools = [k for k, d in sorted(uni.items()) if d.get("tool")]
     for key in tools:
@@ -198,8 +219,20 @@ def _cross_bin(ctx):
 
 
 def _apply_ffmpeg_patches(ctx):
-    """Idempotent: dry-run forward -> apply; reverse -> already applied."""
+    """Replay the patch series from a hard baseline, every time.
+
+    Forward/reverse probing cannot distinguish "applied" from
+    "partially applied" once patch skips hunks interactively (EOF answers
+    its prompts and it still exits 0), and a half-applied series silently
+    breaks the build. Instead: reset the source tree to its committed
+    state, wipe generated leftovers, then apply every patch linearly
+    with stdin cut off -- a failure is loud, a success is always the
+    exact same tree."""
     src = paths.ffmpeg_src_dir(ctx["root"])
+    subprocess.run(["git", "-C", src, "reset", "--quiet", "--hard", "HEAD"],
+                   check=True)
+    subprocess.run(["git", "-C", src, "clean", "--quiet", "-fd"],
+                   check=True)
     pdir = os.path.join(ctx["root"], "ports", "ffmpeg", "patches")
     if not os.path.isdir(pdir):
         return
@@ -207,19 +240,22 @@ def _apply_ffmpeg_patches(ctx):
         if not name.endswith(".patch"):
             continue
         path = os.path.join(pdir, name)
-        fwd = subprocess.run(["patch", "-d", src, "-p1", "--dry-run",
-                              "-i", path], capture_output=True).returncode
-        if fwd == 0:
-            subprocess.run(["patch", "-d", src, "-p1", "-i", path],
-                           check=True, capture_output=True)
-            print("ffmpeg: applied patch {}".format(name))
-            continue
-        rev = subprocess.run(["patch", "-d", src, "-p1", "--dry-run",
-                              "-R", "-i", path],
-                             capture_output=True).returncode
-        if rev != 0:
-            _die("ffmpeg patch '{}' does not apply and is not fully "
-                 "applied (conflict?)".format(name))
+        # two dialects: git-diff patches go through git apply (exact
+        # about create/modify, no interactive heuristics); the older
+        # patch(1) dialect (0002's standalone fragments) goes through
+        # patch --forward, where an already-applied series is skipped
+        # silently and a real conflict fails loudly
+        # "new file mode" only appears in git-diff format (0010 creates
+        # ocv_core.cpp); the older dialect lacks it
+        if "new file mode" in open(path, errors="ignore").read():
+            subprocess.run(["git", "-C", src, "apply", "--whitespace=nowarn",
+                            path], check=True, capture_output=True,
+                           stdin=subprocess.DEVNULL)
+        else:
+            subprocess.run(["patch", "-d", src, "-p1", "--forward", "-i",
+                            path], check=True, capture_output=True,
+                           stdin=subprocess.DEVNULL)
+        print("ffmpeg: applied patch {}".format(name))
 
 
 def cmd_ffmpeg(args):
@@ -227,7 +263,8 @@ def cmd_ffmpeg(args):
     root = paths.repo_root()
     uni = model.load_universe(root)
     ctx = make_ctx(root, args.triplet, args.jobs)
-    _ensure_tools(ctx, uni, args.triplet)
+    _plan = _plan_or_stored(root, args, uni)
+    _build_closure(ctx, uni, _plan, args)
     src = paths.ffmpeg_src_dir(root)
     if not os.path.isfile(os.path.join(src, "configure")):
         source = (uni.get("ffmpeg") or {}).get("source")
@@ -239,16 +276,25 @@ def cmd_ffmpeg(args):
     out = paths.ffmpeg_out(root, args.triplet)
     os.makedirs(out, exist_ok=True)
     flags = model.load_flags(root, args.triplet)
+    # believed prefix is "/" and the install is DESTDIR-staged into the
+    # sysroot: the artifact carries no build-machine paths in --prefix
+    # (privacy), while -I/-L reach the real dependency tree through the
+    # stable ASCII alias. RPATH is $ORIGIN-relative, baked once, valid
+    # both in the sysroot and in the shipped package.
+    alias = paths.sysroot_alias(root, args.triplet)
+    sysroot_inc = alias + "/include"
     base = [
         os.path.join(src, "configure"),
-        "--prefix=" + ctx["prefix"],
+        "--prefix=/",
         "--disable-doc",
         "--pkg-config=pkg-config",
-        "--extra-cflags=-I" + os.path.join(ctx["prefix"], "include"),
-        "--extra-ldflags=-L{lib} -Wl,-rpath,{lib}{dtags}".format(
-            lib=os.path.join(ctx["prefix"], "lib"),
-            dtags=" -Wl,--disable-new-dtags"
-            if ctx["triplet_cfg"]["target_os"] == "linux" else ""),
+        "--extra-cflags=-I" + sysroot_inc,
+        # ffmpeg applies --extra-cflags to CFLAGS only: C++ probes
+        # (check_pkg_config_cxx, require_cxx) would search just the host
+        # include path and miss every sysroot header
+        "--extra-cxxflags=-I" + sysroot_inc,
+        "--extra-cxxflags=-I" + sysroot_inc + "/torch/csrc/api/include",
+        "--extra-ldflags=-L" + alias + "/lib",
     ] + ctx["triplet_cfg"]["ffmpeg_flags"]
     env = env_mod.build_child_env(
         ctx["prefix"],
@@ -273,8 +319,32 @@ def cmd_ffmpeg(args):
     ienv = env_mod.build_child_env(
         ctx["prefix"], tools_bin=os.path.join(ctx["tools_prefix"], "bin"),
         cross_bin=_cross_bin(ctx))
-    rc = run_with_heartbeat(["make", "install"], out, log, env=ienv,
-                            label="ffmpeg install")
+    # DESTDIR staging: files land at <sysroot>/<prefix=/> -> sysroot root
+    rc = run_with_heartbeat(["make", "install", "DESTDIR=" + ctx["prefix"]],
+                            out, log, env=ienv, label="ffmpeg install")
+    if rc == 0 and ctx["triplet_cfg"]["target_os"] == "linux":
+        # write the runtime search path directly into the ELF: a -Wl,-rpath
+        # would travel through make/configure variable expansion and come
+        # out mangled ($ORIGIN -> "RIGIN"); patchelf has no such layers
+        import subprocess as _sp
+        _rpath = "$ORIGIN/../lib"
+        _fixed = 0
+        for _root, _, _fs in os.walk(ctx["prefix"]):
+            if not any(_root.endswith(d) for d in ("/bin", "/lib")):
+                continue
+            for _fn in _fs:
+                _p = os.path.join(_root, _fn)
+                try:
+                    with open(_p, "rb") as fh:
+                        if fh.read(4) != b"\x7fELF":
+                            continue
+                except OSError:
+                    continue
+                if _sp.run(["patchelf", "--set-rpath", _rpath, "--force-rpath",
+                            _p], capture_output=True).returncode == 0:
+                    _fixed += 1
+        print("ffmpeg: sysroot rpath -> {} on {} ELF files".format(
+            _rpath, _fixed))
     if rc != 0:
         _die("ffmpeg install failed (see {})".format(log))
     _install_pe_runtime(ctx)
@@ -318,7 +388,10 @@ def _enabled_flags(env_cmd):
                        stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                        text=True)
     first = r.stdout.splitlines()[0] if r.stdout else ""
-    for line in r.stdout.splitlines():
+    # the configuration line wraps with trailing backslashes; join the
+    # continuation lines or flags near the end of the list are invisible
+    joined = re.sub(r"\\\n", " ", r.stdout)
+    for line in joined.splitlines():
         if line.startswith("configuration:"):
             return set(line.split()), first
     return set(), first
@@ -426,7 +499,8 @@ def cmd_dist(args):
     root = paths.repo_root()
     uni = model.load_universe(root)
     ctx = make_ctx(root, args.triplet, args.jobs)
-    _ensure_tools(ctx, uni, args.triplet)
+    _plan = _plan_or_stored(root, args, uni)
+    _build_closure(ctx, uni, _plan, args)
     prefix = ctx["prefix"]
     exe = os.path.join(prefix, "bin", ctx["triplet_cfg"]["exe"])
     if not os.path.isfile(exe):
@@ -444,6 +518,29 @@ def cmd_dist(args):
     _copy_filtered(os.path.join(prefix, "include"),
                    os.path.join(stage, "include"))
     _copy_filtered(os.path.join(prefix, "lib"), os.path.join(stage, "lib"))
+
+    # relocatable .pc: entries built by this tree (believed prefix "/" or
+    # the sysroot itself) become ${pcfiledir}-relative -- the shipped
+    # package resolves its own libraries from anywhere. System-tier .pc
+    # copies (prefix=/usr) stay as-is: they honestly point at the host
+    # stack the consumer must provide.
+    sysroot_abs = os.path.realpath(prefix)
+    rel = "${pcfiledir}/../.."
+    for pc in glob.glob(os.path.join(stage, "lib", "pkgconfig", "*.pc")):
+        with open(pc, errors="ignore") as f:
+            text = f.read()
+        m = re.search(r"^prefix=(.*)$", text, re.M)
+        old_prefix = m.group(1).strip() if m else None
+        # self-built entries: prefix line and any absolute sysroot path
+        # become ${pcfiledir}-relative; system-tier entries (prefix=/usr)
+        # stay as-is -- they honestly point at the host stack
+        if old_prefix in ("/", sysroot_abs, prefix):
+            text = re.sub(r"^prefix=.*$", "prefix=" + rel,
+                          text, count=1, flags=re.M)
+        if sysroot_abs in text:
+            text = text.replace(sysroot_abs, rel)
+        with open(pc, "w") as f:
+            f.write(text)
 
     if ctx["triplet_cfg"]["target_os"] != "mingw32":
         patchelf = shutil.which("patchelf")

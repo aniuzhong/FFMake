@@ -86,3 +86,52 @@ stream = "a"
 encoder = "libvorbis"
 input = "sine=duration=0.5:sample_rate=44100"
 ext = "ogg"
+
+[[case]]
+flag = "--enable-libxevdb"
+name = "libxevdb-decode"
+kind = "capability"
+list = "decoders"
+needle = "libxevdb"
+
+[[case]]
+flag = "--enable-libxeveb"
+name = "libxeveb-encode"
+kind = "capability"
+list = "encoders"
+needle = "libxeveb"
+
+[[case]]
+flag = "--enable-libopencv"
+name = "libopencv-filter"
+kind = "capability"
+list = "filters"
+needle = "libopencv"
+
+[[case]]
+flag = "--enable-vulkan-static"
+name = "vulkan-static"
+kind = "capability"
+list = "filters"
+needle = "vulkan"
+
+[[case]]
+flag = "--enable-libmpeghdec"
+name = "libmpeghdec-decode"
+kind = "capability"
+list = "decoders"
+needle = "libmpeghdec"
+
+[[case]]
+flag = "--enable-librsvg"
+name = "librsvg-decode"
+kind = "capability"
+list = "decoders"
+needle = "librsvg"
+
+[[case]]
+flag = "--enable-libopencv"
+name = "ocv-filter"
+kind = "capability"
+list = "filters"
+needle = " ocv "

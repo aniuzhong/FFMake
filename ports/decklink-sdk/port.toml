@@ -1,0 +1,23 @@
+reason = "Blackmagic DeckLink SDK headers (OSS mirror maintained by the VLC project): ffmpeg's decklink probe only requires DeckLinkAPI.h -- compile needs headers, hardware only at runtime. Git source pinned to the VLC contrib commit"
+match_names = [
+    "decklink",
+]
+system = "custom"
+headers_only = true
+# headers are installed flat into include/: ffmpeg probes #include <DeckLinkAPI.h> at the root
+tool_bin = "include/DeckLinkAPI.h"
+steps = [
+    "mkdir -p {prefix}/include && cp -a {src}/Linux/include/* {prefix}/include/",
+]
+
+[source]
+type = "git"
+url = "https://gitlab.com/robUx4/decklink-oss.git"
+rev = "1977bf76bb5bde80d171373cf8d80dd01161679b"
+
+[triplet_overrides.mingw-x86_64-llvm]
+steps = [
+    "mkdir -p {prefix}/include/DeckLinkSDK && cp -a {src}/Win/include/* {prefix}/include/DeckLinkSDK/",
+    "mkdir -p {prefix}/include && cp -a {src}/Win/include/* {prefix}/include/",
+]
+

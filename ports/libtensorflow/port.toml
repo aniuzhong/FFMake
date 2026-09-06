@@ -23,7 +23,7 @@ url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu
 [triplet_overrides.mingw-x86_64-llvm]
 steps = [
     "mkdir -p {prefix}/include {prefix}/lib {prefix}/bin {src}/linc",
-    "cp -a {src}/include/* {prefix}/include/",
+    "rm -rf {prefix}/include/tensorflow {prefix}/include/tsl && rm -f {prefix}/lib/tensorflow* && cp -a {src}/include/* {prefix}/include/",
     "tar -xzf {prefix}/../../distfiles/libtensorflow-cpu-linux-x86_64-2.15.0.tar.gz -C {src}/linc",
     "cp -a {src}/linc/include/* {prefix}/include/",
     "cp -a {src}/lib/tensorflow.dll {prefix}/bin/",

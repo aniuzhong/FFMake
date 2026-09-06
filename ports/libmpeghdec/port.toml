@@ -1,0 +1,14 @@
+reason = "MPEG-H 3D Audio decoder (Fraunhofer r4.0.1), cmake and self-contained on linux; on mingw the FetchContent ilo dependency lacks a mingw path (MSVC-only fallback) -- feature disabled there until upstream fixes ilo"
+match_names = [
+    "libmpeghdec",
+]
+pc = "mpeghdec"
+system = "cmake"
+cmake_args = [
+    "-Dilo=OFF",
+]
+
+[source]
+type = "git"
+url = "https://github.com/Fraunhofer-IIS/mpeghdec.git"
+rev = "r4.0.1"

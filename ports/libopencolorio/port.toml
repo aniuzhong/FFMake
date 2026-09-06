@@ -1,0 +1,19 @@
+reason = "OpenColorIO color management for the ocv? -- ffmpeg probes it as a C++ class probe (core.hpp-style, same family as the libopencolorio cxx probe). Vendor-ext mode (OCIO_INSTALL_EXT_PACKAGES=BUILD) makes the build self-contained; vendor tarballs download at build time (network needed once). Investigational build: gcc 9.3 C++17 support vs OCIO v2.5 C++17 requirement is the main risk"
+match_names = [
+    "libopencolorio",
+    "OpenColorIO",
+]
+pc = "OpenColorIO"
+system = "cmake"
+cmake_args = [
+    "-DOCIO_BUILD_DOCS=OFF",
+    "-DOCIO_BUILD_TESTS=OFF",
+    "-DOCIO_BUILD_GPU_TESTS=OFF",
+    "-DOCIO_BUILD_PYTHON=OFF",
+    "-DOCIO_INSTALL_EXT_PACKAGES=ALL",
+    "-DBUILD_SHARED_LIBS=ON",
+]
+
+[source]
+type = "tar"
+url = "https://github.com/AcademySoftwareFoundation/OpenColorIO/releases/download/v2.5.2/OpenColorIO-2.5.2.tar.gz"
