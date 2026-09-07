@@ -27,6 +27,7 @@ import urllib.parse
 
 from .. import env as env_mod
 from .. import paths
+from .. import ui
 
 # Bump to invalidate all stamps after recipe changes.
 RECIPE_VERSION = 3
@@ -36,7 +37,12 @@ FALLBACK_PROXY = "http://127.0.0.1:10808"
 
 
 class BuildError(Exception):
-    pass
+    """Stage failure; `tail` carries the last lines of the stage log so a
+    UI can present the cause without reopening the file."""
+
+    def __init__(self, msg, tail=None):
+        super().__init__(msg)
+        self.tail = tail
 
 
 def _proxy_reachable(proxy_url, timeout=1.5):
@@ -73,8 +79,7 @@ def run_with_heartbeat(cmd, cwd, log_path, env=None, label=None,
             while proc.poll() is None:
                 time.sleep(interval)
                 if proc.poll() is None:
-                    print("{}: still running ({}s elapsed)".format(
-                        label, int(time.monotonic() - start)), flush=True)
+                    ui.heartbeat(label, time.monotonic() - start)
 
         threading.Thread(target=_beat, daemon=True).start()
         return proc.wait()
@@ -143,10 +148,12 @@ class Runner(object):
         if rc != 0:
             # CI run pages stream stdout only -- tail the log so a
             # failure is diagnosable without the (ephemeral) log file.
+            # The same tail rides on the exception for the build view.
+            tail = _log_tail(log_path)
             print("{} failed in {} (exit {})".format(cmd[0], cwd, rc))
-            print(_log_tail(log_path))
+            print(tail)
             raise BuildError("{} failed in {} (see {})".format(
-                cmd[0], cwd, log_path))
+                cmd[0], cwd, log_path), tail=tail)
 
     def cross_file(self, kind, bdir):
         """Emit a CMake toolchain file ("cmake") or Meson cross file ("meson")

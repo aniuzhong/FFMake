@@ -27,7 +27,7 @@ from . import paths
 from . import plan as plan_mod
 from . import validate
 from .runners import get_runner
-from .runners.base import run_with_heartbeat
+from .runners.base import BuildError, run_with_heartbeat
 
 
 def _die(msg):
@@ -136,41 +136,42 @@ def cmd_build(args):
     view = ui.BuildView(args.triplet, args.channel,
                         len(p["order"]) + len(tools),
                         plain=getattr(args, "verbose", False))
-    state = {"key": None, "backend": None, "t0": 0.0, "log": ""}
-
-    def _start(key):
-        state["key"], state["t0"] = key, time.monotonic()
-        state["backend"] = uni[key].get("system", "makefile")
-        view.port_start(key, state["backend"])
+    if getattr(args, "parallel", False):
+        workers, per_port = _parallel_shape(args.jobs)
+        view.note("build: parallel mode: {} workers x make -j{}".format(
+            workers, per_port))
 
     def _build_one_ui(key):
-        _start(key)
-        state["log"] = os.path.join(
-            ctx["logs"], state["key"]) if False else os.path.join(
-            paths.build(root), args.triplet, key, "logs")
+        # self-contained on purpose: under --parallel this runs on
+        # worker threads, so no shared mutable state
+        backend = uni[key].get("system", "makefile")
+        logs = os.path.join(paths.build(root), args.triplet, key, "logs")
+        view.port_start(key, backend)
         try:
             _build_one(ctx, uni, key, args.triplet)
         except Exception as e:
-            view.port_fail(key, state["backend"], e, state["log"])
+            view.port_fail(key, backend, e, logs)
             raise
-        view.port_done(key, state["backend"], time.monotonic() - state["t0"])
+        view.port_done(key, backend)
 
+    # stdout capture keeps runner chatter (up-to-date skips, heartbeats,
+    # failure tails) off the screen; the view prints on the real terminal
+    # and cannot be swallowed by it. --verbose dumps the chatter at the
+    # end; view.report() renders the failure tails on abort.
     with view, contextlib.redirect_stdout(io.StringIO()) as captured:
         try:
             for key in tools:
                 _build_one_ui(key)
             ports = [k for k in p["order"] if k not in tools]
             if getattr(args, "parallel", False):
-                _build_parallel(ctx, uni, ports, args.triplet, args.jobs)
+                _build_parallel(ctx, uni, ports, args.triplet, args.jobs,
+                                build_one=_build_one_ui)
             else:
                 for key in ports:
                     _build_one_ui(key)
             validate.closure_shlib_gate(ctx)
-        except Exception as e:
+        except Exception:
             view.report()
-            captured_tail = captured.getvalue().strip()[-600:]
-            if captured_tail:
-                print(captured_tail)
             raise
     view.finish()
     if getattr(args, "verbose", False) and captured.getvalue().strip():
@@ -214,20 +215,29 @@ def _build_layers(order, uni):
     return [layers[i] for i in sorted(layers)]
 
 
-def _build_parallel(ctx, uni, ports, triplet, jobs):
-    from concurrent.futures import ThreadPoolExecutor
-    from .runners.base import BuildError
+def _parallel_shape(jobs):
+    """Worker count and per-worker make parallelism for --parallel."""
     workers = max(1, jobs // 4)
     per_port = max(1, jobs // workers)
-    print("build: parallel mode: {} workers x make -j{}".format(
-        workers, per_port))
+    return workers, per_port
+
+
+def _build_parallel(ctx, uni, ports, triplet, jobs, build_one=None):
+    """Topological layers on a thread pool. build_one(key) is the per-port
+    step; it defaults to _build_one bound to this call's context, and the
+    build verb passes a UI-reporting variant instead."""
+    from concurrent.futures import ThreadPoolExecutor
+    from .runners.base import BuildError
+    if build_one is None:
+        def build_one(key):
+            _build_one(ctx, uni, key, triplet)
+    workers, per_port = _parallel_shape(jobs)
     for layer in _build_layers(ports, uni):
         lctx = dict(ctx)
         lctx["jobs"] = per_port
         errors = []
         with ThreadPoolExecutor(max_workers=workers) as ex:
-            futures = {ex.submit(_build_one, lctx, uni, key, triplet): key
-                       for key in layer}
+            futures = {ex.submit(build_one, key): key for key in layer}
             for fut in futures:
                 try:
                     fut.result()
@@ -856,6 +866,8 @@ def main(argv=None):
     common.add_argument("-j", "--jobs", type=int, default=0)
     common.add_argument("--channel", default="master",
                         help="policy channel (default: master)")
+    common.add_argument("--verbose", action="store_true",
+                        help="plain text output (no rich rendering)")
     for name, fn in (("plan", cmd_plan), ("build", cmd_build),
                      ("ffmpeg", cmd_ffmpeg), ("test", cmd_test),
                      ("dist", cmd_dist), ("all", cmd_all),
@@ -877,7 +889,12 @@ def main(argv=None):
             "--plan-only", action="store_true",
             help="fetch + replan + diff, stop before building")
     args = parser.parse_args(argv)
-    return args.fn(args)
+    try:
+        return args.fn(args)
+    except BuildError as e:
+        # a stage failure is diagnosed by its message (+ log tail, which
+        # the runner or the view already printed) -- not worth a traceback
+        sys.exit("ffmake: {}".format(e))
 
 
 if __name__ == "__main__":
