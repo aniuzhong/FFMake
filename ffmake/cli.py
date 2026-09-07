@@ -125,33 +125,74 @@ def _build_closure(ctx, uni, plan, args):
 
 
 def cmd_build(args):
+    import io
+    import contextlib
+    from . import ui
     root = paths.repo_root()
     uni = model.load_universe(root)
     p = _plan_or_stored(root, args, uni)
     ctx = make_ctx(root, args.triplet, args.jobs)
-    _build_closure(ctx, uni, p, args)
-
     tools = [k for k, d in sorted(uni.items()) if d.get("tool")]
-    for key in tools:
-        _build_one(ctx, uni, key, args.triplet)
-    ports = [k for k in p["order"] if k not in tools]
-    if getattr(args, "parallel", False):
-        _build_parallel(ctx, uni, ports, args.triplet, args.jobs)
-    else:
-        for key in ports:
+    view = ui.BuildView(args.triplet, args.channel,
+                        len(p["order"]) + len(tools),
+                        plain=getattr(args, "verbose", False))
+    state = {"key": None, "backend": None, "t0": 0.0, "log": ""}
+
+    def _start(key):
+        state["key"], state["t0"] = key, time.monotonic()
+        state["backend"] = uni[key].get("system", "makefile")
+        view.port_start(key, state["backend"])
+
+    def _build_one_ui(key):
+        _start(key)
+        state["log"] = os.path.join(
+            ctx["logs"], state["key"]) if False else os.path.join(
+            paths.build(root), args.triplet, key, "logs")
+        try:
             _build_one(ctx, uni, key, args.triplet)
-    validate.closure_shlib_gate(ctx)
-    print("build: closure complete ({} ports)".format(len(p["order"])))
+        except Exception as e:
+            view.port_fail(key, state["backend"], e, state["log"])
+            raise
+        view.port_done(key, state["backend"], time.monotonic() - state["t0"])
+
+    with view, contextlib.redirect_stdout(io.StringIO()) as captured:
+        try:
+            for key in tools:
+                _build_one_ui(key)
+            ports = [k for k in p["order"] if k not in tools]
+            if getattr(args, "parallel", False):
+                _build_parallel(ctx, uni, ports, args.triplet, args.jobs)
+            else:
+                for key in ports:
+                    _build_one_ui(key)
+            validate.closure_shlib_gate(ctx)
+        except Exception as e:
+            view.report()
+            captured_tail = captured.getvalue().strip()[-600:]
+            if captured_tail:
+                print(captured_tail)
+            raise
+    view.finish()
+    if getattr(args, "verbose", False) and captured.getvalue().strip():
+        print(captured.getvalue())
+
+
+def _merged(uni, key, triplet):
+    dep = uni[key]
+    ov = dep.get("triplet_overrides", {}).get(triplet)
+    return {**dep, **ov} if ov else dep
 
 
 def _build_one(ctx, uni, key, triplet):
-    dep = uni[key]
-    ov = dep.get("triplet_overrides", {}).get(triplet)
-    if ov:
-        # per-triplet port tweaks overlay before the runner sees the
-        # recipe (the predecessor loop's _ensure_dep contract)
-        dep = {**dep, **ov}
+    import shutil
+    dep = _merged(uni, key, triplet)
     runner = get_runner(dep.get("system", "makefile"), ctx)
+    if not runner.up_to_date(key, dep):
+        # a stamp-miss means this port will be reconfigured: stale build
+        # trees carry absolute paths from their original location
+        # (.deps/*.Po, CMakeCache) and must not be reused
+        bdir = paths.port_build_dir(ctx["root"], runner.ns(dep), key)
+        shutil.rmtree(bdir, ignore_errors=True)
     runner.build(key, dep)
     from . import fixup
     fixup.apply(ctx, key, dep)
@@ -294,7 +335,8 @@ def cmd_ffmpeg(args):
         # include path and miss every sysroot header
         "--extra-cxxflags=-I" + sysroot_inc,
         "--extra-cxxflags=-I" + sysroot_inc + "/torch/csrc/api/include",
-        "--extra-ldflags=-L" + alias + "/lib",
+        "--extra-ldflags=-L" + alias + "/lib"
+        " -Wl,-rpath-link," + alias + "/lib",
     ] + ctx["triplet_cfg"]["ffmpeg_flags"]
     env = env_mod.build_child_env(
         ctx["prefix"],
@@ -413,11 +455,12 @@ def cmd_test(args):
     outdir = os.path.join(ctx["logs"], "smoke")
     os.makedirs(outdir, exist_ok=True)
     failed, ran = [], 0
+    from . import ui
     for case in smoke.load_cases(root):
         name = case["name"]
         if case["flag"] not in enabled:
-            print("  {:<18} SKIP   ({} not enabled)".format(name,
-                                                            case["flag"]))
+            ui.smoke_line(name, "SKIP",
+                          "({} not enabled)".format(case["flag"]))
             continue
         out = os.path.join(outdir, name + "." + case.get("ext", "log"))
         stream = case.get("stream", "v")
@@ -456,11 +499,10 @@ def cmd_test(args):
             detail = "{} bytes".format(os.path.getsize(out))
         if ok:
             ran += 1
-            print("  {:<18} PASS   {}".format(name, detail))
+            ui.smoke_line(name, "PASS", detail)
         else:
             failed.append(name)
-            print("  {:<18} FAIL   {}".format(name,
-                                              r.stdout.strip()[:160]))
+            ui.smoke_line(name, "FAIL", r.stdout.strip()[:160])
     for exe in ("ffmpeg", "ffprobe", "ffplay"):
         p = os.path.join(ctx["prefix"], "bin",
                          exe + ctx["triplet_cfg"]["exe"].replace("ffmpeg",
@@ -471,8 +513,8 @@ def cmd_test(args):
         print("  {:<18} {}   {}".format("bin/" + exe, present,
                                         "" if present == "PASS" else p))
     cases = smoke.load_cases(root)
-    print("summary: {} passed, {} failed, {} cases total".format(
-        ran, len(failed), len(cases)))
+    ui.smoke_summary(ran, len(failed), len(cases) - ran - len(failed),
+                     len(cases))
     if failed:
         _die("smoke matrix failed: {}".format(", ".join(failed)))
     return 0
