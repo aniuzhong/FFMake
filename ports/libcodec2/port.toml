@@ -8,7 +8,14 @@ cmake_args = [
     "-DBUILD_SHARED_LIBS=ON",
     "-DUNITTEST=OFF",
 ]
-prefixup = "curl -fsSL -o {src}/cmake/GetPrerequisites.cmake https://raw.githubusercontent.com/Kitware/CMake/v3.20.6/Modules/GetPrerequisites.cmake"
+prefixup = "[ -f {src}/cmake/GetPrerequisites.cmake ] || curl -fsSL -o {src}/cmake/GetPrerequisites.cmake https://raw.githubusercontent.com/Kitware/CMake/v3.20.6/Modules/GetPrerequisites.cmake"
+
+# codec2's CMakeLists includes GetPrerequisites.cmake, which modern CMake
+# no longer ships, so the recipe vendors it at build time. The download is
+# guarded: the seeded src tree keeps the vendored file (this port has no
+# sed -i prefixup, so sanitize never wipes it) and offline cold rebuilds
+# skip the fetch. A from-mirror-only bootstrap still needs one online
+# pass -- or vendor the file into the seed layer.
 
 [source]
 type = "git"

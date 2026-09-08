@@ -4,6 +4,10 @@ Host tools are shared across triplets (vcpkg downloads/tools analog).
 Console-entry wrappers are generated into tools/bin with a PYTHONPATH
 pointing at the pip --target dir, because `pip install --target` does not
 reliably create executables.
+
+Offline seed: pip itself is a network step, so a provisioned target dir
+with every wrapper present is accepted as done (the binary runner's
+presence philosophy) -- a wiped stamp re-earns itself without network.
 """
 
 import os
@@ -22,16 +26,31 @@ class PipRunner(Runner):
         cfg = dep.get("pip") or {}
         tools = self.ctx["tools_prefix"]
         target = os.path.join(tools, cfg.get("target", "lib"))
+        wrappers = cfg.get("wrappers", {})
+        if self._seeded(target, wrappers):
+            print("dep {}: provisioned (seeded), skip pip".format(key))
+            self.write_stamp(key, dep)
+            return
         cmd = [sys.executable, "-m", "pip", "install",
                "--target", target, "--upgrade"] + list(cfg.get("require", []))
         self._run_net(cmd, self.ctx["root"],
                       os.path.join(self.ctx["logs"], key + "_pip.log"))
-        for name, spec in sorted(cfg.get("wrappers", {}).items()):
+        for name, spec in sorted(wrappers.items()):
             module, func = spec.split(":")
             self._write_wrapper(os.path.join(tools, "bin", name),
                                 target, module, func)
         self.write_stamp(key, dep)
         print("dep {}: installed into {}".format(key, target))
+
+    @staticmethod
+    def _seeded(target, wrappers):
+        if not os.path.isdir(target) or not os.listdir(target):
+            return False
+        for name in wrappers:
+            if not os.path.exists(os.path.join(
+                    os.path.dirname(target), "bin", name)):
+                return False
+        return True
 
     @staticmethod
     def _write_wrapper(path, target, module, func):

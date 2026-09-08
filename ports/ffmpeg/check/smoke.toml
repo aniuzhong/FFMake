@@ -1,3 +1,18 @@
+# Smoke matrix, one-to-one with the enabled feature flags of each
+# triplet: a case runs only when the built binary's configuration
+# contains its flag. Kinds:
+#   encode      lavfi source -> encoder -> non-empty output file
+#               (optional args[] ride before the output path)
+#   filter      lavfi source -> filter chain -> output (stream "a" -> -af)
+#   decode      input produced by an EARLIER case in this file
+#   capability  needle listed in `ffmpeg -<list>` output -- proves the
+#               component compiled, linked and registered; used for all
+#               hardware/device/protocol features that cannot open real
+#               hardware in CI
+# Every active --enable-* flag must map to a case here or to a waiver in
+# the WAIVED section at the bottom; tools/smoke_coverage.py enforces it.
+
+# ---- video encoders (real invocation) ------------------------------------
 [[case]]
 flag = "--enable-libx264"
 name = "libx264-encode"
@@ -15,34 +30,12 @@ input = "testsrc2=duration=0.5:size=640x360:rate=30"
 ext = "mp4"
 
 [[case]]
-flag = "--enable-libzimg"
-name = "zscale-16bit"
-kind = "filter"
-filter = "setparams=colorspace=bt709:color_primaries=bt709:color_trc=bt709,zscale=transfer=linear,format=yuv444p10,zscale=transfer=bt709"
-input = "testsrc2=duration=0.5:size=640x360:rate=30"
-ext = "png"
-
-[[case]]
-flag = "--enable-libdav1d"
-name = "libdav1d-embed"
-kind = "capability"
-list = "decoders"
-needle = "libdav1d"
-
-[[case]]
 flag = "--enable-libsvtav1"
 name = "libsvtav1-encode"
 kind = "encode"
 encoder = "libsvtav1"
 input = "testsrc2=duration=0.5:size=640x360:rate=30"
 ext = "mkv"
-
-[[case]]
-flag = "--enable-libdav1d"
-name = "libdav1d-decode"
-kind = "decode"
-decoder = "libdav1d"
-input_file = "libsvtav1-encode.mkv"
 
 [[case]]
 flag = "--enable-libaom"
@@ -61,6 +54,110 @@ input = "testsrc2=duration=0.5:size=640x360:rate=30"
 ext = "webm"
 
 [[case]]
+flag = "--enable-libtheora"
+name = "libtheora-encode"
+kind = "encode"
+encoder = "libtheora"
+input = "testsrc2=duration=0.2:size=160x120:rate=15"
+ext = "ogv"
+
+[[case]]
+flag = "--enable-libkvazaar"
+name = "libkvazaar-encode"
+kind = "encode"
+encoder = "libkvazaar"
+input = "testsrc2=duration=0.2:size=160x120:rate=15"
+ext = "265"
+args = ["-f", "hevc"]
+
+[[case]]
+flag = "--enable-librav1e"
+name = "librav1e-encode"
+kind = "encode"
+encoder = "librav1e"
+input = "testsrc2=duration=0.2:size=160x120:rate=15"
+ext = "ivf"
+
+[[case]]
+flag = "--enable-libopenh264"
+name = "libopenh264-encode"
+kind = "encode"
+encoder = "libopenh264"
+input = "testsrc2=duration=0.2:size=160x120:rate=15"
+ext = "mp4"
+
+[[case]]
+flag = "--enable-libxvid"
+name = "libxvid-encode"
+kind = "encode"
+encoder = "libxvid"
+input = "testsrc2=duration=0.2:size=160x120:rate=15"
+ext = "avi"
+
+[[case]]
+flag = "--enable-libopenjpeg"
+name = "libopenjpeg-encode"
+kind = "encode"
+encoder = "libopenjpeg"
+input = "testsrc2=duration=0.2:size=160x120:rate=15"
+ext = "jp2"
+args = ["-frames:v", "1"]
+
+[[case]]
+flag = "--enable-libwebp"
+name = "libwebp-encode"
+kind = "encode"
+encoder = "libwebp"
+input = "testsrc2=duration=0.2:size=160x120:rate=15"
+ext = "webp"
+args = ["-frames:v", "1"]
+
+[[case]]
+flag = "--enable-libjxl"
+name = "libjxl-encode"
+kind = "encode"
+encoder = "libjxl"
+input = "testsrc2=duration=0.2:size=160x120:rate=15"
+ext = "jxl"
+args = ["-frames:v", "1"]
+
+[[case]]
+flag = "--enable-liboapv"
+name = "liboapv-encode"
+kind = "encode"
+encoder = "liboapv"
+input = "testsrc2=duration=0.2:size=160x120:rate=15"
+ext = "apv"
+args = ["-f", "apv"]
+
+[[case]]
+flag = "--enable-libvvenc"
+name = "libvvenc-encode"
+kind = "encode"
+encoder = "libvvenc"
+input = "testsrc2=duration=0.2:size=160x120:rate=15"
+ext = "266"
+args = ["-f", "vvc"]
+
+[[case]]
+flag = "--enable-libxeve"
+name = "libxeve-encode"
+kind = "encode"
+encoder = "libxeve"
+input = "testsrc2=duration=0.2:size=160x120:rate=15"
+ext = "evc"
+args = ["-f", "evc"]
+
+[[case]]
+flag = "--enable-libxavs2"
+name = "libxavs2-encode"
+kind = "encode"
+encoder = "libxavs2"
+input = "testsrc2=duration=0.2:size=160x120:rate=15"
+ext = "avs2"
+
+# ---- audio encoders (real invocation) -------------------------------------
+[[case]]
 flag = "--enable-libmp3lame"
 name = "libmp3lame-encode"
 kind = "encode"
@@ -68,6 +165,70 @@ stream = "a"
 encoder = "libmp3lame"
 input = "sine=duration=0.5:sample_rate=44100"
 ext = "mp3"
+
+[[case]]
+flag = "--enable-libfdk-aac"
+name = "libfdk-aac-encode"
+kind = "encode"
+stream = "a"
+encoder = "libfdk_aac"
+input = "sine=duration=0.3:sample_rate=44100"
+ext = "m4a"
+
+[[case]]
+flag = "--enable-libshine"
+name = "libshine-encode"
+kind = "encode"
+stream = "a"
+encoder = "libshine"
+input = "sine=duration=0.3:sample_rate=44100"
+ext = "mp3"
+
+[[case]]
+flag = "--enable-libgsm"
+name = "libgsm-encode"
+kind = "encode"
+stream = "a"
+encoder = "libgsm"
+input = "sine=duration=0.3:sample_rate=8000"
+ext = "gsm"
+
+[[case]]
+flag = "--enable-libopencore-amrnb"
+name = "libopencore-amrnb-encode"
+kind = "encode"
+stream = "a"
+encoder = "libopencore_amrnb"
+input = "sine=duration=0.3:sample_rate=8000"
+ext = "amr"
+args = ["-strict", "-2"]
+
+[[case]]
+flag = "--enable-libvo-amrwbenc"
+name = "libvo-amrwbenc-encode"
+kind = "encode"
+stream = "a"
+encoder = "libvo_amrwbenc"
+input = "sine=duration=0.3:sample_rate=16000"
+ext = "amr"
+
+[[case]]
+flag = "--enable-libspeex"
+name = "libspeex-encode"
+kind = "encode"
+stream = "a"
+encoder = "libspeex"
+input = "sine=duration=0.3:sample_rate=16000"
+ext = "spx"
+
+[[case]]
+flag = "--enable-libtwolame"
+name = "libtwolame-encode"
+kind = "encode"
+stream = "a"
+encoder = "libtwolame"
+input = "sine=duration=0.3:sample_rate=44100"
+ext = "mp2"
 
 [[case]]
 flag = "--enable-libopus"
@@ -87,26 +248,152 @@ encoder = "libvorbis"
 input = "sine=duration=0.5:sample_rate=44100"
 ext = "ogg"
 
+# ---- filters (real invocation) --------------------------------------------
 [[case]]
-flag = "--enable-libxevdb"
-name = "libxevdb-decode"
-kind = "capability"
-list = "decoders"
-needle = "libxevdb"
+flag = "--enable-libzimg"
+name = "zscale-16bit"
+kind = "filter"
+filter = "setparams=colorspace=bt709:color_primaries=bt709:color_trc=bt709,zscale=transfer=linear,format=yuv444p10,zscale=transfer=bt709"
+input = "testsrc2=duration=0.5:size=640x360:rate=30"
+ext = "png"
 
 [[case]]
-flag = "--enable-libxeveb"
-name = "libxeveb-encode"
-kind = "capability"
-list = "encoders"
-needle = "libxeveb"
+flag = "--enable-libsoxr"
+name = "soxr-resample"
+kind = "filter"
+stream = "a"
+filter = "aresample=8000:resampler=soxr"
+input = "sine=duration=0.3:sample_rate=44100"
+ext = "wav"
+
+# ---- real decodes (consumers of producers above) ---------------------------
+[[case]]
+flag = "--enable-libdav1d"
+name = "libdav1d-decode"
+kind = "decode"
+decoder = "libdav1d"
+input_file = "libsvtav1-encode.mkv"
 
 [[case]]
-flag = "--enable-libopencv"
-name = "libopencv-filter"
+flag = "--enable-libjxl"
+name = "libjxl-decode"
+kind = "decode"
+decoder = "libjxl"
+input_file = "libjxl-encode.jxl"
+
+# ---- capability: devices (linked + registered; no hardware open) -----------
+[[case]]
+flag = "--enable-decklink"
+name = "decklink-device"
 kind = "capability"
-list = "filters"
-needle = "libopencv"
+list = "devices"
+needle = "decklink"
+
+[[case]]
+flag = "--enable-libdrm"
+name = "kmsgrab-device"
+kind = "capability"
+list = "devices"
+needle = "kmsgrab"
+
+[[case]]
+flag = "--enable-libxcb"
+name = "x11grab-device"
+kind = "capability"
+list = "devices"
+needle = "x11grab"
+
+[[case]]
+flag = "--enable-libv4l2"
+name = "v4l2-device"
+kind = "capability"
+list = "devices"
+needle = "v4l2"
+
+[[case]]
+flag = "--enable-libcaca"
+name = "caca-device"
+kind = "capability"
+list = "devices"
+needle = "caca"
+
+[[case]]
+flag = "--enable-libcdio"
+name = "libcdio-device"
+kind = "capability"
+list = "devices"
+needle = "libcdio"
+
+[[case]]
+flag = "--enable-libdc1394"
+name = "libdc1394-device"
+kind = "capability"
+list = "devices"
+needle = "libdc1394"
+
+[[case]]
+flag = "--enable-libiec61883"
+name = "iec61883-device"
+kind = "capability"
+list = "devices"
+needle = "iec61883"
+
+[[case]]
+flag = "--enable-libjack"
+name = "jack-device"
+kind = "capability"
+list = "devices"
+needle = "jack"
+
+[[case]]
+flag = "--enable-libpulse"
+name = "pulse-device"
+kind = "capability"
+list = "devices"
+needle = "pulse"
+
+[[case]]
+flag = "--enable-openal"
+name = "openal-device"
+kind = "capability"
+list = "devices"
+needle = "openal"
+
+# ---- capability: hwaccels ---------------------------------------------------
+[[case]]
+flag = "--enable-ffnvcodec"
+name = "cuda-hwaccel"
+kind = "capability"
+list = "hwaccels"
+needle = "cuda"
+
+[[case]]
+flag = "--enable-nvdec"
+name = "nvdec-hwaccel"
+kind = "capability"
+list = "hwaccels"
+needle = "cuda"
+
+[[case]]
+flag = "--enable-vaapi"
+name = "vaapi-hwaccel"
+kind = "capability"
+list = "hwaccels"
+needle = "vaapi"
+
+[[case]]
+flag = "--enable-vdpau"
+name = "vdpau-hwaccel"
+kind = "capability"
+list = "hwaccels"
+needle = "vdpau"
+
+[[case]]
+flag = "--enable-vulkan"
+name = "vulkan-hwaccel"
+kind = "capability"
+list = "hwaccels"
+needle = "vulkan"
 
 [[case]]
 flag = "--enable-vulkan-static"
@@ -114,6 +401,126 @@ name = "vulkan-static"
 kind = "capability"
 list = "filters"
 needle = "vulkan"
+
+[[case]]
+flag = "--enable-libvpl"
+name = "qsv-hwaccel"
+kind = "capability"
+list = "hwaccels"
+needle = "qsv"
+
+[[case]]
+flag = "--enable-opencl"
+name = "opencl-hwaccel"
+kind = "capability"
+list = "hwaccels"
+needle = "opencl"
+
+# ---- capability: encoders/decoders ------------------------------------------
+[[case]]
+flag = "--enable-amf"
+name = "amf-encoders"
+kind = "capability"
+list = "encoders"
+needle = "_amf"
+
+[[case]]
+flag = "--enable-cuda-nvcc"
+name = "nvenc-encoders"
+kind = "capability"
+list = "encoders"
+needle = "_nvenc"
+
+[[case]]
+flag = "--enable-nvenc"
+name = "nvenc-encoders2"
+kind = "capability"
+list = "encoders"
+needle = "_nvenc"
+
+[[case]]
+flag = "--enable-cuvid"
+name = "cuvid-decoders"
+kind = "capability"
+list = "decoders"
+needle = "_cuvid"
+
+[[case]]
+flag = "--enable-libsvtjpegxs"
+name = "libsvtjpegxs-encoder"
+kind = "capability"
+list = "encoders"
+needle = "libsvtjpegxs"
+
+[[case]]
+flag = "--enable-libaribb24"
+name = "libaribb24-decoder"
+kind = "capability"
+list = "decoders"
+needle = "libaribb24"
+
+[[case]]
+flag = "--enable-libaribcaption"
+name = "aribcaption-decoder"
+kind = "capability"
+list = "decoders"
+needle = "aribcaption"
+
+[[case]]
+flag = "--enable-libcodec2"
+name = "codec2-decoder"
+kind = "capability"
+list = "decoders"
+needle = "codec2"
+
+[[case]]
+flag = "--enable-libdavs2"
+name = "libdavs2-decoder"
+kind = "capability"
+list = "decoders"
+needle = "libdavs2"
+
+[[case]]
+flag = "--enable-libuavs3d"
+name = "libuavs3d-decoder"
+kind = "capability"
+list = "decoders"
+needle = "libuavs3d"
+
+[[case]]
+flag = "--enable-libilbc"
+name = "libilbc-decoder"
+kind = "capability"
+list = "decoders"
+needle = "libilbc"
+
+[[case]]
+flag = "--enable-libopencore-amrwb"
+name = "libopencore-amrwb-decoder"
+kind = "capability"
+list = "decoders"
+needle = "libopencore_amrwb"
+
+[[case]]
+flag = "--enable-liblc3"
+name = "liblc3-decoder"
+kind = "capability"
+list = "decoders"
+needle = "liblc3"
+
+[[case]]
+flag = "--enable-libzvbi"
+name = "libzvbi-teletext-decoder"
+kind = "capability"
+list = "decoders"
+needle = "libzvbi_teletextdec"
+
+[[case]]
+flag = "--enable-libdav1d"
+name = "libdav1d-embed"
+kind = "capability"
+list = "decoders"
+needle = "libdav1d"
 
 [[case]]
 flag = "--enable-libmpeghdec"
@@ -129,9 +536,359 @@ kind = "capability"
 list = "decoders"
 needle = "librsvg"
 
+# ---- capability: filters -----------------------------------------------------
+[[case]]
+flag = "--enable-libass"
+name = "subtitles-filter"
+kind = "capability"
+list = "filters"
+needle = "subtitles"
+
+[[case]]
+flag = "--enable-libfreetype"
+name = "freetype-drawtext"
+kind = "capability"
+list = "filters"
+needle = "drawtext"
+
+[[case]]
+flag = "--enable-fontconfig"
+name = "fontconfig-drawtext"
+kind = "capability"
+list = "filters"
+needle = "drawtext"
+
+[[case]]
+flag = "--enable-libfribidi"
+name = "fribidi-drawtext"
+kind = "capability"
+list = "filters"
+needle = "drawtext"
+
+[[case]]
+flag = "--enable-libharfbuzz"
+name = "harfbuzz-drawtext"
+kind = "capability"
+list = "filters"
+needle = "drawtext"
+
+[[case]]
+flag = "--enable-frei0r"
+name = "frei0r-filter"
+kind = "capability"
+list = "filters"
+needle = "frei0r_src"
+
+[[case]]
+flag = "--enable-ladspa"
+name = "ladspa-filter"
+kind = "capability"
+list = "filters"
+needle = "ladspa"
+
+[[case]]
+flag = "--enable-lv2"
+name = "lv2-filter"
+kind = "capability"
+list = "filters"
+needle = "lv2"
+
+[[case]]
+flag = "--enable-libbs2b"
+name = "bs2b-filter"
+kind = "capability"
+list = "filters"
+needle = "bs2b"
+
+[[case]]
+flag = "--enable-libflite"
+name = "flite-filter"
+kind = "capability"
+list = "filters"
+needle = "flite"
+
+[[case]]
+flag = "--enable-libmysofa"
+name = "sofalizer-filter"
+kind = "capability"
+list = "filters"
+needle = "sofalizer"
+
+[[case]]
+flag = "--enable-liblensfun"
+name = "lensfun-filter"
+kind = "capability"
+list = "filters"
+needle = "lensfun"
+
+[[case]]
+flag = "--enable-libvidstab"
+name = "vidstab-filter"
+kind = "capability"
+list = "filters"
+needle = "vidstab"
+
+[[case]]
+flag = "--enable-libvmaf"
+name = "libvmaf-filter"
+kind = "capability"
+list = "filters"
+needle = "libvmaf"
+
+[[case]]
+flag = "--enable-libplacebo"
+name = "libplacebo-filter"
+kind = "capability"
+list = "filters"
+needle = "libplacebo"
+
+[[case]]
+flag = "--enable-libqrencode"
+name = "qrencode-filter"
+kind = "capability"
+list = "filters"
+needle = "qrencode"
+
+[[case]]
+flag = "--enable-libquirc"
+name = "quirc-filter"
+kind = "capability"
+list = "filters"
+needle = "quirc"
+
+[[case]]
+flag = "--enable-librubberband"
+name = "rubberband-filter"
+kind = "capability"
+list = "filters"
+needle = "rubberband"
+
+[[case]]
+flag = "--enable-libtesseract"
+name = "ocr-filter"
+kind = "capability"
+list = "filters"
+needle = " ocr "
+
+[[case]]
+flag = "--enable-pocketsphinx"
+name = "asr-filter"
+kind = "capability"
+list = "filters"
+needle = " asr "
+
+[[case]]
+flag = "--enable-whisper"
+name = "whisper-filter"
+kind = "capability"
+list = "filters"
+needle = "whisper"
+
+[[case]]
+flag = "--enable-liblcevc_dec"
+name = "lcevc-filter"
+kind = "capability"
+list = "filters"
+needle = " lcevc "
+
+[[case]]
+flag = "--enable-libopencolorio"
+name = "ocio-filter"
+kind = "capability"
+list = "filters"
+needle = " ocio "
+
+[[case]]
+flag = "--enable-libonnxruntime"
+name = "dnn-onnxruntime"
+kind = "capability"
+list = "filters"
+needle = "dnn_processing"
+
+[[case]]
+flag = "--enable-libtensorflow"
+name = "dnn-tensorflow"
+kind = "capability"
+list = "filters"
+needle = "dnn_processing"
+
+[[case]]
+flag = "--enable-libtorch"
+name = "dnn-torch"
+kind = "capability"
+list = "filters"
+needle = "dnn_processing"
+
+[[case]]
+flag = "--enable-libopenvino"
+name = "dnn-openvino"
+kind = "capability"
+list = "filters"
+needle = "dnn_processing"
+
+[[case]]
+flag = "--enable-libopencv"
+name = "libopencv-filter"
+kind = "capability"
+list = "filters"
+needle = "libopencv"
+
 [[case]]
 flag = "--enable-libopencv"
 name = "ocv-filter"
 kind = "capability"
 list = "filters"
 needle = " ocv "
+
+# ---- capability: protocols ---------------------------------------------------
+[[case]]
+flag = "--enable-openssl"
+name = "tls-protocol"
+kind = "capability"
+list = "protocols"
+needle = "https"
+
+[[case]]
+flag = "--enable-libsrt"
+name = "srt-protocol"
+kind = "capability"
+list = "protocols"
+needle = "srt"
+
+[[case]]
+flag = "--enable-libssh"
+name = "sftp-protocol"
+kind = "capability"
+list = "protocols"
+needle = "sftp"
+
+[[case]]
+flag = "--enable-librabbitmq"
+name = "amqp-protocol"
+kind = "capability"
+list = "protocols"
+needle = "amqp"
+
+[[case]]
+flag = "--enable-librist"
+name = "rist-protocol"
+kind = "capability"
+list = "protocols"
+needle = "rist"
+
+[[case]]
+flag = "--enable-libzmq"
+name = "zmq-protocol"
+kind = "capability"
+list = "protocols"
+needle = "zmq"
+
+[[case]]
+flag = "--enable-libsmbclient"
+name = "smb-protocol"
+kind = "capability"
+list = "protocols"
+needle = "smb"
+
+[[case]]
+flag = "--enable-gmp"
+name = "rtmpe-protocol"
+kind = "capability"
+list = "protocols"
+needle = "rtmpe"
+
+[[case]]
+flag = "--enable-libbluray"
+name = "bluray-protocol"
+kind = "capability"
+list = "protocols"
+needle = "bluray"
+
+# ---- capability: demuxers/muxers ----------------------------------------------
+[[case]]
+flag = "--enable-avisynth"
+name = "avisynth-demuxer"
+kind = "capability"
+list = "demuxers"
+needle = "avisynth"
+
+[[case]]
+flag = "--enable-vapoursynth"
+name = "vapoursynth-demuxer"
+kind = "capability"
+list = "demuxers"
+needle = "vapoursynth"
+
+[[case]]
+flag = "--enable-libgme"
+name = "libgme-demuxer"
+kind = "capability"
+list = "demuxers"
+needle = "libgme"
+
+[[case]]
+flag = "--enable-libmodplug"
+name = "libmodplug-demuxer"
+kind = "capability"
+list = "demuxers"
+needle = "libmodplug"
+
+[[case]]
+flag = "--enable-libopenmpt"
+name = "libopenmpt-demuxer"
+kind = "capability"
+list = "demuxers"
+needle = "libopenmpt"
+
+[[case]]
+flag = "--enable-libdvdnav"
+name = "dvdvideo-demuxer"
+kind = "capability"
+list = "demuxers"
+needle = "dvdvideo"
+
+[[case]]
+flag = "--enable-libdvdread"
+name = "dvdvideo-demuxer2"
+kind = "capability"
+list = "demuxers"
+needle = "dvdvideo"
+
+[[case]]
+flag = "--enable-libxml2"
+name = "dash-demuxer"
+kind = "capability"
+list = "demuxers"
+needle = "dash"
+
+[[case]]
+flag = "--enable-chromaprint"
+name = "chromaprint-muxer"
+kind = "capability"
+list = "muxers"
+needle = "chromaprint"
+
+# ---- WAIVED flags (no case; each with a reason) --------------------------------
+# --enable-gpl / --enable-version3 / --enable-nonfree
+#     license switches, not runtime features.
+# --enable-libxcb-shape / -shm / -xfixes
+#     build variants of the same libxcb stack; the libxcb case (x11grab)
+#     exercises the compiled path.
+# --enable-librtmp
+#     registers protocol names identical to the native RTMP stack, so a
+#     listing cannot distinguish it; proven by the configuration line.
+# --enable-libsnappy
+#     internal compressor for the hap codec; no CLI surface.
+# --enable-cairo / --enable-lcms2 / --enable-libklvanc
+#     build-time support libraries; no CLI surface.
+# --enable-libshaderc
+#     transitive: the vulkan-static filter case exercises the GLSL->SPIRV
+#     path that libshaderc feeds.
+# --enable-sdl2 / --enable-opengl
+#     upstream removed the corresponding output devices; nothing
+#     registers under these flags in current FFmpeg.
+# --enable-libxevd
+#     DRIFT: configure accepts the flag, but no libxevd decoder is
+#     registered in the built binary (only the native "evc" decoder).
+#     Revisit: either the flag is inert upstream or the check path
+#     silently passed. Tracked as a known issue.

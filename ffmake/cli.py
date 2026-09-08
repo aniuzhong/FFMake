@@ -133,8 +133,9 @@ def cmd_build(args):
     p = _plan_or_stored(root, args, uni)
     ctx = make_ctx(root, args.triplet, args.jobs)
     tools = [k for k, d in sorted(uni.items()) if d.get("tool")]
+    ports = [k for k in p["order"] if k not in tools]
     view = ui.BuildView(args.triplet, args.channel,
-                        len(p["order"]) + len(tools),
+                        len(tools) + len(ports),
                         plain=getattr(args, "verbose", False))
     if getattr(args, "parallel", False):
         workers, per_port = _parallel_shape(args.jobs)
@@ -162,7 +163,6 @@ def cmd_build(args):
         try:
             for key in tools:
                 _build_one_ui(key)
-            ports = [k for k in p["order"] if k not in tools]
             if getattr(args, "parallel", False):
                 _build_parallel(ctx, uni, ports, args.triplet, args.jobs,
                                 build_one=_build_one_ui)
@@ -477,12 +477,16 @@ def cmd_test(args):
         if case["kind"] == "encode":
             cmd = base + ["-hide_banner", "-loglevel", "error",
                           "-f", "lavfi", "-i", case["input"],
-                          "-c:" + stream, case["encoder"], "-y", out]
+                          "-c:" + stream, case["encoder"]] \
+                + case.get("args", []) + ["-y", out]
         elif case["kind"] == "filter":
+            fopt = "-af" if stream == "a" else "-vf"
             cmd = base + ["-hide_banner", "-loglevel", "error",
-                          "-f", "lavfi", "-i", case["input"],
-                          "-vf", case["filter"], "-frames:v", "1", "-y",
-                          out]
+                          "-f", "lavfi", "-i", case["input"], fopt,
+                          case["filter"]]
+            if stream != "a":
+                cmd += ["-frames:v", "1"]
+            cmd += ["-y", out]
         elif case["kind"] == "decode":
             src = os.path.join(outdir, case["input_file"])
             if not os.path.isfile(src):

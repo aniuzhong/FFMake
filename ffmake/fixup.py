@@ -96,12 +96,52 @@ def _simple_pc(ctx, key, dep):
     print("hygiene simple_pc: wrote {} (Libs: {})".format(path, libs))
 
 
+# Every port shares one sysroot: without this memo the per-port fixup
+# would re-probe the same bin/ files ~len(closure) times per run.
+_rpath_checked = set()
+
+
+def _bin_rpath(ctx):
+    """Port-shipped executables (glslc, ...) must be self-contained in the
+    scrubbed L0 env: later consumers -- the ffmpeg configure probes --
+    resolve their private libs via RPATH alone. The rpath walk in
+    cmd_ffmpeg runs at install time, after that configure, so the
+    normalization has to happen here, per port, or a cold rebuild loses
+    every glsl-dependent component silently."""
+    if ctx["triplet_cfg"].get("target_os") != "linux":
+        return
+    import subprocess as _sp
+    bindir = os.path.join(ctx["prefix"], "bin")
+    if not os.path.isdir(bindir):
+        return
+    want = "$ORIGIN/../lib"
+    for name in sorted(os.listdir(bindir)):
+        path = os.path.join(bindir, name)
+        if path in _rpath_checked:
+            continue
+        _rpath_checked.add(path)
+        try:
+            with open(path, "rb") as fh:
+                if fh.read(4) != b"\x7fELF":
+                    continue
+        except OSError:
+            continue
+        cur = _sp.run(["patchelf", "--print-rpath", path],
+                      capture_output=True, text=True).stdout.strip()
+        if cur == want:
+            continue
+        if _sp.run(["patchelf", "--set-rpath", want, "--force-rpath", path],
+                   capture_output=True).returncode == 0:
+            print("hygiene bin_rpath: {} -> {}".format(name, want))
+
+
 def apply(ctx, key, dep):
     ctx = dict(ctx)
     ctx["key"] = key
     _share_pc(ctx)
     _mingw_bin_dlls(ctx)
     _simple_pc(ctx, key, dep)
+    _bin_rpath(ctx)
     path = os.path.join(ctx["root"], "ports", key, "fixup.py")
     if not os.path.isfile(path):
         return
